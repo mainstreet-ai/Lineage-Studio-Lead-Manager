@@ -1,590 +1,1180 @@
-import { useState, useRef, useCallback, useMemo } from "react";
-import Papa from "papaparse";
-import * as XLSX from "sheetjs";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lineage Studio — Lead Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   CSS CUSTOM PROPERTIES & RESET
+   ═══════════════════════════════════════════ */
+:root {
+  --navy: #1a3a4a; --navy-light: #1f4a5c; --navy-dark: #112a36;
+  --warm: #c9a96e; --warm-light: #e8d5a8; --warm-bg: #faf6ef;
+  --cream: #fdfbf7; --sage-bg: #dfeee1; --sage-border: #b5d4b8;
+  --red: #c0392b; --red-bg: #fce4e1;
+  --yellow: #b8860b; --yellow-bg: #fdf3d7;
+  --green: #27824a; --green-bg: #d6f0df;
+  --text: #2c2c2c; --muted: #7a7062;
+  --border: #e2ddd4; --border-light: #f0ece4;
+  --white: #ffffff;
+  --font: 'Raleway', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); color: var(--text); background: var(--cream); font-size: 14px; }
+button { font-family: var(--font); cursor: pointer; transition: filter 0.15s; }
+button:hover { filter: brightness(1.05); }
+input, select { font-family: var(--font); }
+input:focus, select:focus { outline: none; border-color: var(--warm) !important; box-shadow: 0 0 0 2px var(--warm-light); }
+select { cursor: pointer; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-const C = {
-  navy: "#1a3a4a", navyLight: "#1f4a5c",
-  warm: "#c9a96e", warmLight: "#e8d5a8", warmBg: "#faf6ef",
-  cream: "#fdfbf7", sageBg: "#dfeee1",
-  red: "#c0392b", redBg: "#fce4e1",
-  yellow: "#b8860b", yellowBg: "#fdf3d7",
-  green: "#27824a", greenBg: "#d6f0df",
-  text: "#2c2c2c", muted: "#7a7062",
-  border: "#e2ddd4", borderLight: "#f0ece4",
-  white: "#ffffff",
+/* ═══════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════ */
+.app { display: flex; height: 100vh; overflow: hidden; }
+.sidebar {
+  width: 340px; min-width: 340px; background: var(--white);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
+}
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.main-header { padding: 24px 32px 0; }
+.main-body { flex: 1; overflow: auto; padding: 0 32px 32px; }
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════ */
+.sidebar-header {
+  padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+}
+.brand-title {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700;
+  letter-spacing: 0.08em; color: var(--navy); text-transform: uppercase;
+}
+.brand-sub { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 2px; }
+
+.upload-zone {
+  margin: 16px 16px 12px; padding: 28px 16px; border: 2px dashed var(--border);
+  border-radius: 10px; text-align: center; cursor: pointer; background: var(--cream);
+  transition: all 0.2s;
+}
+.upload-zone.dragging, .upload-zone:hover { border-color: var(--warm); background: var(--warm-bg); }
+.upload-zone .icon { font-size: 28px; margin-bottom: 8px; }
+.upload-zone .label { font-weight: 700; color: var(--navy); font-size: 14px; margin-bottom: 4px; }
+.upload-zone .hint { font-size: 12px; color: var(--muted); }
+.upload-zone .hint-sm { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* Column mapper */
+.mapper {
+  margin: 0 16px 12px; padding: 16px; background: var(--warm-bg);
+  border-radius: 10px; border: 1px solid var(--warm-light); overflow-y: auto; max-height: 400px;
+}
+.mapper-title {
+  font-family: var(--font-display); font-size: 15px; font-weight: 700;
+  color: var(--navy); margin-bottom: 4px; letter-spacing: 0.04em;
+}
+.mapper-hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.mapper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mapper-field label { font-size: 11px; font-weight: 600; color: var(--navy); display: block; margin-bottom: 3px; }
+.mapper-field select {
+  width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border);
+  font-size: 12px; background: var(--white);
+}
+.mapper-btn {
+  margin-top: 14px; width: 100%; padding: 10px; background: var(--navy); color: var(--white);
+  border: none; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
+}
+
+/* Search & filters */
+.search-wrap { padding: 0 16px 8px; position: relative; }
+.search-icon { position: absolute; left: 26px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; }
+.search-input {
+  width: 100%; padding: 10px 12px 10px 32px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 12px; background: var(--white);
+}
+.filter-pills { display: flex; gap: 4px; padding: 0 16px 8px; flex-wrap: wrap; }
+.pill {
+  padding: 3px 10px; border: 1px solid var(--border); border-radius: 20px;
+  font-size: 10px; font-weight: 600; background: transparent; color: var(--muted);
+}
+.pill.active { border-color: var(--navy); background: var(--navy); color: var(--white); }
+.lead-count { font-size: 11px; color: var(--muted); padding: 0 16px 6px; font-weight: 600; }
+
+/* Lead list */
+.lead-list { flex: 1; overflow-y: auto; }
+.lead-card {
+  padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light);
+  border-left: 3px solid transparent; transition: background 0.15s;
+}
+.lead-card:hover { background: #faf8f4; }
+.lead-card.active { background: var(--warm-bg); border-left-color: var(--warm); }
+.lead-name { font-weight: 700; font-size: 13px; color: var(--navy); }
+.lead-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.lead-service { font-size: 11px; color: var(--text); margin-top: 2px; }
+.status-badge {
+  display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+}
+.status-cold { color: var(--red); background: var(--red-bg); }
+.status-warm { color: var(--yellow); background: var(--yellow-bg); }
+.status-new { color: var(--green); background: var(--green-bg); }
+
+/* Sync bar */
+.sync-bar {
+  display: flex; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.sync-btn {
+  padding: 6px 12px; background: var(--warm); color: var(--white); border: none;
+  border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+  display: flex; align-items: center; gap: 4px;
+}
+.sync-btn:disabled { opacity: 0.6; cursor: default; }
+.add-btn {
+  padding: 6px 12px; background: transparent; color: var(--navy); border: 1.5px solid var(--navy);
+  border-radius: 6px; font-size: 11px; font-weight: 600;
+}
+.sync-status { font-size: 10px; color: var(--muted); margin-left: auto; }
+
+/* ═══════════════════════════════════════════
+   MAIN PANEL
+   ═══════════════════════════════════════════ */
+.main-title { font-family: var(--font-display); font-size: 28px; color: var(--navy); font-weight: 600; }
+.main-sub { font-size: 13px; color: var(--muted); font-style: italic; margin-top: 4px; }
+
+/* Selected banner */
+.sel-banner {
+  display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+  background: var(--navy); border-radius: 10px; color: var(--white);
+  margin: 20px 0;
+}
+.sel-avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: var(--navy-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; flex-shrink: 0;
+}
+.sel-info { flex: 1; min-width: 0; }
+.sel-name { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sel-detail { font-size: 11px; opacity: 0.7; margin-top: 1px; }
+.sel-clear {
+  background: rgba(255,255,255,0.15); border: none; color: var(--white);
+  padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+
+/* Tabs */
+.tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+.tab-btn {
+  padding: 10px 16px; border: none; font-size: 13px; font-weight: 600;
+  background: transparent; color: var(--muted); border-radius: 8px 8px 0 0;
+  transition: all 0.15s; letter-spacing: 0.02em;
+}
+.tab-btn.active { background: var(--navy); color: var(--white); }
+.tab-desc {
+  padding: 10px 16px; background: var(--sage-bg); border-radius: 8px;
+  font-size: 12px; color: #3a5c40; margin-bottom: 20px; line-height: 1.6;
+  font-style: italic; border: 1px solid var(--sage-border);
+}
+
+/* Form */
+.form-card {
+  background: var(--warm-bg); border: 1px solid var(--warm-light);
+  border-radius: 10px; padding: 20px; margin-bottom: 20px;
+}
+.form-heading {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  color: var(--navy); letter-spacing: 0.06em; margin-bottom: 14px; text-transform: uppercase;
+}
+.form-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
+.form-row:first-of-type { margin-top: 0; }
+.form-group { flex: 1; min-width: 200px; }
+.form-label {
+  font-size: 12px; font-weight: 600; color: var(--navy);
+  font-style: italic; margin-bottom: 5px; display: block;
+}
+.form-input, .form-select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 13px; background: var(--white); color: var(--text);
+}
+.gen-btn {
+  margin-top: 18px; padding: 12px 28px; background: var(--navy); color: var(--white);
+  border: none; border-radius: 8px; font-size: 14px; font-weight: 700; letter-spacing: 0.03em;
+}
+.gen-btn:disabled { background: var(--muted); opacity: 0.7; cursor: default; }
+
+/* Output */
+.output-card {
+  background: var(--warm-bg); border: 1px solid var(--warm-light);
+  border-radius: 10px; padding: 20px;
+}
+.output-label { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.output-subject {
+  padding: 10px 14px; background: var(--white); border-radius: 8px;
+  border: 1px solid var(--border); font-size: 13px; font-weight: 600; margin-bottom: 14px;
+}
+.output-body-wrap { position: relative; }
+.output-body {
+  padding: 14px 16px; background: var(--white); border-radius: 8px;
+  border: 1px solid var(--border); font-size: 13px; line-height: 1.65;
+  white-space: pre-wrap; min-height: 100px;
+}
+.copy-btn {
+  position: absolute; top: 8px; right: 8px; padding: 4px 12px;
+  background: var(--navy); color: var(--white); border: none;
+  border-radius: 6px; font-size: 11px; font-weight: 600;
+}
+.output-actions { display: flex; gap: 10px; margin-top: 14px; }
+.btn-outline {
+  padding: 8px 18px; background: transparent; color: var(--navy);
+  border: 1.5px solid var(--navy); border-radius: 8px; font-size: 12px; font-weight: 600;
+}
+.btn-solid {
+  padding: 8px 18px; background: var(--navy); color: var(--white);
+  border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
+}
+
+/* Progress */
+.progress-track { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--warm); border-radius: 4px; transition: width 0.3s; }
+@keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+.loading-bar { width: 60%; height: 100%; background: var(--warm); border-radius: 3px; animation: pulse 1.5s infinite; }
+
+/* Bulk result cards */
+.bulk-card {
+  padding: 10px 14px; background: var(--white); border-radius: 8px;
+  border: 1px solid var(--border); cursor: pointer; margin-bottom: 6px;
+}
+.bulk-card-header { display: flex; justify-content: space-between; align-items: center; }
+.bulk-card-name { font-weight: 600; font-size: 13px; color: var(--navy); }
+.bulk-ok { font-size: 11px; color: var(--green); font-weight: 600; }
+.bulk-err { font-size: 11px; color: var(--red); font-weight: 600; }
+.bulk-email { font-size: 11px; color: var(--muted); }
+.bulk-expand { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; padding: 10px 20px;
+  background: var(--navy); color: var(--white); border-radius: 8px;
+  font-size: 13px; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  z-index: 999; transition: opacity 0.3s; opacity: 0; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* Empty state */
+.empty { text-align: center; padding-top: 60px; }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-title { font-family: var(--font-display); font-size: 20px; color: var(--navy); margin-bottom: 8px; }
+.empty-desc { font-size: 13px; color: var(--muted); max-width: 420px; margin: 0 auto; line-height: 1.6; }
+.empty-cols {
+  margin: 24px auto 0; padding: 16px; background: var(--warm-bg); border-radius: 10px;
+  border: 1px solid var(--warm-light); max-width: 420px; text-align: left;
+}
+
+/* Add lead modal */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal {
+  background: var(--white); border-radius: 12px; padding: 28px; width: 480px;
+  max-width: 90vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-title {
+  font-family: var(--font-display); font-size: 20px; color: var(--navy);
+  font-weight: 600; margin-bottom: 16px;
+}
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+/* Config banner */
+.config-bar {
+  padding: 8px 16px; background: #fff3cd; border-bottom: 1px solid #ffc107;
+  font-size: 12px; color: #856404; display: flex; align-items: center; gap: 8px;
+}
+.config-bar button {
+  padding: 4px 10px; background: var(--navy); color: var(--white); border: none;
+  border-radius: 4px; font-size: 11px; font-weight: 600;
+}
+
+/* Settings modal */
+.settings-grid { display: grid; gap: 12px; }
+.settings-label { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 4px; display: block; }
+.settings-input {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 12px; font-family: 'Courier New', monospace;
+}
+.settings-hint { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+@media (max-width: 768px) {
+  .app { flex-direction: column; }
+  .sidebar { width: 100%; min-width: unset; height: 50vh; }
+  .main-header { padding: 16px 16px 0; }
+  .main-body { padding: 0 16px 16px; }
+  .form-group { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     CONFIGURATION — CHANGE THESE TO YOUR n8n WEBHOOK URLs
+     ═══════════════════════════════════════════ -->
+<script>
+// ┌──────────────────────────────────────────┐
+// │  CONFIGURE YOUR n8n WEBHOOK URLS HERE    │
+// └──────────────────────────────────────────┘
+const CONFIG = {
+  // n8n webhook that generates emails (POST)
+  GENERATE_URL: localStorage.getItem('ls_generate_url') || '',
+
+  // n8n webhook that returns leads from Google Sheet (GET)
+  SYNC_URL: localStorage.getItem('ls_sync_url') || '',
+
+  // n8n webhook that saves a new lead to Google Sheet (POST)
+  ADD_LEAD_URL: localStorage.getItem('ls_add_lead_url') || '',
 };
 
+function saveConfig(key, value) {
+  CONFIG[key] = value;
+  const storageKey = key === 'GENERATE_URL' ? 'ls_generate_url' :
+                     key === 'SYNC_URL' ? 'ls_sync_url' : 'ls_add_lead_url';
+  localStorage.setItem(storageKey, value);
+}
+</script>
+
+<div class="app" id="app">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-title">The Lineage Studio</div>
+      <div class="brand-sub">Lead Manager · Email Composer</div>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="upload-zone" id="uploadZone">
+      <div class="icon" id="uploadIcon">📋</div>
+      <div class="label" id="uploadLabel">Upload Your Leads</div>
+      <div class="hint">CSV or Excel (.xlsx)</div>
+      <div class="hint-sm">Drag & drop or click</div>
+      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.tsv" hidden>
+    </div>
+
+    <!-- Column mapper (hidden initially) -->
+    <div class="mapper" id="mapper" style="display:none"></div>
+
+    <!-- Sync bar (hidden until leads loaded) -->
+    <div class="sync-bar" id="syncBar" style="display:none">
+      <button class="sync-btn" id="syncBtn" onclick="syncLeads()">🔄 Sync</button>
+      <button class="add-btn" id="addBtn" onclick="showAddModal()">+ Add Lead</button>
+      <span class="sync-status" id="syncStatus"></span>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap" id="searchWrap" style="display:none">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="Search leads…" oninput="renderLeads()">
+    </div>
+
+    <!-- Filter pills -->
+    <div class="filter-pills" id="filterPills" style="display:none"></div>
+
+    <!-- Lead count -->
+    <div class="lead-count" id="leadCount" style="display:none"></div>
+
+    <!-- Lead list -->
+    <div class="lead-list" id="leadList"></div>
+  </div>
+
+  <!-- ═══ MAIN PANEL ═══ -->
+  <div class="main">
+    <!-- Config warning -->
+    <div class="config-bar" id="configBar" style="display:none">
+      ⚠️ n8n webhooks not configured.
+      <button onclick="showSettings()">Configure</button>
+    </div>
+
+    <div class="main-header">
+      <div class="main-title">Email Composer</div>
+      <div class="main-sub">Select a lead from the sidebar — it auto-fills the form. Then generate a personalized email in seconds.</div>
+    </div>
+    <div class="main-body" id="mainBody">
+      <!-- Selected banner -->
+      <div id="selBanner" style="display:none"></div>
+
+      <!-- Tabs -->
+      <div class="tab-bar" id="tabBar" style="margin-top:20px"></div>
+
+      <!-- Tab description -->
+      <div class="tab-desc" id="tabDesc"></div>
+
+      <!-- Form area -->
+      <div id="formArea"></div>
+
+      <!-- Output area -->
+      <div id="outputArea" style="display:none"></div>
+
+      <!-- Empty state -->
+      <div class="empty" id="emptyState">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Upload your lead spreadsheet to get started</div>
+        <div class="empty-desc">
+          Drop a CSV or Excel file in the sidebar, or click Sync to pull leads from your Google Sheet via n8n.
+          The tool will auto-detect your columns, color-code leads by status, and let you generate personalized emails with one click.
+        </div>
+        <div class="empty-cols">
+          <div style="font-weight:700; font-size:12px; color:var(--navy); margin-bottom:6px;">Suggested columns:</div>
+          <div style="font-size:12px; color:var(--muted); line-height:1.8; font-family:'Courier New',monospace;">
+            first_name · last_name · email · inquiry_date · days_since · service · research_interest · notes · status
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<!-- Add Lead Modal -->
+<div class="modal-overlay" id="addModal" style="display:none" onclick="if(event.target===this)closeAddModal()">
+  <div class="modal">
+    <div class="modal-title">Add New Lead</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="addFirst"></div><div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="addLast"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="addEmail" type="email"></div><div class="form-group"><label class="form-label">Service Interest</label><select class="form-select" id="addService"></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Research Interest</label><input class="form-input" id="addResearch" placeholder="e.g., Williams family, Mississippi"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="addNotes" placeholder="Any details from their inquiry"></div></div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-solid" onclick="addLead()">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal" style="display:none" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <div class="modal-title">n8n Webhook Configuration</div>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">
+      Enter your n8n webhook URLs below. These are saved in your browser so you only configure once.
+    </p>
+    <div class="settings-grid">
+      <div>
+        <label class="settings-label">Email Generation Webhook (POST)</label>
+        <input class="settings-input" id="settGenerate" placeholder="https://your-n8n.app.n8n.cloud/webhook/generate-email">
+        <div class="settings-hint">Receives lead data + email type, returns generated email via Anthropic API</div>
+      </div>
+      <div>
+        <label class="settings-label">Lead Sync Webhook (GET)</label>
+        <input class="settings-input" id="settSync" placeholder="https://your-n8n.app.n8n.cloud/webhook/get-leads">
+        <div class="settings-hint">Returns all leads from your Google Sheet as JSON</div>
+      </div>
+      <div>
+        <label class="settings-label">Add Lead Webhook (POST)</label>
+        <input class="settings-input" id="settAddLead" placeholder="https://your-n8n.app.n8n.cloud/webhook/add-lead">
+        <div class="settings-hint">Saves a manually added lead to your Google Sheet</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeSettings()">Cancel</button>
+      <button class="btn-solid" onclick="saveSettings()">Save Configuration</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════ */
+let headers = [];
+let rows = [];
+let mapping = {};
+let mapped = false;
+let selectedIdx = null;
+let activeTab = 'initial';
+let filterStatus = 'all';
+let loading = false;
+let result = null;
+let error = null;
+let bulkRunning = false;
+let bulkProgress = 0;
+let bulkResults = [];
+let bulkViewing = null;
+let abortBulk = false;
+
 const FIELDS = [
-  { key: "first_name", label: "First Name", aliases: ["firstname","first name","first","fname","given name","given_name","name","contact","contact name","contact_name"] },
-  { key: "last_name", label: "Last Name", aliases: ["lastname","last name","last","lname","surname","family_name"] },
-  { key: "email", label: "Email", aliases: ["email","email address","e-mail","email_address","emailaddress","mail"] },
-  { key: "inquiry_date", label: "Inquiry Date", aliases: ["inquiry_date","inquirydate","inquiry date","date","date_contacted","date first contacted","contact_date","contacted","created","date_created"] },
-  { key: "days_since", label: "Days Since", aliases: ["days_since","dayssince","days since","days","age"] },
-  { key: "service", label: "Service", aliases: ["service","service interest","service_interest","inquiry type","inquiry_type","product","offering"] },
-  { key: "research_interest", label: "Research Interest", aliases: ["research_interest","research interest","research","family","family name","surnames","topic","subject"] },
-  { key: "notes", label: "Notes", aliases: ["notes","note","comments","comment","details","additional","message","inquiry_text","inquiry text"] },
-  { key: "status", label: "Status", aliases: ["status","lead status","outcome","intent","intent level","intent_level","stage"] },
+  { key:'first_name', label:'First Name', aliases:['firstname','first name','first','fname','given name','given_name','name','contact','contact name','contact_name'] },
+  { key:'last_name', label:'Last Name', aliases:['lastname','last name','last','lname','surname','family_name'] },
+  { key:'email', label:'Email', aliases:['email','email address','e-mail','email_address','emailaddress','mail'] },
+  { key:'inquiry_date', label:'Inquiry Date', aliases:['inquiry_date','inquirydate','inquiry date','date','date_contacted','date first contacted','contact_date','contacted','created','date_created'] },
+  { key:'days_since', label:'Days Since', aliases:['days_since','dayssince','days since','days','age'] },
+  { key:'service', label:'Service', aliases:['service','service interest','service_interest','inquiry type','inquiry_type','product','offering'] },
+  { key:'research_interest', label:'Research Interest', aliases:['research_interest','research interest','research','family','family name','surnames','topic','subject'] },
+  { key:'notes', label:'Notes', aliases:['notes','note','comments','comment','details','additional','message','inquiry_text','inquiry text'] },
+  { key:'status', label:'Status', aliases:['status','lead status','outcome','intent','intent level','intent_level','stage'] },
 ];
 
-function autoMap(headers) {
+const SERVICES = ['Family History Book','Legacy or Memorial Book','Genealogy Research','Family Tree Chart','Photo Restoration','Military Records Research','Immigration Research','DNA Analysis Help','Other'];
+const TONES = ['Warm & Personal','Professional','Casual & Friendly','Urgent but Kind'];
+const OFFERS = [{v:'none',l:'No offer'},{v:'discount_10',l:'10% off first project'},{v:'free_consult',l:'Free 15-min consultation'},{v:'free_preview',l:'Free sample page / preview'},{v:'custom',l:'Custom offer…'}];
+const TIME_OPTS = [{v:'less_week',l:'Less than a week ago'},{v:'1_2_weeks',l:'1–2 weeks ago'},{v:'2_3_weeks',l:'2–3 weeks ago'},{v:'3_4_weeks',l:'3–4 weeks ago'},{v:'1_2_months',l:'1–2 months ago'},{v:'over_2_months',l:'Over 2 months ago'},{v:'unknown',l:'Unknown'}];
+
+const TABS = [
+  { key:'initial', label:'Initial Response', desc:'For brand-new inquiries. A warm, personalized first reply that acknowledges what they asked about and makes it easy to take the next step.' },
+  { key:'reengage', label:'Re-Engage', desc:'For leads who never replied after your initial response. Warm, personal, low-pressure — designed to reopen the conversation.' },
+  { key:'followup', label:'Follow-Up', desc:'For leads who showed interest but went quiet. Gently check in and make it easy to pick up where they left off.' },
+  { key:'newsletter', label:'Newsletter', desc:'A light-touch value email — share a story, tip, or seasonal note that keeps you top of mind without asking for anything.' },
+  { key:'promo', label:'Promo', desc:'Time-sensitive or seasonal offer email. Best used sparingly for holidays, milestones, or limited availability.' },
+  { key:'bulk', label:'Bulk Generate', desc:'Generate a personalized re-engagement email for every lead in your list at once.' },
+];
+
+/* ═══════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════ */
+function autoMap(hdrs) {
   const m = {};
-  const lh = headers.map(h => h.toLowerCase().trim().replace(/[_\-]/g, " "));
+  const lh = hdrs.map(h => h.toLowerCase().trim().replace(/[_\-]/g,' '));
   FIELDS.forEach(f => {
-    const idx = lh.findIndex(h => h === f.key.replace(/_/g, " ") || f.aliases.includes(h));
-    if (idx !== -1) m[f.key] = headers[idx];
+    const idx = lh.findIndex(h => h === f.key.replace(/_/g,' ') || f.aliases.includes(h));
+    if (idx !== -1) m[f.key] = hdrs[idx];
   });
   return m;
 }
 
-function getLeadStatus(row, map) {
-  if (map.status && row[map.status]) {
-    const s = (row[map.status] + "").toLowerCase();
-    if (["cold","dormant","old","inactive"].some(k => s.includes(k))) return "cold";
-    if (["warm","medium","follow","pending"].some(k => s.includes(k))) return "warm";
-    if (["new","hot","high","fresh","lead","active"].some(k => s.includes(k))) return "new";
+function getStatus(row) {
+  if (mapping.status && row[mapping.status]) {
+    const s = (row[mapping.status]+'').toLowerCase();
+    if (['cold','dormant','old','inactive'].some(k=>s.includes(k))) return 'cold';
+    if (['warm','medium','follow','pending'].some(k=>s.includes(k))) return 'warm';
+    if (['new','hot','high','fresh','lead','active'].some(k=>s.includes(k))) return 'new';
   }
-  let days = parseInt(row[map.days_since]);
-  if (isNaN(days) && map.inquiry_date && row[map.inquiry_date]) {
-    const d = new Date(row[map.inquiry_date]);
-    if (!isNaN(d.getTime())) days = Math.floor((Date.now() - d.getTime()) / 86400000);
-  }
-  if (!isNaN(days)) { if (days > 30) return "cold"; if (days > 7) return "warm"; return "new"; }
-  return "cold";
+  let days = getDays(row);
+  if (days !== null) { if (days > 30) return 'cold'; if (days > 7) return 'warm'; return 'new'; }
+  return 'cold';
 }
 
-function getDaysSince(row, map) {
-  let days = parseInt(row[map.days_since]);
-  if (isNaN(days) && map.inquiry_date && row[map.inquiry_date]) {
-    const d = new Date(row[map.inquiry_date]);
-    if (!isNaN(d.getTime())) days = Math.floor((Date.now() - d.getTime()) / 86400000);
+function getDays(row) {
+  let d = parseInt(row[mapping.days_since]);
+  if (isNaN(d) && mapping.inquiry_date && row[mapping.inquiry_date]) {
+    const dt = new Date(row[mapping.inquiry_date]);
+    if (!isNaN(dt.getTime())) d = Math.floor((Date.now() - dt.getTime()) / 86400000);
   }
-  return isNaN(days) ? null : days;
+  return isNaN(d) ? null : d;
 }
 
 function daysToTimeBucket(days) {
-  if (days === null) return "unknown";
-  if (days <= 7) return "less_week";
-  if (days <= 14) return "1_2_weeks";
-  if (days <= 21) return "2_3_weeks";
-  if (days <= 30) return "3_4_weeks";
-  if (days <= 60) return "1_2_months";
-  return "over_2_months";
+  if (days === null) return 'unknown';
+  if (days <= 7) return 'less_week';
+  if (days <= 14) return '1_2_weeks';
+  if (days <= 21) return '2_3_weeks';
+  if (days <= 30) return '3_4_weeks';
+  if (days <= 60) return '1_2_months';
+  return 'over_2_months';
 }
 
-const STATUS_CFG = {
-  cold: { emoji: "\u{1F534}", label: "Cold", color: C.red, bg: C.redBg },
-  warm: { emoji: "\u{1F7E1}", label: "Warm", color: C.yellow, bg: C.yellowBg },
-  new:  { emoji: "\u{1F7E2}", label: "New",  color: C.green, bg: C.greenBg },
-};
-
-const TIME_OPTS = [
-  { v: "less_week", l: "Less than a week ago" },
-  { v: "1_2_weeks", l: "1\u20132 weeks ago" },
-  { v: "2_3_weeks", l: "2\u20133 weeks ago" },
-  { v: "3_4_weeks", l: "3\u20134 weeks ago" },
-  { v: "1_2_months", l: "1\u20132 months ago" },
-  { v: "over_2_months", l: "Over 2 months ago" },
-  { v: "unknown", l: "Unknown" },
-];
-
-const SERVICES = [
-  "Family History Book","Legacy or Memorial Book","Genealogy Research",
-  "Family Tree Chart","Photo Restoration","Military Records Research",
-  "Immigration Research","DNA Analysis Help","Other",
-];
-const TONES = ["Warm & Personal","Professional","Casual & Friendly","Urgent but Kind"];
-const OFFERS = [
-  { v: "none", l: "No offer" },
-  { v: "discount_10", l: "10% off first project" },
-  { v: "free_consult", l: "Free 15-min consultation" },
-  { v: "free_preview", l: "Free sample page / preview" },
-  { v: "custom", l: "Custom offer\u2026" },
-];
-
-const EMAIL_TABS = [
-  { key: "reengage", label: "Re-Engage", desc: "For leads who never replied after your initial response. Warm, personal, low-pressure \u2014 designed to reopen the conversation." },
-  { key: "newsletter", label: "Newsletter", desc: "A light-touch value email \u2014 share a story, tip, or seasonal note that keeps you top of mind without asking for anything." },
-  { key: "followup", label: "Follow-Up", desc: "For leads who showed interest but went quiet. Gently check in and make it easy to pick up where you left off." },
-  { key: "promo", label: "Promo", desc: "Time-sensitive or seasonal offer email. Best used sparingly for holidays, milestones, or limited availability." },
-  { key: "bulk", label: "Bulk Generate", desc: "Generate a personalized re-engagement email for every lead in your list at once." },
-];
-
-function buildPrompt(tab, form) {
-  const timeLbl = TIME_OPTS.find(t => t.v === form.timeBucket)?.l || "some time ago";
-  const offerLbl = form.offer === "custom" ? form.customOffer : OFFERS.find(o => o.v === form.offer)?.l;
-
-  const base = `You are Liane Men\u00e9ndez, founder of The Lineage Studio (lineagestudio.org), a professional genealogy and family history book service. You write warm, personal, story-driven emails. Never sound corporate or automated. Write like a real person who genuinely cares about preserving family stories.
-
-The lead's name is ${form.firstName}. They inquired about "${form.service}" approximately ${timeLbl}.${form.research ? ` Their research interest: ${form.research}.` : ""}${form.detail ? ` Additional context: ${form.detail}.` : ""}
-
-Tone: ${form.tone}.${form.offer !== "none" ? ` Include this offer naturally: ${offerLbl}.` : " Do not include any special offers."}
-
-CRITICAL: Return ONLY a valid JSON object with "subject" and "body" keys. The body should use \\n for line breaks. No markdown, no backticks, no extra text.`;
-
-  const inst = {
-    reengage: "Write a short re-engagement email (under 120 words). This person inquired but never replied. Low pressure. Acknowledge time has passed. Give them an easy way to respond (a simple question or numbered options). Sign off as Liane from The Lineage Studio with lineagestudio.org.",
-    newsletter: "Write a brief newsletter-style email (under 150 words) sharing something interesting about family history or genealogy. Weave in a subtle mention of The Lineage Studio. Do NOT hard-sell. End with a soft invitation to reply or visit lineagestudio.org.",
-    followup: "Write a gentle follow-up email (under 100 words). This person showed interest but went quiet. Reference what they were interested in. Make it effortless to reply. Sign off as Liane.",
-    promo: "Write a promotional email (under 130 words) with a seasonal or time-sensitive angle. Keep it warm, not salesy. Make the offer feel exclusive and personal. Sign off as Liane from The Lineage Studio.",
-  };
-  return base + "\n\n" + (inst[tab] || inst.reengage);
+function getName(row) {
+  return [row[mapping.first_name], row[mapping.last_name]].filter(Boolean).join(' ') || 'Unknown';
 }
 
-async function callAPI(prompt) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  if (!res.ok) throw new Error("API returned " + res.status);
-  const data = await res.json();
-  const raw = (data.content || []).map(b => b.text || "").join("");
-  const clean = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-  return JSON.parse(clean);
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || '✓ Copied to clipboard';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-const font = "'Raleway', 'Segoe UI', system-ui, sans-serif";
-const fontD = "'Playfair Display', Georgia, serif";
-const inp = { width: "100%", padding: "10px 12px", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, fontFamily: font, background: C.white, color: C.text, boxSizing: "border-box" };
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  showToast();
+}
 
-export default function App() {
-  const [headers, setHeaders] = useState([]);
-  const [rows, setRows] = useState([]);
-  const [mapping, setMapping] = useState({});
-  const [mapped, setMapped] = useState(false);
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [selIdx, setSelIdx] = useState(null);
-  const [activeTab, setActiveTab] = useState("reengage");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [copied, setCopied] = useState(false);
-  const [form, setForm] = useState({
-    firstName: "", research: "", service: "Family History Book",
-    detail: "", tone: "Warm & Personal", offer: "none",
-    customOffer: "", timeBucket: "2_3_weeks",
-  });
-  const fileRef = useRef(null);
-  const [dragging, setDragging] = useState(false);
+/* ═══════════════════════════════════════════
+   FILE UPLOAD
+   ═══════════════════════════════════════════ */
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
 
-  // Bulk states
-  const [bulkRunning, setBulkRunning] = useState(false);
-  const [bulkProgress, setBulkProgress] = useState(0);
-  const [bulkResults, setBulkResults] = useState([]);
-  const [bulkViewing, setBulkViewing] = useState(null);
-  const abortRef = useRef(false);
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragging'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('dragging'); if (e.dataTransfer.files[0]) parseFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) parseFile(e.target.files[0]); e.target.value = ''; });
 
-  const parseFile = useCallback((file) => {
-    const ext = file.name.split(".").pop().toLowerCase();
-    if (ext === "csv" || ext === "tsv") {
-      Papa.parse(file, {
-        header: true, skipEmptyLines: true,
-        complete: (r) => { setHeaders(r.meta.fields || []); setRows(r.data); setMapping(autoMap(r.meta.fields || [])); setMapped(false); setSelIdx(null); setResult(null); },
-      });
-    } else {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const wb = XLSX.read(e.target.result, { type: "array" });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
-        const h = json.length ? Object.keys(json[0]) : [];
-        setHeaders(h); setRows(json); setMapping(autoMap(h)); setMapped(false); setSelIdx(null); setResult(null);
-      };
-      reader.readAsArrayBuffer(file);
-    }
-  }, []);
-
-  const leads = useMemo(() => {
-    if (!mapped) return [];
-    return rows.map((r, i) => ({ ...r, _idx: i, _status: getLeadStatus(r, mapping) }));
-  }, [rows, mapping, mapped]);
-
-  const filtered = useMemo(() => {
-    let f = leads;
-    if (filterStatus !== "all") f = f.filter(l => l._status === filterStatus);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      f = f.filter(l => {
-        const nm = [l[mapping.first_name], l[mapping.last_name]].filter(Boolean).join(" ").toLowerCase();
-        return nm.includes(q) || (l[mapping.email] || "").toLowerCase().includes(q) || (l[mapping.research_interest] || "").toLowerCase().includes(q);
-      });
-    }
-    return f;
-  }, [leads, search, filterStatus, mapping]);
-
-  const statusCounts = useMemo(() => {
-    const c = { all: leads.length, cold: 0, warm: 0, new: 0 };
-    leads.forEach(l => c[l._status]++);
-    return c;
-  }, [leads]);
-
-  const selectLead = (lead) => {
-    setSelIdx(lead._idx);
-    const days = getDaysSince(lead, mapping);
-    setForm({
-      firstName: [lead[mapping.first_name], lead[mapping.last_name]].filter(Boolean).join(" ") || "",
-      research: lead[mapping.research_interest] || "",
-      service: lead[mapping.service] || "Family History Book",
-      detail: lead[mapping.notes] || "",
-      tone: "Warm & Personal", offer: "none", customOffer: "",
-      timeBucket: daysToTimeBucket(days),
+function parseFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'csv' || ext === 'tsv') {
+    Papa.parse(file, {
+      header: true, skipEmptyLines: true,
+      complete: r => loadData(r.meta.fields || [], r.data),
     });
-    setResult(null); setError(null);
-    if (activeTab === "bulk") setActiveTab("reengage");
-  };
-
-  const doGenerate = async () => {
-    setLoading(true); setError(null); setResult(null);
-    try { setResult(await callAPI(buildPrompt(activeTab, form))); }
-    catch (e) { setError(e.message); }
-    setLoading(false);
-  };
-
-  const doCopy = (text) => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); };
-
-  const runBulk = async () => {
-    setBulkRunning(true); setBulkProgress(0); setBulkResults([]); abortRef.current = false;
-    const out = [];
-    for (let i = 0; i < leads.length; i++) {
-      if (abortRef.current) break;
-      const lead = leads[i];
-      const days = getDaysSince(lead, mapping);
-      const f = {
-        firstName: lead[mapping.first_name] || [lead[mapping.first_name], lead[mapping.last_name]].filter(Boolean).join(" ") || "there",
-        research: lead[mapping.research_interest] || "", service: lead[mapping.service] || "Family History Book",
-        detail: lead[mapping.notes] || "", tone: "Warm & Personal", offer: "none", customOffer: "",
-        timeBucket: daysToTimeBucket(days),
-      };
-      try {
-        const r = await callAPI(buildPrompt("reengage", f));
-        out.push({ name: f.firstName, email: lead[mapping.email] || "", ...r, ok: true });
-      } catch (e) {
-        out.push({ name: f.firstName, email: lead[mapping.email] || "", subject: "", body: "", ok: false, err: e.message });
-      }
-      setBulkProgress(i + 1); setBulkResults([...out]);
-    }
-    setBulkRunning(false);
-  };
-
-  const selLead = selIdx !== null ? rows[selIdx] : null;
-
-  return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: font, color: C.text, background: C.cream, fontSize: 14, overflow: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-        * { box-sizing: border-box; margin: 0; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 3px; }
-        @keyframes pulse { 0%,100% { opacity:.5; } 50% { opacity:1; } }
-        select { cursor: pointer; }
-        input:focus, select:focus { outline: none; border-color: ${C.warm} !important; box-shadow: 0 0 0 2px ${C.warmLight}; }
-        button:hover { filter: brightness(1.05); }
-      `}</style>
-
-      {/* ═══ SIDEBAR ═══ */}
-      <div style={{ width: 340, minWidth: 340, background: C.white, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div style={{ padding: "20px 20px 16px", borderBottom: `1px solid ${C.border}` }}>
-          <div style={{ fontFamily: fontD, fontSize: 18, fontWeight: 700, letterSpacing: "0.08em", color: C.navy, textTransform: "uppercase" }}>The Lineage Studio</div>
-          <div style={{ fontSize: 12, color: C.muted, fontStyle: "italic", marginTop: 2 }}>Lead Manager &middot; Email Composer</div>
-        </div>
-
-        {/* Upload */}
-        <div
-          onClick={() => fileRef.current?.click()}
-          onDragOver={e => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={e => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files[0]) parseFile(e.dataTransfer.files[0]); }}
-          style={{ margin: "16px 16px 12px", padding: "28px 16px", border: `2px dashed ${dragging ? C.warm : C.border}`, borderRadius: 10, textAlign: "center", cursor: "pointer", background: dragging ? C.warmBg : C.cream, transition: "all .2s" }}
-        >
-          <div style={{ fontSize: 28, marginBottom: 8 }}>{mapped ? "\u2705" : "\u{1F4CB}"}</div>
-          <div style={{ fontWeight: 700, color: C.navy, fontSize: 14, marginBottom: 4 }}>{mapped ? "Leads Loaded \u2014 Upload New?" : "Upload Your Leads"}</div>
-          <div style={{ fontSize: 12, color: C.muted }}>CSV or Excel (.xlsx)</div>
-          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Drag & drop or click</div>
-          <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,.tsv" hidden onChange={e => { if (e.target.files[0]) parseFile(e.target.files[0]); e.target.value = ""; }} />
-        </div>
-
-        {/* Column Mapper */}
-        {headers.length > 0 && !mapped && (
-          <div style={{ margin: "0 16px 12px", padding: 16, background: C.warmBg, borderRadius: 10, border: `1px solid ${C.warmLight}`, overflowY: "auto", maxHeight: 400 }}>
-            <div style={{ fontFamily: fontD, fontSize: 15, fontWeight: 700, color: C.navy, marginBottom: 4, letterSpacing: "0.04em" }}>MAP YOUR COLUMNS</div>
-            <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>Auto-detected what we could. Adjust anything wrong.</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {FIELDS.map(f => (
-                <div key={f.key}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: C.navy, marginBottom: 3 }}>{f.label}</div>
-                  <select value={mapping[f.key] || ""} onChange={e => setMapping(p => ({ ...p, [f.key]: e.target.value }))} style={{ ...inp, padding: "6px 8px", fontSize: 12 }}>
-                    <option value="">\u2014 skip \u2014</option>
-                    {headers.map(h => <option key={h} value={h}>{h}</option>)}
-                  </select>
-                </div>
-              ))}
-            </div>
-            <button onClick={() => setMapped(true)} style={{ marginTop: 14, width: "100%", padding: 10, background: C.navy, color: C.white, border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: font, letterSpacing: "0.03em" }}>
-              Confirm & Load Leads
-            </button>
-          </div>
-        )}
-
-        {/* Lead List */}
-        {mapped && (
-          <>
-            <div style={{ padding: "0 16px 8px" }}>
-              <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}>{"\u{1F50D}"}</span>
-                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads\u2026" style={{ ...inp, paddingLeft: 32, fontSize: 12 }} />
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 4, padding: "0 16px 8px", flexWrap: "wrap" }}>
-              {["all","new","warm","cold"].map(s => (
-                <button key={s} onClick={() => setFilterStatus(s)} style={{
-                  padding: "3px 10px", border: `1px solid ${filterStatus === s ? C.navy : C.border}`, borderRadius: 20, fontSize: 10, fontWeight: 600, cursor: "pointer",
-                  background: filterStatus === s ? C.navy : "transparent", color: filterStatus === s ? C.white : C.muted, fontFamily: font,
-                }}>
-                  {s === "all" ? `All (${statusCounts.all})` : `${STATUS_CFG[s].emoji} ${STATUS_CFG[s].label} (${statusCounts[s]})`}
-                </button>
-              ))}
-            </div>
-            <div style={{ fontSize: 11, color: C.muted, padding: "0 16px 6px", fontWeight: 600 }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""}</div>
-            <div style={{ flex: 1, overflowY: "auto" }}>
-              {filtered.map(lead => {
-                const nm = [lead[mapping.first_name], lead[mapping.last_name]].filter(Boolean).join(" ") || "Unknown";
-                const days = getDaysSince(lead, mapping);
-                const cfg = STATUS_CFG[lead._status];
-                const active = selIdx === lead._idx;
-                return (
-                  <div key={lead._idx} onClick={() => selectLead(lead)} style={{
-                    padding: "12px 16px", cursor: "pointer", borderBottom: `1px solid ${C.borderLight}`,
-                    background: active ? C.warmBg : "transparent", borderLeft: active ? `3px solid ${C.warm}` : "3px solid transparent", transition: "background .15s",
-                  }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: C.navy }}>{nm}</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{lead[mapping.email] || "No email"}{days !== null ? ` \u00b7 ${days}d ago` : ""}</div>
-                    {lead[mapping.service] && <div style={{ fontSize: 11, color: C.text, marginTop: 2 }}>{lead[mapping.service]}</div>}
-                    <span style={{ display: "inline-block", marginTop: 4, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, color: cfg.color, background: cfg.bg }}>{cfg.label}</span>
-                  </div>
-                );
-              })}
-              {filtered.length === 0 && <div style={{ padding: 24, textAlign: "center", color: C.muted, fontSize: 12, fontStyle: "italic" }}>No leads match your search.</div>}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* ═══ MAIN ═══ */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div style={{ padding: "24px 32px 0" }}>
-          <div style={{ fontFamily: fontD, fontSize: 28, color: C.navy, fontWeight: 600 }}>Email Composer</div>
-          <div style={{ fontSize: 13, color: C.muted, fontStyle: "italic", marginTop: 4 }}>Select a lead from the sidebar &mdash; it auto-fills the form. Then generate a personalized email in seconds.</div>
-        </div>
-        <div style={{ flex: 1, overflow: "auto", padding: "0 32px 32px" }}>
-
-          {/* Selected banner */}
-          {selLead && (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", background: C.navy, borderRadius: 10, color: C.white, marginBottom: 20, marginTop: 20 }}>
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: C.navyLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, flexShrink: 0 }}>
-                {([selLead[mapping.first_name], selLead[mapping.last_name]].filter(Boolean).join(" ")[0] || "?").toUpperCase()}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {[selLead[mapping.first_name], selLead[mapping.last_name]].filter(Boolean).join(" ")} &middot; {selLead[mapping.email] || "no email"}
-                </div>
-                <div style={{ fontSize: 11, opacity: .7, marginTop: 1 }}>
-                  {selLead[mapping.service] || "No service"}{getDaysSince(selLead, mapping) !== null ? ` \u00b7 ${getDaysSince(selLead, mapping)} days since inquiry` : ""}
-                </div>
-              </div>
-              <button onClick={() => { setSelIdx(null); setResult(null); setError(null); }} style={{ background: "rgba(255,255,255,.15)", border: "none", color: C.white, padding: "6px 12px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: font }}>{"\u2715"} Clear</button>
-            </div>
-          )}
-
-          {/* Tabs */}
-          <div style={{ display: "flex", gap: 0, borderBottom: `2px solid ${C.border}`, marginBottom: 16, marginTop: selLead ? 0 : 20 }}>
-            {EMAIL_TABS.map(t => (
-              <button key={t.key} onClick={() => setActiveTab(t.key)} style={{
-                padding: "10px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: font,
-                background: activeTab === t.key ? C.navy : "transparent", color: activeTab === t.key ? C.white : C.muted,
-                borderRadius: "8px 8px 0 0", transition: "all .15s", letterSpacing: "0.02em",
-              }}>{t.label}</button>
-            ))}
-          </div>
-
-          {/* Tab desc */}
-          <div style={{ padding: "10px 16px", background: C.sageBg, borderRadius: 8, fontSize: 12, color: "#3a5c40", marginBottom: 20, lineHeight: 1.6, fontStyle: "italic", border: "1px solid #b5d4b8" }}>
-            {EMAIL_TABS.find(t => t.key === activeTab)?.desc}
-          </div>
-
-          {activeTab !== "bulk" ? (
-            <>
-              {/* Form */}
-              <div style={{ background: C.warmBg, border: `1px solid ${C.warmLight}`, borderRadius: 10, padding: 20, marginBottom: 20 }}>
-                <div style={{ fontFamily: fontD, fontSize: 14, fontWeight: 700, color: C.navy, letterSpacing: "0.06em", marginBottom: 14, textTransform: "uppercase" }}>Lead Details</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>First Name</div>
-                    <input style={inp} value={form.firstName} onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>How long since inquiry?</div>
-                    <select style={inp} value={form.timeBucket} onChange={e => setForm(p => ({ ...p, timeBucket: e.target.value }))}>{TIME_OPTS.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}</select>
-                  </div>
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 14 }}>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>What they were researching</div>
-                    <input style={inp} value={form.research} onChange={e => setForm(p => ({ ...p, research: e.target.value }))} placeholder="e.g., Williams family, Mississippi" />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Service interested in</div>
-                    <select style={inp} value={form.service} onChange={e => setForm(p => ({ ...p, service: e.target.value }))}>{SERVICES.map(s => <option key={s} value={s}>{s}</option>)}</select>
-                  </div>
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 14 }}>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Detail from their inquiry (optional)</div>
-                    <input style={inp} value={form.detail} onChange={e => setForm(p => ({ ...p, detail: e.target.value }))} placeholder="e.g., Looking for grandfather born in Georgia" />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Tone</div>
-                    <select style={inp} value={form.tone} onChange={e => setForm(p => ({ ...p, tone: e.target.value }))}>{TONES.map(t => <option key={t} value={t}>{t}</option>)}</select>
-                  </div>
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 14 }}>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Include a special offer?</div>
-                    <select style={inp} value={form.offer} onChange={e => setForm(p => ({ ...p, offer: e.target.value }))}>{OFFERS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}</select>
-                  </div>
-                  {form.offer === "custom" && (
-                    <div style={{ flex: 1, minWidth: 200 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Custom offer text</div>
-                      <input style={inp} value={form.customOffer} onChange={e => setForm(p => ({ ...p, customOffer: e.target.value }))} placeholder="Describe your offer\u2026" />
-                    </div>
-                  )}
-                </div>
-                <button onClick={doGenerate} disabled={loading} style={{
-                  marginTop: 18, padding: "12px 28px", background: loading ? C.muted : C.navy,
-                  color: C.white, border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700,
-                  cursor: loading ? "default" : "pointer", fontFamily: font, letterSpacing: "0.03em", opacity: loading ? .7 : 1,
-                }}>
-                  {loading ? "Generating\u2026" : "Generate Re-Engagement Email"}
-                </button>
-              </div>
-
-              {/* Output */}
-              {(result || loading || error) && (
-                <div style={{ background: C.warmBg, border: `1px solid ${C.warmLight}`, borderRadius: 10, padding: 20 }}>
-                  <div style={{ fontFamily: fontD, fontSize: 14, fontWeight: 700, color: C.navy, letterSpacing: "0.06em", marginBottom: 12, textTransform: "uppercase" }}>Generated Email</div>
-                  {loading && (
-                    <div style={{ padding: 20, textAlign: "center" }}>
-                      <div style={{ width: "100%", height: 6, background: C.border, borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ width: "60%", height: "100%", background: C.warm, borderRadius: 3, animation: "pulse 1.5s infinite" }} />
-                      </div>
-                      <div style={{ marginTop: 10, fontSize: 12, color: C.muted, fontStyle: "italic" }}>Writing your email&hellip;</div>
-                    </div>
-                  )}
-                  {error && !loading && <div style={{ padding: 16, background: C.redBg, borderRadius: 8, color: C.red, fontSize: 13 }}>Error: {error}</div>}
-                  {result && !loading && (
-                    <>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: C.navy, marginBottom: 4 }}>Subject:</div>
-                      <div style={{ padding: "10px 14px", background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, marginBottom: 14, fontWeight: 600 }}>{result.subject}</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: C.navy, marginBottom: 4 }}>Body:</div>
-                      <div style={{ position: "relative" }}>
-                        <button onClick={() => doCopy(result.body)} style={{ position: "absolute", top: 8, right: 8, padding: "4px 12px", background: C.navy, color: C.white, border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Copy</button>
-                        <div style={{ padding: "14px 16px", background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, lineHeight: 1.65, whiteSpace: "pre-wrap", minHeight: 100 }}>{result.body}</div>
-                      </div>
-                      <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-                        <button onClick={doGenerate} style={{ padding: "8px 18px", background: "transparent", color: C.navy, border: `1.5px solid ${C.navy}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Regenerate</button>
-                        <button onClick={() => doCopy(`Subject: ${result.subject}\n\n${result.body}`)} style={{ padding: "8px 18px", background: C.navy, color: C.white, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font }}>Copy Subject + Body</button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </>
-          ) : (
-            /* ═══ BULK TAB ═══ */
-            <div style={{ background: C.warmBg, border: `1px solid ${C.warmLight}`, borderRadius: 10, padding: 20 }}>
-              <div style={{ fontFamily: fontD, fontSize: 14, fontWeight: 700, color: C.navy, letterSpacing: "0.06em", marginBottom: 8, textTransform: "uppercase" }}>Bulk Email Generator</div>
-              <div style={{ fontSize: 12, color: C.muted, marginBottom: 16 }}>Generate a personalized re-engagement email for every lead. Processes one at a time using AI.</div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: C.navy, marginBottom: 12 }}>{leads.length} leads ready to process</div>
-
-              {!bulkRunning && bulkResults.length === 0 && (
-                <button onClick={runBulk} disabled={leads.length === 0} style={{ padding: "12px 28px", background: leads.length ? C.navy : C.muted, color: C.white, border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: leads.length ? "pointer" : "default", fontFamily: font }}>
-                  Generate All Emails
-                </button>
-              )}
-
-              {bulkRunning && (
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                    <div style={{ flex: 1, height: 8, background: C.border, borderRadius: 4, overflow: "hidden" }}>
-                      <div style={{ width: `${(bulkProgress / leads.length) * 100}%`, height: "100%", background: C.warm, borderRadius: 4, transition: "width .3s" }} />
-                    </div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: C.navy }}>{bulkProgress}/{leads.length}</span>
-                  </div>
-                  <button onClick={() => { abortRef.current = true; }} style={{ padding: "8px 16px", background: C.red, color: C.white, border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Stop</button>
-                </div>
-              )}
-
-              {bulkResults.length > 0 && !bulkRunning && (
-                <div style={{ marginTop: 12 }}>
-                  <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
-                    <button onClick={() => {
-                      const text = bulkResults.filter(r => r.ok).map(r => `TO: ${r.email}\nSUBJECT: ${r.subject}\n\n${r.body}\n\n${"─".repeat(50)}`).join("\n\n");
-                      doCopy(text);
-                    }} style={{ padding: "8px 18px", background: C.navy, color: C.white, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font }}>Copy All as Text</button>
-                    <button onClick={() => { setBulkResults([]); setBulkProgress(0); }} style={{ padding: "8px 18px", background: "transparent", color: C.navy, border: `1.5px solid ${C.navy}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Reset</button>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {bulkResults.map((r, i) => (
-                      <div key={i} onClick={() => setBulkViewing(bulkViewing === i ? null : i)} style={{ padding: "10px 14px", background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, cursor: "pointer" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontWeight: 600, fontSize: 13, color: C.navy }}>{r.name}</span>
-                          <span style={{ fontSize: 11, color: r.ok ? C.green : C.red, fontWeight: 600 }}>{r.ok ? "\u2713 Done" : "\u2715 Error"}</span>
-                        </div>
-                        <div style={{ fontSize: 11, color: C.muted }}>{r.email}</div>
-                        {bulkViewing === i && r.ok && (
-                          <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.borderLight}` }}>
-                            <div style={{ fontSize: 11, fontWeight: 700, color: C.navy }}>Subject: {r.subject}</div>
-                            <div style={{ fontSize: 12, marginTop: 6, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{r.body}</div>
-                            <button onClick={e => { e.stopPropagation(); doCopy(`Subject: ${r.subject}\n\n${r.body}`); }} style={{ marginTop: 8, padding: "4px 12px", background: C.navy, color: C.white, border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Copy</button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!mapped && !selLead && (
-            <div style={{ textAlign: "center", paddingTop: 60 }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>{"\u{1F4CB}"}</div>
-              <div style={{ fontFamily: fontD, fontSize: 20, color: C.navy, marginBottom: 8 }}>Upload your lead spreadsheet to get started</div>
-              <div style={{ fontSize: 13, color: C.muted, maxWidth: 420, margin: "0 auto", lineHeight: 1.6 }}>
-                Drop a CSV or Excel file in the sidebar. The tool will auto-detect your columns, color-code your leads by status, and let you generate personalized emails with one click.
-              </div>
-              <div style={{ marginTop: 24, padding: 16, background: C.warmBg, borderRadius: 10, border: `1px solid ${C.warmLight}`, maxWidth: 420, margin: "24px auto 0", textAlign: "left" }}>
-                <div style={{ fontWeight: 700, fontSize: 12, color: C.navy, marginBottom: 6 }}>Suggested columns:</div>
-                <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.8, fontFamily: "'Courier New', monospace" }}>
-                  first_name &middot; last_name &middot; email &middot; inquiry_date &middot; days_since &middot; service &middot; research_interest &middot; notes &middot; status
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Toast */}
-      {copied && (
-        <div style={{ position: "fixed", bottom: 24, right: 24, padding: "10px 20px", background: C.navy, color: C.white, borderRadius: 8, fontSize: 13, fontWeight: 600, fontFamily: font, boxShadow: "0 4px 20px rgba(0,0,0,.2)", zIndex: 999 }}>
-          {"\u2713"} Copied to clipboard
-        </div>
-      )}
-    </div>
-  );
+  } else {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      const h = json.length ? Object.keys(json[0]) : [];
+      loadData(h, json);
+    };
+    reader.readAsArrayBuffer(file);
+  }
 }
+
+function loadData(h, r) {
+  headers = h; rows = r; mapping = autoMap(h); mapped = false;
+  selectedIdx = null; result = null; error = null;
+  showMapper();
+}
+
+/* ═══════════════════════════════════════════
+   COLUMN MAPPER
+   ═══════════════════════════════════════════ */
+function showMapper() {
+  const el = document.getElementById('mapper');
+  let html = '<div class="mapper-title">MAP YOUR COLUMNS</div>';
+  html += '<div class="mapper-hint">Auto-detected what we could. Adjust anything wrong.</div>';
+  html += '<div class="mapper-grid">';
+  FIELDS.forEach(f => {
+    html += `<div class="mapper-field"><label>${f.label}</label><select onchange="mapping['${f.key}']=this.value">`;
+    html += `<option value="">— skip —</option>`;
+    headers.forEach(h => {
+      html += `<option value="${h}" ${mapping[f.key]===h?'selected':''}>${h}</option>`;
+    });
+    html += `</select></div>`;
+  });
+  html += '</div>';
+  html += '<button class="mapper-btn" onclick="confirmMapping()">Confirm & Load Leads</button>';
+  el.innerHTML = html;
+  el.style.display = 'block';
+  // Hide lead UI
+  ['syncBar','searchWrap','filterPills','leadCount'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('leadList').innerHTML = '';
+}
+
+function confirmMapping() {
+  mapped = true;
+  document.getElementById('mapper').style.display = 'none';
+  document.getElementById('uploadIcon').textContent = '✅';
+  document.getElementById('uploadLabel').textContent = 'Leads Loaded — Upload New?';
+  document.getElementById('syncBar').style.display = 'flex';
+  document.getElementById('searchWrap').style.display = 'block';
+  document.getElementById('filterPills').style.display = 'flex';
+  document.getElementById('leadCount').style.display = 'block';
+  document.getElementById('emptyState').style.display = 'none';
+  renderFilterPills();
+  renderLeads();
+  renderTabs();
+  renderForm();
+  checkConfig();
+}
+
+/* ═══════════════════════════════════════════
+   SYNC FROM GOOGLE SHEET VIA n8n
+   ═══════════════════════════════════════════ */
+async function syncLeads() {
+  if (!CONFIG.SYNC_URL) { showSettings(); return; }
+  const btn = document.getElementById('syncBtn');
+  const status = document.getElementById('syncStatus');
+  btn.disabled = true; btn.textContent = '🔄 Syncing…';
+  try {
+    const res = await fetch(CONFIG.SYNC_URL);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      const h = Object.keys(data[0]);
+      headers = h; rows = data; mapping = autoMap(h);
+      if (!mapped) {
+        showMapper();
+      } else {
+        renderLeads();
+        renderFilterPills();
+      }
+      status.textContent = `Synced ${data.length} leads`;
+    } else {
+      status.textContent = 'No leads returned';
+    }
+  } catch (e) {
+    status.textContent = 'Sync failed — check webhook URL';
+  }
+  btn.disabled = false; btn.textContent = '🔄 Sync';
+}
+
+/* ═══════════════════════════════════════════
+   LEAD LIST
+   ═══════════════════════════════════════════ */
+function getFilteredLeads() {
+  if (!mapped) return [];
+  let leads = rows.map((r,i) => ({...r, _idx:i, _status: getStatus(r)}));
+  if (filterStatus !== 'all') leads = leads.filter(l => l._status === filterStatus);
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+  if (q) {
+    leads = leads.filter(l => {
+      const nm = getName(l).toLowerCase();
+      const em = (l[mapping.email]||'').toLowerCase();
+      const re = (l[mapping.research_interest]||'').toLowerCase();
+      return nm.includes(q) || em.includes(q) || re.includes(q);
+    });
+  }
+  return leads;
+}
+
+function getStatusCounts() {
+  const all = rows.map(r => getStatus(r));
+  return {
+    all: all.length,
+    new: all.filter(s=>s==='new').length,
+    warm: all.filter(s=>s==='warm').length,
+    cold: all.filter(s=>s==='cold').length,
+  };
+}
+
+function renderFilterPills() {
+  const counts = getStatusCounts();
+  const el = document.getElementById('filterPills');
+  const statuses = [
+    {k:'all', l:`All (${counts.all})`},
+    {k:'new', l:`🟢 New (${counts.new})`},
+    {k:'warm', l:`🟡 Warm (${counts.warm})`},
+    {k:'cold', l:`🔴 Cold (${counts.cold})`},
+  ];
+  el.innerHTML = statuses.map(s =>
+    `<button class="pill ${filterStatus===s.k?'active':''}" onclick="filterStatus='${s.k}';renderFilterPills();renderLeads()">${s.l}</button>`
+  ).join('');
+}
+
+function renderLeads() {
+  const leads = getFilteredLeads();
+  document.getElementById('leadCount').textContent = `${leads.length} lead${leads.length!==1?'s':''}`;
+  const el = document.getElementById('leadList');
+  if (leads.length === 0) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;font-style:italic">No leads match your search.</div>';
+    return;
+  }
+  el.innerHTML = leads.map(l => {
+    const nm = getName(l);
+    const days = getDays(l);
+    const daysLabel = days !== null ? ` · ${days}d ago` : '';
+    const active = selectedIdx === l._idx;
+    return `<div class="lead-card ${active?'active':''}" onclick="selectLead(${l._idx})">
+      <div class="lead-name">${esc(nm)}</div>
+      <div class="lead-meta">${esc(l[mapping.email]||'No email')}${daysLabel}</div>
+      ${l[mapping.service] ? `<div class="lead-service">${esc(l[mapping.service])}</div>` : ''}
+      <span class="status-badge status-${l._status}">${l._status.charAt(0).toUpperCase()+l._status.slice(1)}</span>
+    </div>`;
+  }).join('');
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ═══════════════════════════════════════════
+   SELECT LEAD
+   ═══════════════════════════════════════════ */
+function selectLead(idx) {
+  selectedIdx = idx;
+  result = null; error = null;
+  if (activeTab === 'bulk') activeTab = 'initial';
+  const lead = rows[idx];
+  const days = getDays(lead);
+  // Auto-fill form
+  document.getElementById('emptyState').style.display = 'none';
+  renderSelBanner();
+  renderLeads();
+  renderTabs();
+  renderForm();
+  renderOutput();
+  // Set form values after render
+  setTimeout(() => {
+    setVal('formFirst', getName(lead));
+    setVal('formResearch', lead[mapping.research_interest] || '');
+    setVal('formService', lead[mapping.service] || 'Family History Book');
+    setVal('formDetail', lead[mapping.notes] || '');
+    setVal('formTone', 'Warm & Personal');
+    setVal('formOffer', 'none');
+    setVal('formTime', daysToTimeBucket(days));
+    const status = getStatus(lead);
+    if (status === 'new') activeTab = 'initial';
+    else if (status === 'cold') activeTab = 'reengage';
+    else activeTab = 'followup';
+    renderTabs();
+  }, 10);
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+function clearSelection() {
+  selectedIdx = null; result = null; error = null;
+  renderSelBanner(); renderLeads(); renderOutput();
+}
+
+function renderSelBanner() {
+  const el = document.getElementById('selBanner');
+  if (selectedIdx === null) { el.style.display = 'none'; return; }
+  const lead = rows[selectedIdx];
+  const nm = getName(lead);
+  const days = getDays(lead);
+  el.style.display = 'flex';
+  el.className = 'sel-banner';
+  el.innerHTML = `
+    <div class="sel-avatar">${(nm[0]||'?').toUpperCase()}</div>
+    <div class="sel-info">
+      <div class="sel-name">${esc(nm)} · ${esc(lead[mapping.email]||'no email')}</div>
+      <div class="sel-detail">${esc(lead[mapping.service]||'No service')}${days!==null?` · ${days} days since inquiry`:''}</div>
+    </div>
+    <button class="sel-clear" onclick="clearSelection()">✕ Clear</button>
+  `;
+}
+
+/* ═══════════════════════════════════════════
+   TABS
+   ═══════════════════════════════════════════ */
+function renderTabs() {
+  const el = document.getElementById('tabBar');
+  el.innerHTML = TABS.map(t =>
+    `<button class="tab-btn ${activeTab===t.key?'active':''}" onclick="switchTab('${t.key}')">${t.label}</button>`
+  ).join('');
+  document.getElementById('tabDesc').textContent = TABS.find(t=>t.key===activeTab)?.desc || '';
+}
+
+function switchTab(key) {
+  activeTab = key; result = null; error = null;
+  renderTabs(); renderForm(); renderOutput();
+}
+
+/* ═══════════════════════════════════════════
+   FORM
+   ═══════════════════════════════════════════ */
+function renderForm() {
+  const el = document.getElementById('formArea');
+  if (activeTab === 'bulk') {
+    renderBulk(); return;
+  }
+  const serviceOpts = SERVICES.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  const toneOpts = TONES.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  const offerOpts = OFFERS.map(o => `<option value="${o.v}">${esc(o.l)}</option>`).join('');
+  const timeOpts = TIME_OPTS.map(t => `<option value="${t.v}">${esc(t.l)}</option>`).join('');
+
+  el.innerHTML = `
+    <div class="form-card">
+      <div class="form-heading">Lead Details</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="formFirst"></div>
+        <div class="form-group"><label class="form-label">How long since inquiry?</label><select class="form-select" id="formTime">${timeOpts}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">What they were researching</label><input class="form-input" id="formResearch" placeholder="e.g., Williams family, Mississippi"></div>
+        <div class="form-group"><label class="form-label">Service interested in</label><select class="form-select" id="formService">${serviceOpts}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Detail from their inquiry (optional)</label><input class="form-input" id="formDetail" placeholder="e.g., Looking for grandfather born in Georgia"></div>
+        <div class="form-group"><label class="form-label">Tone</label><select class="form-select" id="formTone">${toneOpts}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Include a special offer?</label><select class="form-select" id="formOffer" onchange="toggleCustomOffer()">${offerOpts}</select></div>
+        <div class="form-group" id="customOfferGroup" style="display:none"><label class="form-label">Custom offer text</label><input class="form-input" id="formCustomOffer" placeholder="Describe your offer…"></div>
+      </div>
+      <button class="gen-btn" id="genBtn" onclick="generate()">
+        ${activeTab==='initial'?'Generate Initial Response':'Generate Email'}
+      </button>
+    </div>
+  `;
+}
+
+function toggleCustomOffer() {
+  const v = document.getElementById('formOffer').value;
+  document.getElementById('customOfferGroup').style.display = v === 'custom' ? 'block' : 'none';
+}
+
+/* ═══════════════════════════════════════════
+   GENERATE EMAIL VIA n8n
+   ═══════════════════════════════════════════ */
+async function generate() {
+  if (!CONFIG.GENERATE_URL) { showSettings(); return; }
+  const form = getFormData();
+  const btn = document.getElementById('genBtn');
+  loading = true; result = null; error = null;
+  btn.disabled = true; btn.textContent = 'Generating…';
+  renderOutput();
+
+  try {
+    const res = await fetch(CONFIG.GENERATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tab: activeTab, ...form }),
+    });
+    if (!res.ok) throw new Error('Webhook returned ' + res.status);
+    const data = await res.json();
+    result = data;
+  } catch (e) {
+    error = e.message;
+  }
+  loading = false;
+  btn.disabled = false;
+  btn.textContent = activeTab === 'initial' ? 'Generate Initial Response' : 'Generate Email';
+  renderOutput();
+}
+
+function getFormData() {
+  return {
+    firstName: document.getElementById('formFirst')?.value || '',
+    research: document.getElementById('formResearch')?.value || '',
+    service: document.getElementById('formService')?.value || 'Family History Book',
+    detail: document.getElementById('formDetail')?.value || '',
+    tone: document.getElementById('formTone')?.value || 'Warm & Personal',
+    offer: document.getElementById('formOffer')?.value || 'none',
+    customOffer: document.getElementById('formCustomOffer')?.value || '',
+    timeBucket: document.getElementById('formTime')?.value || '2_3_weeks',
+    email: selectedIdx !== null ? (rows[selectedIdx][mapping.email] || '') : '',
+  };
+}
+
+/* ═══════════════════════════════════════════
+   OUTPUT
+   ═══════════════════════════════════════════ */
+function renderOutput() {
+  const el = document.getElementById('outputArea');
+  if (!result && !loading && !error) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  if (loading) {
+    el.innerHTML = `<div class="output-card">
+      <div class="form-heading">Generated Email</div>
+      <div style="padding:20px;text-align:center">
+        <div class="progress-track"><div class="loading-bar"></div></div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted);font-style:italic">Writing your email…</div>
+      </div>
+    </div>`;
+    return;
+  }
+
+  if (error) {
+    el.innerHTML = `<div class="output-card">
+      <div class="form-heading">Generated Email</div>
+      <div style="padding:16px;background:var(--red-bg);border-radius:8px;color:var(--red);font-size:13px">Error: ${esc(error)}</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="output-card">
+    <div class="form-heading">Generated Email</div>
+    <div class="output-label">Subject:</div>
+    <div class="output-subject">${esc(result.subject)}</div>
+    <div class="output-label">Body:</div>
+    <div class="output-body-wrap">
+      <button class="copy-btn" onclick="copyText(document.getElementById('emailBody').textContent)">Copy</button>
+      <div class="output-body" id="emailBody">${esc(result.body)}</div>
+    </div>
+    <div class="output-actions">
+      <button class="btn-outline" onclick="generate()">Regenerate</button>
+      <button class="btn-solid" onclick="copyText('Subject: '+${JSON.stringify(result.subject)}+'\\n\\n'+${JSON.stringify(result.body)})">Copy Subject + Body</button>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   BULK GENERATE
+   ═══════════════════════════════════════════ */
+function renderBulk() {
+  const el = document.getElementById('formArea');
+  const total = rows.length;
+
+  let html = `<div class="form-card">
+    <div class="form-heading">Bulk Email Generator</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">
+      Generate a personalized re-engagement email for every lead. Processes one at a time via n8n.
+    </div>
+    <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px">${total} leads ready to process</div>`;
+
+  if (!bulkRunning && bulkResults.length === 0) {
+    html += `<button class="gen-btn" onclick="runBulk()" ${total===0?'disabled':''}>Generate All Emails</button>`;
+  }
+
+  if (bulkRunning) {
+    const pct = total > 0 ? (bulkProgress / total * 100) : 0;
+    html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div class="progress-track" style="flex:1"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <span style="font-size:13px;font-weight:700;color:var(--navy)">${bulkProgress}/${total}</span>
+    </div>
+    <button style="padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600" onclick="abortBulk=true">Stop</button>`;
+  }
+
+  if (bulkResults.length > 0 && !bulkRunning) {
+    html += `<div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn-solid" onclick="copyAllBulk()">Copy All as Text</button>
+      <button class="btn-outline" onclick="bulkResults=[];bulkProgress=0;renderBulk()">Reset</button>
+    </div>`;
+    bulkResults.forEach((r,i) => {
+      html += `<div class="bulk-card" onclick="toggleBulkView(${i})">
+        <div class="bulk-card-header">
+          <span class="bulk-card-name">${esc(r.name)}</span>
+          <span class="${r.ok?'bulk-ok':'bulk-err'}">${r.ok?'✓ Done':'✕ Error'}</span>
+        </div>
+        <div class="bulk-email">${esc(r.email)}</div>
+        ${bulkViewing===i && r.ok ? `<div class="bulk-expand">
+          <div style="font-size:11px;font-weight:700;color:var(--navy)">Subject: ${esc(r.subject)}</div>
+          <div style="font-size:12px;margin-top:6px;line-height:1.6;white-space:pre-wrap">${esc(r.body)}</div>
+          <button class="btn-solid" style="margin-top:8px;font-size:11px;padding:4px 12px" onclick="event.stopPropagation();copyText('Subject: '+${JSON.stringify(r.subject)}+'\\n\\n'+${JSON.stringify(r.body)})">Copy</button>
+        </div>` : ''}
+      </div>`;
+    });
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+  document.getElementById('outputArea').style.display = 'none';
+}
+
+function toggleBulkView(idx) {
+  bulkViewing = bulkViewing === idx ? null : idx;
+  renderBulk();
+}
+
+function copyAllBulk() {
+  const text = bulkResults.filter(r=>r.ok).map(r =>
+    `TO: ${r.email}\nSUBJECT: ${r.subject}\n\n${r.body}\n\n${'─'.repeat(50)}`
+  ).join('\n\n');
+  copyText(text);
+}
+
+async function runBulk() {
+  if (!CONFIG.GENERATE_URL) { showSettings(); return; }
+  bulkRunning = true; bulkProgress = 0; bulkResults = []; abortBulk = false;
+  renderBulk();
+
+  for (let i = 0; i < rows.length; i++) {
+    if (abortBulk) break;
+    const lead = rows[i];
+    const days = getDays(lead);
+    const nm = getName(lead);
+    const form = {
+      firstName: lead[mapping.first_name] || nm,
+      research: lead[mapping.research_interest] || '',
+      service: lead[mapping.service] || 'Family History Book',
+      detail: lead[mapping.notes] || '',
+      tone: 'Warm & Personal', offer: 'none', customOffer: '',
+      timeBucket: daysToTimeBucket(days),
+      email: lead[mapping.email] || '',
+    };
+    try {
+      const res = await fetch(CONFIG.GENERATE_URL, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ tab: 'reengage', ...form }),
+      });
+      const data = await res.json();
+      bulkResults.push({ name: nm, email: form.email, ...data, ok: true });
+    } catch (e) {
+      bulkResults.push({ name: nm, email: form.email, subject:'', body:'', ok: false, err: e.message });
+    }
+    bulkProgress = i + 1;
+    renderBulk();
+  }
+  bulkRunning = false;
+  renderBulk();
+}
+
+/* ═══════════════════════════════════════════
+   ADD LEAD
+   ═══════════════════════════════════════════ */
+function showAddModal() {
+  document.getElementById('addModal').style.display = 'flex';
+  const sel = document.getElementById('addService');
+  if (sel.options.length <= 1) {
+    sel.innerHTML = SERVICES.map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+}
+function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+
+async function addLead() {
+  const lead = {
+    first_name: document.getElementById('addFirst').value,
+    last_name: document.getElementById('addLast').value,
+    email: document.getElementById('addEmail').value,
+    service: document.getElementById('addService').value,
+    research_interest: document.getElementById('addResearch').value,
+    notes: document.getElementById('addNotes').value,
+    inquiry_date: new Date().toISOString().split('T')[0],
+    days_since: '0',
+    status: 'New',
+  };
+
+  // Add to local data
+  if (!mapped) {
+    headers = Object.keys(lead);
+    mapping = autoMap(headers);
+    mapped = true;
+    document.getElementById('mapper').style.display = 'none';
+    document.getElementById('syncBar').style.display = 'flex';
+    document.getElementById('searchWrap').style.display = 'block';
+    document.getElementById('filterPills').style.display = 'flex';
+    document.getElementById('leadCount').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('uploadIcon').textContent = '✅';
+    document.getElementById('uploadLabel').textContent = 'Leads Loaded — Upload New?';
+    renderTabs();
+  }
+
+  // Map to current header names
+  const row = {};
+  Object.entries(lead).forEach(([k,v]) => {
+    const col = mapping[k] || k;
+    row[col] = v;
+  });
+  rows.push(row);
+
+  // Save to Google Sheet via n8n if configured
+  if (CONFIG.ADD_LEAD_URL) {
+    try {
+      await fetch(CONFIG.ADD_LEAD_URL, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(lead),
+      });
+    } catch (e) { /* silently fail — lead is already local */ }
+  }
+
+  closeAddModal();
+  renderFilterPills();
+  renderLeads();
+  showToast('✓ Lead added');
+
+  // Clear form
+  ['addFirst','addLast','addEmail','addResearch','addNotes'].forEach(id => document.getElementById(id).value = '');
+}
+
+/* ═══════════════════════════════════════════
+   SETTINGS
+   ═══════════════════════════════════════════ */
+function checkConfig() {
+  document.getElementById('configBar').style.display = CONFIG.GENERATE_URL ? 'none' : 'flex';
+}
+
+function showSettings() {
+  document.getElementById('settingsModal').style.display = 'flex';
+  document.getElementById('settGenerate').value = CONFIG.GENERATE_URL;
+  document.getElementById('settSync').value = CONFIG.SYNC_URL;
+  document.getElementById('settAddLead').value = CONFIG.ADD_LEAD_URL;
+}
+function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+
+function saveSettings() {
+  saveConfig('GENERATE_URL', document.getElementById('settGenerate').value.trim());
+  saveConfig('SYNC_URL', document.getElementById('settSync').value.trim());
+  saveConfig('ADD_LEAD_URL', document.getElementById('settAddLead').value.trim());
+  closeSettings();
+  checkConfig();
+  showToast('✓ Configuration saved');
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════ */
+renderTabs();
+renderForm();
+checkConfig();
+</script>
+</body>
+</html>
