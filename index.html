@@ -358,9 +358,12 @@ function saveConfig(key, value) {
 
   <!-- ═══ SIDEBAR ═══ -->
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="brand-title">The Lineage Studio</div>
-      <div class="brand-sub">Lead Manager · Email Composer</div>
+    <div class="sidebar-header" style="display:flex;justify-content:space-between;align-items:start">
+      <div>
+        <div class="brand-title">The Lineage Studio</div>
+        <div class="brand-sub">Lead Manager · Email Composer</div>
+      </div>
+      <button onclick="showSettings()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px;opacity:0.5;color:var(--navy)" title="Settings">⚙️</button>
     </div>
 
     <!-- Upload zone -->
