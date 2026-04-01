@@ -1220,8 +1220,8 @@ function renderBulk() {
         ${bulkViewing===i && r.ok ? `<div class="bulk-expand">
           <div style="font-size:11px;font-weight:700;color:var(--navy)">Subject: ${esc(r.subject)}</div>
           <div style="font-size:12px;margin-top:6px;line-height:1.6;white-space:pre-wrap">${esc(r.body)}</div>
-          <button class="btn-solid" style="margin-top:8px;font-size:11px;padding:4px 12px" onclick="event.stopPropagation();copyText('Subject: '+${JSON.stringify(r.subject)}+'\\n\\n'+${JSON.stringify(r.body)})">Copy</button>
-          <button class="btn-solid" style="margin-top:8px;margin-left:6px;font-size:11px;padding:4px 12px;background:#0078d4" onclick="event.stopPropagation();openMailto('${r.email}',${JSON.stringify(r.subject)},${JSON.stringify(r.body)})">📧 Outlook</button>
+          <button class="btn-solid" style="margin-top:8px;font-size:11px;padding:4px 12px" onclick="event.stopPropagation();copyBulkItem(${i})">Copy</button>
+          <button class="btn-solid" style="margin-top:8px;margin-left:6px;font-size:11px;padding:4px 12px;background:#0078d4" onclick="event.stopPropagation();outlookBulkItem(${i})">📧 Outlook</button>
         </div>` : ''}
       </div>`;
     });
@@ -1238,10 +1238,20 @@ function toggleBulkView(idx) {
 }
 
 function copyAllBulk() {
-  const text = bulkResults.filter(r=>r.ok).map(r =>
-    `TO: ${r.email}\nSUBJECT: ${r.subject}\n\n${r.body}\n\n${'─'.repeat(50)}`
-  ).join('\n\n');
+  var text = bulkResults.filter(function(r){return r.ok;}).map(function(r) {
+    return 'TO: ' + r.email + '\nSUBJECT: ' + r.subject + '\n\n' + r.body + '\n\n' + Array(51).join('\u2500');
+  }).join('\n\n');
   copyText(text);
+}
+
+function copyBulkItem(idx) {
+  var r = bulkResults[idx];
+  if (r) copyText('Subject: ' + r.subject + '\n\n' + r.body);
+}
+
+function outlookBulkItem(idx) {
+  var r = bulkResults[idx];
+  if (r) openMailto(r.email, r.subject, r.body);
 }
 
 async function runBulk() {
