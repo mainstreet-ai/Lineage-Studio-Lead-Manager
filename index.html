@@ -1062,9 +1062,13 @@ function openInOutlook() {
   if (!result) return;
   var email = '';
   if (selectedIdx !== null) { email = rows[selectedIdx][mapping.email] || ''; }
-  var subject = encodeURIComponent(result.subject);
-  var body = encodeURIComponent(result.body);
-  window.open('mailto:' + email + '?subject=' + subject + '&body=' + body, '_self');
+  var mailtoUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(result.subject) + '&body=' + encodeURIComponent(result.body);
+  var a = document.createElement('a');
+  a.href = mailtoUrl;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   // Show Mark as Sent button
   setTimeout(function() {
     var ob = document.getElementById('outlookBtn');
@@ -1072,6 +1076,16 @@ function openInOutlook() {
     if (ob) { ob.style.display = 'none'; }
     if (mb) { mb.style.display = 'flex'; }
   }, 500);
+}
+
+function openMailto(email, subject, body) {
+  var mailtoUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  var a = document.createElement('a');
+  a.href = mailtoUrl;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 var STATUS_MAP = {};
@@ -1207,7 +1221,7 @@ function renderBulk() {
           <div style="font-size:11px;font-weight:700;color:var(--navy)">Subject: ${esc(r.subject)}</div>
           <div style="font-size:12px;margin-top:6px;line-height:1.6;white-space:pre-wrap">${esc(r.body)}</div>
           <button class="btn-solid" style="margin-top:8px;font-size:11px;padding:4px 12px" onclick="event.stopPropagation();copyText('Subject: '+${JSON.stringify(r.subject)}+'\\n\\n'+${JSON.stringify(r.body)})">Copy</button>
-          <button class="btn-solid" style="margin-top:8px;margin-left:6px;font-size:11px;padding:4px 12px;background:#0078d4" onclick="event.stopPropagation();window.open('mailto:'+encodeURIComponent('${r.email}')+'?subject='+encodeURIComponent(${JSON.stringify(r.subject)})+'&body='+encodeURIComponent(${JSON.stringify(r.body)}),'_self')">📧 Outlook</button>
+          <button class="btn-solid" style="margin-top:8px;margin-left:6px;font-size:11px;padding:4px 12px;background:#0078d4" onclick="event.stopPropagation();openMailto('${r.email}',${JSON.stringify(r.subject)},${JSON.stringify(r.body)})">📧 Outlook</button>
         </div>` : ''}
       </div>`;
     });
