@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unsubscribe — The Lineage Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1a3a4a;
+  --warm: #c9a96e;
+  --warm-light: #e8d5a8;
+  --warm-bg: #faf6ef;
+  --cream: #fdfbf7;
+  --text: #2c2c2c;
+  --muted: #7a7062;
+  --border: #e2ddd4;
+  --white: #ffffff;
+  --green: #27824a;
+  --green-bg: #d6f0df;
+  --red: #c0392b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Raleway', 'Segoe UI', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.card {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  max-width: 480px;
+  width: 100%;
+  padding: 40px;
+  text-align: center;
+}
+.logo-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.logo-sub {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 32px;
+  letter-spacing: 0.1em;
+}
+.heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 24px;
+  color: var(--navy);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  text-align: left;
+  display: block;
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Raleway', sans-serif;
+  color: var(--text);
+  background: var(--cream);
+  margin-bottom: 20px;
+  transition: all 0.2s;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--warm);
+  box-shadow: 0 0 0 3px var(--warm-light);
+}
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Raleway', sans-serif;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn:hover { filter: brightness(1.1); }
+.btn:disabled { background: var(--muted); cursor: default; }
+
+.success {
+  display: none;
+  padding: 24px;
+  background: var(--green-bg);
+  border-radius: 12px;
+  border: 1px solid #a3d9b1;
+}
+.success-icon { font-size: 48px; margin-bottom: 12px; }
+.success-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  color: var(--green);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.success-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.error-msg {
+  display: none;
+  padding: 12px 16px;
+  background: #fce4e1;
+  border-radius: 8px;
+  color: var(--red);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.footer {
+  margin-top: 32px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.footer a {
+  color: var(--navy);
+  text-decoration: none;
+  font-weight: 600;
+}
+.footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-text">The Lineage Studio</div>
+  <div class="logo-sub">Preserving Family Stories</div>
+
+  <!-- Form State -->
+  <div id="formState">
+    <div class="heading">Unsubscribe</div>
+    <div class="desc">
+      We're sorry to see you go. Enter your email below and you'll be removed from all future emails from The Lineage Studio.
+    </div>
+
+    <div id="errorMsg" class="error-msg"></div>
+
+    <label class="form-label">Your email address</label>
+    <input class="form-input" type="email" id="emailInput" placeholder="you@example.com" required>
+
+    <button class="btn" id="submitBtn" onclick="handleUnsubscribe()">
+      Unsubscribe Me
+    </button>
+  </div>
+
+  <!-- Success State -->
+  <div class="success" id="successState">
+    <div class="success-icon">✓</div>
+    <div class="success-heading">You've been unsubscribed</div>
+    <div class="success-text">
+      A confirmation email has been sent to <strong id="confirmedEmail"></strong>.<br><br>
+      You won't receive any more emails from The Lineage Studio. If you ever change your mind, you're always welcome to reach out at <a href="https://lineagestudio.org" style="color:var(--navy)">lineagestudio.org</a>.
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://lineagestudio.org">lineagestudio.org</a>
+  </div>
+</div>
+
+<script>
+// ┌──────────────────────────────────────────┐
+// │  CONFIGURE YOUR n8n WEBHOOK URL HERE     │
+// └──────────────────────────────────────────┘
+var UNSUBSCRIBE_WEBHOOK = 'https://lineagestudio.app.n8n.cloud/webhook/unsubscribe';
+
+// Pre-fill email from URL parameter if present
+var urlParams = new URLSearchParams(window.location.search);
+var emailParam = urlParams.get('email');
+if (emailParam) {
+  document.getElementById('emailInput').value = emailParam;
+}
+
+async function handleUnsubscribe() {
+  var emailInput = document.getElementById('emailInput');
+  var email = emailInput.value.trim();
+  var btn = document.getElementById('submitBtn');
+  var errorMsg = document.getElementById('errorMsg');
+
+  // Validate email
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    errorMsg.textContent = 'Please enter a valid email address.';
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  errorMsg.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    var response = await fetch(UNSUBSCRIBE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email,
+        timestamp: new Date().toISOString(),
+        source: 'unsubscribe_page'
+      })
+    });
+
+    if (!response.ok) throw new Error('Server error');
+
+    // Show success
+    document.getElementById('formState').style.display = 'none';
+    document.getElementById('confirmedEmail').textContent = email;
+    document.getElementById('successState').style.display = 'block';
+
+  } catch (e) {
+    errorMsg.textContent = 'Something went wrong. Please try again or email liane@lineagestudio.org directly.';
+    errorMsg.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Unsubscribe Me';
+  }
+}
+
+// Allow Enter key to submit
+document.getElementById('emailInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') handleUnsubscribe();
+});
+</script>
+</body>
+</html>
