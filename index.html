@@ -1,0 +1,590 @@
+import { useState, useRef, useCallback, useMemo } from "react";
+import Papa from "papaparse";
+import * as XLSX from "sheetjs";
+
+const C = {
+  navy: "#1a3a4a", navyLight: "#1f4a5c",
+  warm: "#c9a96e", warmLight: "#e8d5a8", warmBg: "#faf6ef",
+  cream: "#fdfbf7", sageBg: "#dfeee1",
+  red: "#c0392b", redBg: "#fce4e1",
+  yellow: "#b8860b", yellowBg: "#fdf3d7",
+  green: "#27824a", greenBg: "#d6f0df",
+  text: "#2c2c2c", muted: "#7a7062",
+  border: "#e2ddd4", borderLight: "#f0ece4",
+  white: "#ffffff",
+};
+
+const FIELDS = [
+  { key: "first_name", label: "First Name", aliases: ["firstname","first name","first","fname","given name","given_name","name","contact","contact name","contact_name"] },
+  { key: "last_name", label: "Last Name", aliases: ["lastname","last name","last","lname","surname","family_name"] },
+  { key: "email", label: "Email", aliases: ["email","email address","e-mail","email_address","emailaddress","mail"] },
+  { key: "inquiry_date", label: "Inquiry Date", aliases: ["inquiry_date","inquirydate","inquiry date","date","date_contacted","date first contacted","contact_date","contacted","created","date_created"] },
+  { key: "days_since", label: "Days Since", aliases: ["days_since","dayssince","days since","days","age"] },
+  { key: "service", label: "Service", aliases: ["service","service interest","service_interest","inquiry type","inquiry_type","product","offering"] },
+  { key: "research_interest", label: "Research Interest", aliases: ["research_interest","research interest","research","family","family name","surnames","topic","subject"] },
+  { key: "notes", label: "Notes", aliases: ["notes","note","comments","comment","details","additional","message","inquiry_text","inquiry text"] },
+  { key: "status", label: "Status", aliases: ["status","lead status","outcome","intent","intent level","intent_level","stage"] },
+];
+
+function autoMap(headers) {
+  const m = {};
+  const lh = headers.map(h => h.toLowerCase().trim().replace(/[_\-]/g, " "));
+  FIELDS.forEach(f => {
+    const idx = lh.findIndex(h => h === f.key.replace(/_/g, " ") || f.aliases.includes(h));
+    if (idx !== -1) m[f.key] = headers[idx];
+  });
+  return m;
+}
+
+function getLeadStatus(row, map) {
+  if (map.status && row[map.status]) {
+    const s = (row[map.status] + "").toLowerCase();
+    if (["cold","dormant","old","inactive"].some(k => s.includes(k))) return "cold";
+    if (["warm","medium","follow","pending"].some(k => s.includes(k))) return "warm";
+    if (["new","hot","high","fresh","lead","active"].some(k => s.includes(k))) return "new";
+  }
+  let days = parseInt(row[map.days_since]);
+  if (isNaN(days) && map.inquiry_date && row[map.inquiry_date]) {
+    const d = new Date(row[map.inquiry_date]);
+    if (!isNaN(d.getTime())) days = Math.floor((Date.now() - d.getTime()) / 86400000);
+  }
+  if (!isNaN(days)) { if (days > 30) return "cold"; if (days > 7) return "warm"; return "new"; }
+  return "cold";
+}
+
+function getDaysSince(row, map) {
+  let days = parseInt(row[map.days_since]);
+  if (isNaN(days) && map.inquiry_date && row[map.inquiry_date]) {
+    const d = new Date(row[map.inquiry_date]);
+    if (!isNaN(d.getTime())) days = Math.floor((Date.now() - d.getTime()) / 86400000);
+  }
+  return isNaN(days) ? null : days;
+}
+
+function daysToTimeBucket(days) {
+  if (days === null) return "unknown";
+  if (days <= 7) return "less_week";
+  if (days <= 14) return "1_2_weeks";
+  if (days <= 21) return "2_3_weeks";
+  if (days <= 30) return "3_4_weeks";
+  if (days <= 60) return "1_2_months";
+  return "over_2_months";
+}
+
+const STATUS_CFG = {
+  cold: { emoji: "\u{1F534}", label: "Cold", color: C.red, bg: C.redBg },
+  warm: { emoji: "\u{1F7E1}", label: "Warm", color: C.yellow, bg: C.yellowBg },
+  new:  { emoji: "\u{1F7E2}", label: "New",  color: C.green, bg: C.greenBg },
+};
+
+const TIME_OPTS = [
+  { v: "less_week", l: "Less than a week ago" },
+  { v: "1_2_weeks", l: "1\u20132 weeks ago" },
+  { v: "2_3_weeks", l: "2\u20133 weeks ago" },
+  { v: "3_4_weeks", l: "3\u20134 weeks ago" },
+  { v: "1_2_months", l: "1\u20132 months ago" },
+  { v: "over_2_months", l: "Over 2 months ago" },
+  { v: "unknown", l: "Unknown" },
+];
+
+const SERVICES = [
+  "Family History Book","Legacy or Memorial Book","Genealogy Research",
+  "Family Tree Chart","Photo Restoration","Military Records Research",
+  "Immigration Research","DNA Analysis Help","Other",
+];
+const TONES = ["Warm & Personal","Professional","Casual & Friendly","Urgent but Kind"];
+const OFFERS = [
+  { v: "none", l: "No offer" },
+  { v: "discount_10", l: "10% off first project" },
+  { v: "free_consult", l: "Free 15-min consultation" },
+  { v: "free_preview", l: "Free sample page / preview" },
+  { v: "custom", l: "Custom offer\u2026" },
+];
+
+const EMAIL_TABS = [
+  { key: "reengage", label: "Re-Engage", desc: "For leads who never replied after your initial response. Warm, personal, low-pressure \u2014 designed to reopen the conversation." },
+  { key: "newsletter", label: "Newsletter", desc: "A light-touch value email \u2014 share a story, tip, or seasonal note that keeps you top of mind without asking for anything." },
+  { key: "followup", label: "Follow-Up", desc: "For leads who showed interest but went quiet. Gently check in and make it easy to pick up where you left off." },
+  { key: "promo", label: "Promo", desc: "Time-sensitive or seasonal offer email. Best used sparingly for holidays, milestones, or limited availability." },
+  { key: "bulk", label: "Bulk Generate", desc: "Generate a personalized re-engagement email for every lead in your list at once." },
+];
+
+function buildPrompt(tab, form) {
+  const timeLbl = TIME_OPTS.find(t => t.v === form.timeBucket)?.l || "some time ago";
+  const offerLbl = form.offer === "custom" ? form.customOffer : OFFERS.find(o => o.v === form.offer)?.l;
+
+  const base = `You are Liane Men\u00e9ndez, founder of The Lineage Studio (lineagestudio.org), a professional genealogy and family history book service. You write warm, personal, story-driven emails. Never sound corporate or automated. Write like a real person who genuinely cares about preserving family stories.
+
+The lead's name is ${form.firstName}. They inquired about "${form.service}" approximately ${timeLbl}.${form.research ? ` Their research interest: ${form.research}.` : ""}${form.detail ? ` Additional context: ${form.detail}.` : ""}
+
+Tone: ${form.tone}.${form.offer !== "none" ? ` Include this offer naturally: ${offerLbl}.` : " Do not include any special offers."}
+
+CRITICAL: Return ONLY a valid JSON object with "subject" and "body" keys. The body should use \\n for line breaks. No markdown, no backticks, no extra text.`;
+
+  const inst = {
+    reengage: "Write a short re-engagement email (under 120 words). This person inquired but never replied. Low pressure. Acknowledge time has passed. Give them an easy way to respond (a simple question or numbered options). Sign off as Liane from The Lineage Studio with lineagestudio.org.",
+    newsletter: "Write a brief newsletter-style email (under 150 words) sharing something interesting about family history or genealogy. Weave in a subtle mention of The Lineage Studio. Do NOT hard-sell. End with a soft invitation to reply or visit lineagestudio.org.",
+    followup: "Write a gentle follow-up email (under 100 words). This person showed interest but went quiet. Reference what they were interested in. Make it effortless to reply. Sign off as Liane.",
+    promo: "Write a promotional email (under 130 words) with a seasonal or time-sensitive angle. Keep it warm, not salesy. Make the offer feel exclusive and personal. Sign off as Liane from The Lineage Studio.",
+  };
+  return base + "\n\n" + (inst[tab] || inst.reengage);
+}
+
+async function callAPI(prompt) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+  if (!res.ok) throw new Error("API returned " + res.status);
+  const data = await res.json();
+  const raw = (data.content || []).map(b => b.text || "").join("");
+  const clean = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+  return JSON.parse(clean);
+}
+
+const font = "'Raleway', 'Segoe UI', system-ui, sans-serif";
+const fontD = "'Playfair Display', Georgia, serif";
+const inp = { width: "100%", padding: "10px 12px", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, fontFamily: font, background: C.white, color: C.text, boxSizing: "border-box" };
+
+export default function App() {
+  const [headers, setHeaders] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [mapping, setMapping] = useState({});
+  const [mapped, setMapped] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [selIdx, setSelIdx] = useState(null);
+  const [activeTab, setActiveTab] = useState("reengage");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [form, setForm] = useState({
+    firstName: "", research: "", service: "Family History Book",
+    detail: "", tone: "Warm & Personal", offer: "none",
+    customOffer: "", timeBucket: "2_3_weeks",
+  });
+  const fileRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+
+  // Bulk states
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState(0);
+  const [bulkResults, setBulkResults] = useState([]);
+  const [bulkViewing, setBulkViewing] = useState(null);
+  const abortRef = useRef(false);
+
+  const parseFile = useCallback((file) => {
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (ext === "csv" || ext === "tsv") {
+      Papa.parse(file, {
+        header: true, skipEmptyLines: true,
+        complete: (r) => { setHeaders(r.meta.fields || []); setRows(r.data); setMapping(autoMap(r.meta.fields || [])); setMapped(false); setSelIdx(null); setResult(null); },
+      });
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const wb = XLSX.read(e.target.result, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
+        const h = json.length ? Object.keys(json[0]) : [];
+        setHeaders(h); setRows(json); setMapping(autoMap(h)); setMapped(false); setSelIdx(null); setResult(null);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }, []);
+
+  const leads = useMemo(() => {
+    if (!mapped) return [];
+    return rows.map((r, i) => ({ ...r, _idx: i, _status: getLeadStatus(r, mapping) }));
+  }, [rows, mapping, mapped]);
+
+  const filtered = useMemo(() => {
+    let f = leads;
+    if (filterStatus !== "all") f = f.filter(l => l._status === filterStatus);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      f = f.filter(l => {
+        const nm = [l[mapping.first_name], l[mapping.last_name]].filter(Boolean).join(" ").toLowerCase();
+        return nm.includes(q) || (l[mapping.email] || "").toLowerCase().includes(q) || (l[mapping.research_interest] || "").toLowerCase().includes(q);
+      });
+    }
+    return f;
+  }, [leads, search, filterStatus, mapping]);
+
+  const statusCounts = useMemo(() => {
+    const c = { all: leads.length, cold: 0, warm: 0, new: 0 };
+    leads.forEach(l => c[l._status]++);
+    return c;
+  }, [leads]);
+
+  const selectLead = (lead) => {
+    setSelIdx(lead._idx);
+    const days = getDaysSince(lead, mapping);
+    setForm({
+      firstName: [lead[mapping.first_name], lead[mapping.last_name]].filter(Boolean).join(" ") || "",
+      research: lead[mapping.research_interest] || "",
+      service: lead[mapping.service] || "Family History Book",
+      detail: lead[mapping.notes] || "",
+      tone: "Warm & Personal", offer: "none", customOffer: "",
+      timeBucket: daysToTimeBucket(days),
+    });
+    setResult(null); setError(null);
+    if (activeTab === "bulk") setActiveTab("reengage");
+  };
+
+  const doGenerate = async () => {
+    setLoading(true); setError(null); setResult(null);
+    try { setResult(await callAPI(buildPrompt(activeTab, form))); }
+    catch (e) { setError(e.message); }
+    setLoading(false);
+  };
+
+  const doCopy = (text) => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
+  const runBulk = async () => {
+    setBulkRunning(true); setBulkProgress(0); setBulkResults([]); abortRef.current = false;
+    const out = [];
+    for (let i = 0; i < leads.length; i++) {
+      if (abortRef.current) break;
+      const lead = leads[i];
+      const days = getDaysSince(lead, mapping);
+      const f = {
+        firstName: lead[mapping.first_name] || [lead[mapping.first_name], lead[mapping.last_name]].filter(Boolean).join(" ") || "there",
+        research: lead[mapping.research_interest] || "", service: lead[mapping.service] || "Family History Book",
+        detail: lead[mapping.notes] || "", tone: "Warm & Personal", offer: "none", customOffer: "",
+        timeBucket: daysToTimeBucket(days),
+      };
+      try {
+        const r = await callAPI(buildPrompt("reengage", f));
+        out.push({ name: f.firstName, email: lead[mapping.email] || "", ...r, ok: true });
+      } catch (e) {
+        out.push({ name: f.firstName, email: lead[mapping.email] || "", subject: "", body: "", ok: false, err: e.message });
+      }
+      setBulkProgress(i + 1); setBulkResults([...out]);
+    }
+    setBulkRunning(false);
+  };
+
+  const selLead = selIdx !== null ? rows[selIdx] : null;
+
+  return (
+    <div style={{ display: "flex", height: "100vh", fontFamily: font, color: C.text, background: C.cream, fontSize: 14, overflow: "hidden" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+        * { box-sizing: border-box; margin: 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 3px; }
+        @keyframes pulse { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+        select { cursor: pointer; }
+        input:focus, select:focus { outline: none; border-color: ${C.warm} !important; box-shadow: 0 0 0 2px ${C.warmLight}; }
+        button:hover { filter: brightness(1.05); }
+      `}</style>
+
+      {/* ═══ SIDEBAR ═══ */}
+      <div style={{ width: 340, minWidth: 340, background: C.white, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ padding: "20px 20px 16px", borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ fontFamily: fontD, fontSize: 18, fontWeight: 700, letterSpacing: "0.08em", color: C.navy, textTransform: "uppercase" }}>The Lineage Studio</div>
+          <div style={{ fontSize: 12, color: C.muted, fontStyle: "italic", marginTop: 2 }}>Lead Manager &middot; Email Composer</div>
+        </div>
+
+        {/* Upload */}
+        <div
+          onClick={() => fileRef.current?.click()}
+          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={e => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files[0]) parseFile(e.dataTransfer.files[0]); }}
+          style={{ margin: "16px 16px 12px", padding: "28px 16px", border: `2px dashed ${dragging ? C.warm : C.border}`, borderRadius: 10, textAlign: "center", cursor: "pointer", background: dragging ? C.warmBg : C.cream, transition: "all .2s" }}
+        >
+          <div style={{ fontSize: 28, marginBottom: 8 }}>{mapped ? "\u2705" : "\u{1F4CB}"}</div>
+          <div style={{ fontWeight: 700, color: C.navy, fontSize: 14, marginBottom: 4 }}>{mapped ? "Leads Loaded \u2014 Upload New?" : "Upload Your Leads"}</div>
+          <div style={{ fontSize: 12, color: C.muted }}>CSV or Excel (.xlsx)</div>
+          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Drag & drop or click</div>
+          <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,.tsv" hidden onChange={e => { if (e.target.files[0]) parseFile(e.target.files[0]); e.target.value = ""; }} />
+        </div>
+
+        {/* Column Mapper */}
+        {headers.length > 0 && !mapped && (
+          <div style={{ margin: "0 16px 12px", padding: 16, background: C.warmBg, borderRadius: 10, border: `1px solid ${C.warmLight}`, overflowY: "auto", maxHeight: 400 }}>
+            <div style={{ fontFamily: fontD, fontSize: 15, fontWeight: 700, color: C.navy, marginBottom: 4, letterSpacing: "0.04em" }}>MAP YOUR COLUMNS</div>
+            <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>Auto-detected what we could. Adjust anything wrong.</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {FIELDS.map(f => (
+                <div key={f.key}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: C.navy, marginBottom: 3 }}>{f.label}</div>
+                  <select value={mapping[f.key] || ""} onChange={e => setMapping(p => ({ ...p, [f.key]: e.target.value }))} style={{ ...inp, padding: "6px 8px", fontSize: 12 }}>
+                    <option value="">\u2014 skip \u2014</option>
+                    {headers.map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setMapped(true)} style={{ marginTop: 14, width: "100%", padding: 10, background: C.navy, color: C.white, border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: font, letterSpacing: "0.03em" }}>
+              Confirm & Load Leads
+            </button>
+          </div>
+        )}
+
+        {/* Lead List */}
+        {mapped && (
+          <>
+            <div style={{ padding: "0 16px 8px" }}>
+              <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14 }}>{"\u{1F50D}"}</span>
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search leads\u2026" style={{ ...inp, paddingLeft: 32, fontSize: 12 }} />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 4, padding: "0 16px 8px", flexWrap: "wrap" }}>
+              {["all","new","warm","cold"].map(s => (
+                <button key={s} onClick={() => setFilterStatus(s)} style={{
+                  padding: "3px 10px", border: `1px solid ${filterStatus === s ? C.navy : C.border}`, borderRadius: 20, fontSize: 10, fontWeight: 600, cursor: "pointer",
+                  background: filterStatus === s ? C.navy : "transparent", color: filterStatus === s ? C.white : C.muted, fontFamily: font,
+                }}>
+                  {s === "all" ? `All (${statusCounts.all})` : `${STATUS_CFG[s].emoji} ${STATUS_CFG[s].label} (${statusCounts[s]})`}
+                </button>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: C.muted, padding: "0 16px 6px", fontWeight: 600 }}>{filtered.length} lead{filtered.length !== 1 ? "s" : ""}</div>
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              {filtered.map(lead => {
+                const nm = [lead[mapping.first_name], lead[mapping.last_name]].filter(Boolean).join(" ") || "Unknown";
+                const days = getDaysSince(lead, mapping);
+                const cfg = STATUS_CFG[lead._status];
+                const active = selIdx === lead._idx;
+                return (
+                  <div key={lead._idx} onClick={() => selectLead(lead)} style={{
+                    padding: "12px 16px", cursor: "pointer", borderBottom: `1px solid ${C.borderLight}`,
+                    background: active ? C.warmBg : "transparent", borderLeft: active ? `3px solid ${C.warm}` : "3px solid transparent", transition: "background .15s",
+                  }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: C.navy }}>{nm}</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{lead[mapping.email] || "No email"}{days !== null ? ` \u00b7 ${days}d ago` : ""}</div>
+                    {lead[mapping.service] && <div style={{ fontSize: 11, color: C.text, marginTop: 2 }}>{lead[mapping.service]}</div>}
+                    <span style={{ display: "inline-block", marginTop: 4, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, color: cfg.color, background: cfg.bg }}>{cfg.label}</span>
+                  </div>
+                );
+              })}
+              {filtered.length === 0 && <div style={{ padding: 24, textAlign: "center", color: C.muted, fontSize: 12, fontStyle: "italic" }}>No leads match your search.</div>}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ═══ MAIN ═══ */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ padding: "24px 32px 0" }}>
+          <div style={{ fontFamily: fontD, fontSize: 28, color: C.navy, fontWeight: 600 }}>Email Composer</div>
+          <div style={{ fontSize: 13, color: C.muted, fontStyle: "italic", marginTop: 4 }}>Select a lead from the sidebar &mdash; it auto-fills the form. Then generate a personalized email in seconds.</div>
+        </div>
+        <div style={{ flex: 1, overflow: "auto", padding: "0 32px 32px" }}>
+
+          {/* Selected banner */}
+          {selLead && (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", background: C.navy, borderRadius: 10, color: C.white, marginBottom: 20, marginTop: 20 }}>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: C.navyLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, flexShrink: 0 }}>
+                {([selLead[mapping.first_name], selLead[mapping.last_name]].filter(Boolean).join(" ")[0] || "?").toUpperCase()}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {[selLead[mapping.first_name], selLead[mapping.last_name]].filter(Boolean).join(" ")} &middot; {selLead[mapping.email] || "no email"}
+                </div>
+                <div style={{ fontSize: 11, opacity: .7, marginTop: 1 }}>
+                  {selLead[mapping.service] || "No service"}{getDaysSince(selLead, mapping) !== null ? ` \u00b7 ${getDaysSince(selLead, mapping)} days since inquiry` : ""}
+                </div>
+              </div>
+              <button onClick={() => { setSelIdx(null); setResult(null); setError(null); }} style={{ background: "rgba(255,255,255,.15)", border: "none", color: C.white, padding: "6px 12px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: font }}>{"\u2715"} Clear</button>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 0, borderBottom: `2px solid ${C.border}`, marginBottom: 16, marginTop: selLead ? 0 : 20 }}>
+            {EMAIL_TABS.map(t => (
+              <button key={t.key} onClick={() => setActiveTab(t.key)} style={{
+                padding: "10px 18px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: font,
+                background: activeTab === t.key ? C.navy : "transparent", color: activeTab === t.key ? C.white : C.muted,
+                borderRadius: "8px 8px 0 0", transition: "all .15s", letterSpacing: "0.02em",
+              }}>{t.label}</button>
+            ))}
+          </div>
+
+          {/* Tab desc */}
+          <div style={{ padding: "10px 16px", background: C.sageBg, borderRadius: 8, fontSize: 12, color: "#3a5c40", marginBottom: 20, lineHeight: 1.6, fontStyle: "italic", border: "1px solid #b5d4b8" }}>
+            {EMAIL_TABS.find(t => t.key === activeTab)?.desc}
+          </div>
+
+          {activeTab !== "bulk" ? (
+            <>
+              {/* Form */}
+              <div style={{ background: C.warmBg, border: `1px solid ${C.warmLight}`, borderRadius: 10, padding: 20, marginBottom: 20 }}>
+                <div style={{ fontFamily: fontD, fontSize: 14, fontWeight: 700, color: C.navy, letterSpacing: "0.06em", marginBottom: 14, textTransform: "uppercase" }}>Lead Details</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>First Name</div>
+                    <input style={inp} value={form.firstName} onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>How long since inquiry?</div>
+                    <select style={inp} value={form.timeBucket} onChange={e => setForm(p => ({ ...p, timeBucket: e.target.value }))}>{TIME_OPTS.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}</select>
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 14 }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>What they were researching</div>
+                    <input style={inp} value={form.research} onChange={e => setForm(p => ({ ...p, research: e.target.value }))} placeholder="e.g., Williams family, Mississippi" />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Service interested in</div>
+                    <select style={inp} value={form.service} onChange={e => setForm(p => ({ ...p, service: e.target.value }))}>{SERVICES.map(s => <option key={s} value={s}>{s}</option>)}</select>
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 14 }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Detail from their inquiry (optional)</div>
+                    <input style={inp} value={form.detail} onChange={e => setForm(p => ({ ...p, detail: e.target.value }))} placeholder="e.g., Looking for grandfather born in Georgia" />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Tone</div>
+                    <select style={inp} value={form.tone} onChange={e => setForm(p => ({ ...p, tone: e.target.value }))}>{TONES.map(t => <option key={t} value={t}>{t}</option>)}</select>
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 14 }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Include a special offer?</div>
+                    <select style={inp} value={form.offer} onChange={e => setForm(p => ({ ...p, offer: e.target.value }))}>{OFFERS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}</select>
+                  </div>
+                  {form.offer === "custom" && (
+                    <div style={{ flex: 1, minWidth: 200 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: C.navy, fontStyle: "italic", marginBottom: 5 }}>Custom offer text</div>
+                      <input style={inp} value={form.customOffer} onChange={e => setForm(p => ({ ...p, customOffer: e.target.value }))} placeholder="Describe your offer\u2026" />
+                    </div>
+                  )}
+                </div>
+                <button onClick={doGenerate} disabled={loading} style={{
+                  marginTop: 18, padding: "12px 28px", background: loading ? C.muted : C.navy,
+                  color: C.white, border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700,
+                  cursor: loading ? "default" : "pointer", fontFamily: font, letterSpacing: "0.03em", opacity: loading ? .7 : 1,
+                }}>
+                  {loading ? "Generating\u2026" : "Generate Re-Engagement Email"}
+                </button>
+              </div>
+
+              {/* Output */}
+              {(result || loading || error) && (
+                <div style={{ background: C.warmBg, border: `1px solid ${C.warmLight}`, borderRadius: 10, padding: 20 }}>
+                  <div style={{ fontFamily: fontD, fontSize: 14, fontWeight: 700, color: C.navy, letterSpacing: "0.06em", marginBottom: 12, textTransform: "uppercase" }}>Generated Email</div>
+                  {loading && (
+                    <div style={{ padding: 20, textAlign: "center" }}>
+                      <div style={{ width: "100%", height: 6, background: C.border, borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ width: "60%", height: "100%", background: C.warm, borderRadius: 3, animation: "pulse 1.5s infinite" }} />
+                      </div>
+                      <div style={{ marginTop: 10, fontSize: 12, color: C.muted, fontStyle: "italic" }}>Writing your email&hellip;</div>
+                    </div>
+                  )}
+                  {error && !loading && <div style={{ padding: 16, background: C.redBg, borderRadius: 8, color: C.red, fontSize: 13 }}>Error: {error}</div>}
+                  {result && !loading && (
+                    <>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.navy, marginBottom: 4 }}>Subject:</div>
+                      <div style={{ padding: "10px 14px", background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, marginBottom: 14, fontWeight: 600 }}>{result.subject}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.navy, marginBottom: 4 }}>Body:</div>
+                      <div style={{ position: "relative" }}>
+                        <button onClick={() => doCopy(result.body)} style={{ position: "absolute", top: 8, right: 8, padding: "4px 12px", background: C.navy, color: C.white, border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Copy</button>
+                        <div style={{ padding: "14px 16px", background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, lineHeight: 1.65, whiteSpace: "pre-wrap", minHeight: 100 }}>{result.body}</div>
+                      </div>
+                      <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+                        <button onClick={doGenerate} style={{ padding: "8px 18px", background: "transparent", color: C.navy, border: `1.5px solid ${C.navy}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Regenerate</button>
+                        <button onClick={() => doCopy(`Subject: ${result.subject}\n\n${result.body}`)} style={{ padding: "8px 18px", background: C.navy, color: C.white, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font }}>Copy Subject + Body</button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </>
+          ) : (
+            /* ═══ BULK TAB ═══ */
+            <div style={{ background: C.warmBg, border: `1px solid ${C.warmLight}`, borderRadius: 10, padding: 20 }}>
+              <div style={{ fontFamily: fontD, fontSize: 14, fontWeight: 700, color: C.navy, letterSpacing: "0.06em", marginBottom: 8, textTransform: "uppercase" }}>Bulk Email Generator</div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 16 }}>Generate a personalized re-engagement email for every lead. Processes one at a time using AI.</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.navy, marginBottom: 12 }}>{leads.length} leads ready to process</div>
+
+              {!bulkRunning && bulkResults.length === 0 && (
+                <button onClick={runBulk} disabled={leads.length === 0} style={{ padding: "12px 28px", background: leads.length ? C.navy : C.muted, color: C.white, border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: leads.length ? "pointer" : "default", fontFamily: font }}>
+                  Generate All Emails
+                </button>
+              )}
+
+              {bulkRunning && (
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                    <div style={{ flex: 1, height: 8, background: C.border, borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ width: `${(bulkProgress / leads.length) * 100}%`, height: "100%", background: C.warm, borderRadius: 4, transition: "width .3s" }} />
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: C.navy }}>{bulkProgress}/{leads.length}</span>
+                  </div>
+                  <button onClick={() => { abortRef.current = true; }} style={{ padding: "8px 16px", background: C.red, color: C.white, border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Stop</button>
+                </div>
+              )}
+
+              {bulkResults.length > 0 && !bulkRunning && (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+                    <button onClick={() => {
+                      const text = bulkResults.filter(r => r.ok).map(r => `TO: ${r.email}\nSUBJECT: ${r.subject}\n\n${r.body}\n\n${"─".repeat(50)}`).join("\n\n");
+                      doCopy(text);
+                    }} style={{ padding: "8px 18px", background: C.navy, color: C.white, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: font }}>Copy All as Text</button>
+                    <button onClick={() => { setBulkResults([]); setBulkProgress(0); }} style={{ padding: "8px 18px", background: "transparent", color: C.navy, border: `1.5px solid ${C.navy}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Reset</button>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {bulkResults.map((r, i) => (
+                      <div key={i} onClick={() => setBulkViewing(bulkViewing === i ? null : i)} style={{ padding: "10px 14px", background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, cursor: "pointer" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontWeight: 600, fontSize: 13, color: C.navy }}>{r.name}</span>
+                          <span style={{ fontSize: 11, color: r.ok ? C.green : C.red, fontWeight: 600 }}>{r.ok ? "\u2713 Done" : "\u2715 Error"}</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: C.muted }}>{r.email}</div>
+                        {bulkViewing === i && r.ok && (
+                          <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.borderLight}` }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: C.navy }}>Subject: {r.subject}</div>
+                            <div style={{ fontSize: 12, marginTop: 6, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{r.body}</div>
+                            <button onClick={e => { e.stopPropagation(); doCopy(`Subject: ${r.subject}\n\n${r.body}`); }} style={{ marginTop: 8, padding: "4px 12px", background: C.navy, color: C.white, border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: font }}>Copy</button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!mapped && !selLead && (
+            <div style={{ textAlign: "center", paddingTop: 60 }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>{"\u{1F4CB}"}</div>
+              <div style={{ fontFamily: fontD, fontSize: 20, color: C.navy, marginBottom: 8 }}>Upload your lead spreadsheet to get started</div>
+              <div style={{ fontSize: 13, color: C.muted, maxWidth: 420, margin: "0 auto", lineHeight: 1.6 }}>
+                Drop a CSV or Excel file in the sidebar. The tool will auto-detect your columns, color-code your leads by status, and let you generate personalized emails with one click.
+              </div>
+              <div style={{ marginTop: 24, padding: 16, background: C.warmBg, borderRadius: 10, border: `1px solid ${C.warmLight}`, maxWidth: 420, margin: "24px auto 0", textAlign: "left" }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: C.navy, marginBottom: 6 }}>Suggested columns:</div>
+                <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.8, fontFamily: "'Courier New', monospace" }}>
+                  first_name &middot; last_name &middot; email &middot; inquiry_date &middot; days_since &middot; service &middot; research_interest &middot; notes &middot; status
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Toast */}
+      {copied && (
+        <div style={{ position: "fixed", bottom: 24, right: 24, padding: "10px 20px", background: C.navy, color: C.white, borderRadius: 8, fontSize: 13, fontWeight: 600, fontFamily: font, boxShadow: "0 4px 20px rgba(0,0,0,.2)", zIndex: 999 }}>
+          {"\u2713"} Copied to clipboard
+        </div>
+      )}
+    </div>
+  );
+}
