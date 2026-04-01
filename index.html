@@ -335,13 +335,19 @@ const CONFIG = {
 
   // n8n webhook that saves a new lead to Google Sheet (POST)
   ADD_LEAD_URL: localStorage.getItem('ls_add_lead_url') || '',
+
+  // n8n webhook that updates lead status in Excel (POST)
+  UPDATE_URL: localStorage.getItem('ls_update_url') || '',
 };
 
 function saveConfig(key, value) {
   CONFIG[key] = value;
-  const storageKey = key === 'GENERATE_URL' ? 'ls_generate_url' :
-                     key === 'SYNC_URL' ? 'ls_sync_url' : 'ls_add_lead_url';
-  localStorage.setItem(storageKey, value);
+  var storageKeys = {};
+  storageKeys['GENERATE_URL'] = 'ls_generate_url';
+  storageKeys['SYNC_URL'] = 'ls_sync_url';
+  storageKeys['ADD_LEAD_URL'] = 'ls_add_lead_url';
+  storageKeys['UPDATE_URL'] = 'ls_update_url';
+  localStorage.setItem(storageKeys[key] || key, value);
 }
 </script>
 
@@ -477,6 +483,11 @@ function saveConfig(key, value) {
         <input class="settings-input" id="settAddLead" placeholder="https://your-n8n.app.n8n.cloud/webhook/add-lead">
         <div class="settings-hint">Saves a manually added lead to your Google Sheet</div>
       </div>
+      <div>
+        <label class="settings-label">Update Status Webhook (POST)</label>
+        <input class="settings-input" id="settUpdate" placeholder="https://your-n8n.app.n8n.cloud/webhook/update-lead">
+        <div class="settings-hint">Updates lead status and timestamp in your Excel after sending an email</div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-outline" onclick="closeSettings()">Cancel</button>
@@ -516,6 +527,8 @@ const FIELDS = [
   { key:'research_interest', label:'Research Interest', aliases:['research_interest','research interest','research','family','family name','surnames','topic','subject'] },
   { key:'notes', label:'Notes', aliases:['notes','note','comments','comment','details','additional','message','inquiry_text','inquiry text'] },
   { key:'status', label:'Status', aliases:['status','lead status','outcome','intent','intent level','intent_level','stage'] },
+  { key:'last_email_date', label:'Last Email Date', aliases:['last_email_date','last email date','last_contacted','last contacted','last_action','last_sent','sent_date'] },
+  { key:'last_email_type', label:'Last Email Type', aliases:['last_email_type','last email type','last_action_type','email_type'] },
 ];
 
 const SERVICES = ['Family History Book','Legacy or Memorial Book','Genealogy Research','Family Tree Chart','Photo Restoration','Military Records Research','Immigration Research','DNA Analysis Help','Other'];
@@ -762,6 +775,7 @@ function renderLeads() {
       <div class="lead-name">${esc(nm)}</div>
       <div class="lead-meta">${esc(l[mapping.email]||'No email')}${daysLabel}</div>
       ${l[mapping.service] ? `<div class="lead-service">${esc(l[mapping.service])}</div>` : ''}
+      ${l[mapping.last_email_date] ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">Last emailed: ${esc(l[mapping.last_email_date])}</div>` : ''}
       <span class="status-badge status-${l._status}">${l._status.charAt(0).toUpperCase()+l._status.slice(1)}</span>
     </div>`;
   }).join('');
@@ -982,7 +996,8 @@ function renderOutput() {
     <div class="output-actions">
       <button class="btn-outline" onclick="generate()">Regenerate</button>
       <button class="btn-solid" onclick="copyText('Subject: '+${JSON.stringify(result.subject)}+'\\n\\n'+${JSON.stringify(result.body)})">Copy Subject + Body</button>
-      <button class="btn-solid" style="background:#0078d4;display:flex;align-items:center;gap:6px" onclick="openInOutlook()">📧 Open in Outlook</button>
+      <button class="btn-solid" id="outlookBtn" style="background:#0078d4;display:flex;align-items:center;gap:6px" onclick="openInOutlook()">📧 Open in Outlook</button>
+      <button class="btn-solid" id="markSentBtn" style="background:var(--green);display:none;align-items:center;gap:6px" onclick="markAsSent()">✓ Mark as Sent</button>
     </div>
   </div>`;
 }
@@ -994,6 +1009,71 @@ function openInOutlook() {
   var subject = encodeURIComponent(result.subject);
   var body = encodeURIComponent(result.body);
   window.open('mailto:' + email + '?subject=' + subject + '&body=' + body, '_self');
+  // Show Mark as Sent button
+  setTimeout(function() {
+    var ob = document.getElementById('outlookBtn');
+    var mb = document.getElementById('markSentBtn');
+    if (ob) { ob.style.display = 'none'; }
+    if (mb) { mb.style.display = 'flex'; }
+  }, 500);
+}
+
+var STATUS_MAP = {};
+STATUS_MAP['initial'] = 'Responded';
+STATUS_MAP['reengage'] = 'Re-engaged';
+STATUS_MAP['followup'] = 'Followed Up';
+STATUS_MAP['newsletter'] = 'Newsletter Sent';
+STATUS_MAP['promo'] = 'Promo Sent';
+
+async function markAsSent() {
+  var btn = document.getElementById('markSentBtn');
+  var email = '';
+  var leadName = '';
+  if (selectedIdx !== null) {
+    email = rows[selectedIdx][mapping.email] || '';
+    leadName = getName(rows[selectedIdx]);
+  }
+  var newStatus = STATUS_MAP[activeTab] || 'Contacted';
+  var timestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+  // Update local data
+  if (selectedIdx !== null) {
+    if (mapping.status) { rows[selectedIdx][mapping.status] = newStatus; }
+    if (mapping.last_email_date) { rows[selectedIdx][mapping.last_email_date] = timestamp; }
+  }
+
+  // Send update to n8n if configured
+  if (CONFIG.UPDATE_URL) {
+    btn.textContent = 'Updating…';
+    btn.disabled = true;
+    try {
+      await fetch(CONFIG.UPDATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          name: leadName,
+          new_status: newStatus,
+          email_type: activeTab,
+          timestamp: timestamp,
+          subject: result ? result.subject : '',
+        }),
+      });
+    } catch (e) {
+      // Update locally even if webhook fails
+    }
+  }
+
+  btn.textContent = '✓ Sent — Status Updated';
+  btn.style.background = 'var(--sage-bg)';
+  btn.style.color = 'var(--green)';
+  btn.style.border = '1.5px solid var(--green)';
+  btn.disabled = true;
+
+  // Refresh sidebar
+  renderFilterPills();
+  renderLeads();
+  showToast('✓ ' + leadName + ' marked as ' + newStatus);
 }
 
 /* ═══════════════════════════════════════════
@@ -1179,6 +1259,7 @@ function showSettings() {
   document.getElementById('settGenerate').value = CONFIG.GENERATE_URL;
   document.getElementById('settSync').value = CONFIG.SYNC_URL;
   document.getElementById('settAddLead').value = CONFIG.ADD_LEAD_URL;
+  document.getElementById('settUpdate').value = CONFIG.UPDATE_URL;
 }
 function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
 
@@ -1186,6 +1267,7 @@ function saveSettings() {
   saveConfig('GENERATE_URL', document.getElementById('settGenerate').value.trim());
   saveConfig('SYNC_URL', document.getElementById('settSync').value.trim());
   saveConfig('ADD_LEAD_URL', document.getElementById('settAddLead').value.trim());
+  saveConfig('UPDATE_URL', document.getElementById('settUpdate').value.trim());
   closeSettings();
   checkConfig();
   showToast('✓ Configuration saved');
