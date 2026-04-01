@@ -123,6 +123,9 @@ select { cursor: pointer; }
 .status-cold { color: var(--red); background: var(--red-bg); }
 .status-warm { color: var(--yellow); background: var(--yellow-bg); }
 .status-new { color: var(--green); background: var(--green-bg); }
+.status-unsub { color: #888; background: #eee; }
+.status-bounced { color: #888; background: #eee; }
+.status-contacted { color: #2563eb; background: #dbeafe; }
 
 /* Sync bar */
 .sync-bar {
@@ -521,9 +524,9 @@ const FIELDS = [
   { key:'first_name', label:'First Name', aliases:['firstname','first name','first','fname','given name','given_name','name','contact','contact name','contact_name'] },
   { key:'last_name', label:'Last Name', aliases:['lastname','last name','last','lname','surname','family_name'] },
   { key:'email', label:'Email', aliases:['email','email address','e-mail','email_address','emailaddress','mail'] },
-  { key:'inquiry_date', label:'Inquiry Date', aliases:['inquiry_date','inquirydate','inquiry date','date','date_contacted','date first contacted','contact_date','contacted','created','date_created'] },
-  { key:'days_since', label:'Days Since', aliases:['days_since','dayssince','days since','days','age'] },
-  { key:'service', label:'Service', aliases:['service','service interest','service_interest','inquiry type','inquiry_type','product','offering'] },
+  { key:'inquiry_date', label:'Inquiry Date', aliases:['inquiry_date','inquirydate','inquiry date','date','date_contacted','date first contacted','contact_date','contacted','created','date_created','submitted_at','submitted at','submitted'] },
+  { key:'days_since', label:'Days Since', aliases:['days_since','dayssince','days since','days','age','days_since_inquiry','days since inquiry'] },
+  { key:'service', label:'Service', aliases:['service','service interest','service_interest','inquiry type','inquiry_type','product','offering','interest'] },
   { key:'research_interest', label:'Research Interest', aliases:['research_interest','research interest','research','family','family name','surnames','topic','subject'] },
   { key:'notes', label:'Notes', aliases:['notes','note','comments','comment','details','additional','message','inquiry_text','inquiry text'] },
   { key:'status', label:'Status', aliases:['status','lead status','outcome','intent','intent level','intent_level','stage'] },
@@ -531,7 +534,7 @@ const FIELDS = [
   { key:'last_email_type', label:'Last Email Type', aliases:['last_email_type','last email type','last_action_type','email_type'] },
 ];
 
-const SERVICES = ['Family History Book','Legacy or Memorial Book','Genealogy Research','Family Tree Chart','Photo Restoration','Military Records Research','Immigration Research','DNA Analysis Help','Other'];
+const SERVICES = ['Family History Book','Legacy or Memorial Book','Genealogy Research','Family Tree Chart','Photo Restoration','Gift','Just Exploring','Not sure yet','Military Records Research','Immigration Research','DNA Analysis Help','Other'];
 const TONES = ['Warm & Personal','Professional','Casual & Friendly','Urgent but Kind'];
 const OFFERS = [{v:'none',l:'No offer'},{v:'discount_10',l:'10% off first project'},{v:'free_consult',l:'Free 15-min consultation'},{v:'free_preview',l:'Free sample page / preview'},{v:'custom',l:'Custom offer…'}];
 const TIME_OPTS = [{v:'less_week',l:'Less than a week ago'},{v:'1_2_weeks',l:'1–2 weeks ago'},{v:'2_3_weeks',l:'2–3 weeks ago'},{v:'3_4_weeks',l:'3–4 weeks ago'},{v:'1_2_months',l:'1–2 months ago'},{v:'over_2_months',l:'Over 2 months ago'},{v:'unknown',l:'Unknown'}];
@@ -560,12 +563,15 @@ function autoMap(hdrs) {
 
 function getStatus(row) {
   if (mapping.status && row[mapping.status]) {
-    const s = (row[mapping.status]+'').toLowerCase();
+    var s = (row[mapping.status]+'').toLowerCase().trim();
+    if (['unsubscribed','unsub','stop','opted out','opt out','removed'].some(k=>s.includes(k))) return 'unsub';
+    if (['bounced','bounce','invalid','bad email'].some(k=>s.includes(k))) return 'bounced';
+    if (['responded','re-engaged','reengaged','followed up','contacted','newsletter sent','promo sent'].some(k=>s.includes(k))) return 'contacted';
     if (['cold','dormant','old','inactive'].some(k=>s.includes(k))) return 'cold';
     if (['warm','medium','follow','pending'].some(k=>s.includes(k))) return 'warm';
     if (['new','hot','high','fresh','lead','active'].some(k=>s.includes(k))) return 'new';
   }
-  let days = getDays(row);
+  var days = getDays(row);
   if (days !== null) { if (days > 30) return 'cold'; if (days > 7) return 'warm'; return 'new'; }
   return 'cold';
 }
@@ -735,23 +741,28 @@ function getFilteredLeads() {
 }
 
 function getStatusCounts() {
-  const all = rows.map(r => getStatus(r));
+  var all = rows.map(r => getStatus(r));
   return {
     all: all.length,
     new: all.filter(s=>s==='new').length,
     warm: all.filter(s=>s==='warm').length,
     cold: all.filter(s=>s==='cold').length,
+    contacted: all.filter(s=>s==='contacted').length,
+    unsub: all.filter(s=>s==='unsub').length,
+    bounced: all.filter(s=>s==='bounced').length,
   };
 }
 
 function renderFilterPills() {
-  const counts = getStatusCounts();
-  const el = document.getElementById('filterPills');
-  const statuses = [
-    {k:'all', l:`All (${counts.all})`},
-    {k:'new', l:`🟢 New (${counts.new})`},
-    {k:'warm', l:`🟡 Warm (${counts.warm})`},
-    {k:'cold', l:`🔴 Cold (${counts.cold})`},
+  var counts = getStatusCounts();
+  var el = document.getElementById('filterPills');
+  var statuses = [
+    {k:'all', l:'All (' + counts.all + ')'},
+    {k:'new', l:'\u{1F7E2} New (' + counts.new + ')'},
+    {k:'warm', l:'\u{1F7E1} Warm (' + counts.warm + ')'},
+    {k:'cold', l:'\u{1F534} Cold (' + counts.cold + ')'},
+    {k:'contacted', l:'\u{1F4E7} Contacted (' + counts.contacted + ')'},
+    {k:'unsub', l:'\u{1F6AB} Unsub (' + counts.unsub + ')'},
   ];
   el.innerHTML = statuses.map(s =>
     `<button class="pill ${filterStatus===s.k?'active':''}" onclick="filterStatus='${s.k}';renderFilterPills();renderLeads()">${s.l}</button>`
@@ -767,17 +778,19 @@ function renderLeads() {
     return;
   }
   el.innerHTML = leads.map(l => {
-    const nm = getName(l);
-    const days = getDays(l);
-    const daysLabel = days !== null ? ` · ${days}d ago` : '';
-    const active = selectedIdx === l._idx;
-    return `<div class="lead-card ${active?'active':''}" onclick="selectLead(${l._idx})">
-      <div class="lead-name">${esc(nm)}</div>
-      <div class="lead-meta">${esc(l[mapping.email]||'No email')}${daysLabel}</div>
-      ${l[mapping.service] ? `<div class="lead-service">${esc(l[mapping.service])}</div>` : ''}
-      ${l[mapping.last_email_date] ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">Last emailed: ${esc(l[mapping.last_email_date])}</div>` : ''}
-      <span class="status-badge status-${l._status}">${l._status.charAt(0).toUpperCase()+l._status.slice(1)}</span>
-    </div>`;
+    var nm = getName(l);
+    var days = getDays(l);
+    var daysLabel = days !== null ? ' \u00b7 ' + days + 'd ago' : '';
+    var active = selectedIdx === l._idx;
+    var statusLabels = {new:'New',warm:'Warm',cold:'Cold',contacted:'Contacted',unsub:'Unsubscribed',bounced:'Bounced'};
+    var opacity = (l._status === 'unsub' || l._status === 'bounced') ? 'opacity:0.5;' : '';
+    return '<div class="lead-card ' + (active?'active':'') + '" onclick="selectLead(' + l._idx + ')" style="' + opacity + '">'
+      + '<div class="lead-name">' + esc(nm) + '</div>'
+      + '<div class="lead-meta">' + esc(l[mapping.email]||'No email') + daysLabel + '</div>'
+      + (l[mapping.service] ? '<div class="lead-service">' + esc(l[mapping.service]) + '</div>' : '')
+      + (l[mapping.last_email_date] ? '<div style="font-size:10px;color:var(--muted);margin-top:2px">Last emailed: ' + esc(l[mapping.last_email_date]) + '</div>' : '')
+      + '<span class="status-badge status-' + l._status + '">' + (statusLabels[l._status] || l._status) + '</span>'
+      + '</div>';
   }).join('');
 }
 
@@ -827,21 +840,61 @@ function clearSelection() {
 }
 
 function renderSelBanner() {
-  const el = document.getElementById('selBanner');
+  var el = document.getElementById('selBanner');
   if (selectedIdx === null) { el.style.display = 'none'; return; }
-  const lead = rows[selectedIdx];
-  const nm = getName(lead);
-  const days = getDays(lead);
+  var lead = rows[selectedIdx];
+  var nm = getName(lead);
+  var days = getDays(lead);
+  var status = getStatus(lead);
+  var isUnsub = status === 'unsub';
+  var isBounced = status === 'bounced';
   el.style.display = 'flex';
   el.className = 'sel-banner';
-  el.innerHTML = `
-    <div class="sel-avatar">${(nm[0]||'?').toUpperCase()}</div>
-    <div class="sel-info">
-      <div class="sel-name">${esc(nm)} · ${esc(lead[mapping.email]||'no email')}</div>
-      <div class="sel-detail">${esc(lead[mapping.service]||'No service')}${days!==null?` · ${days} days since inquiry`:''}</div>
-    </div>
-    <button class="sel-clear" onclick="clearSelection()">✕ Clear</button>
-  `;
+  el.style.background = isUnsub ? '#666' : isBounced ? '#888' : 'var(--navy)';
+  el.innerHTML = '<div class="sel-avatar">' + (nm[0]||'?').toUpperCase() + '</div>'
+    + '<div class="sel-info">'
+    + '<div class="sel-name">' + esc(nm) + ' \u00b7 ' + esc(lead[mapping.email]||'no email') + '</div>'
+    + '<div class="sel-detail">' + esc(lead[mapping.service]||'No service') + (days!==null?' \u00b7 '+days+' days since inquiry':'')
+    + (isUnsub ? ' \u00b7 \u26d4 UNSUBSCRIBED' : '') + (isBounced ? ' \u00b7 \u26a0 BOUNCED' : '') + '</div>'
+    + '</div>'
+    + ((!isUnsub && !isBounced) ? '<button class="sel-clear" style="background:rgba(255,0,0,0.2);margin-right:6px" onclick="markUnsubscribed()">Unsubscribe</button>' : '')
+    + '<button class="sel-clear" onclick="clearSelection()">\u2715 Clear</button>';
+}
+
+async function markUnsubscribed() {
+  if (selectedIdx === null) return;
+  var lead = rows[selectedIdx];
+  var email = lead[mapping.email] || '';
+  var nm = getName(lead);
+  var timestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+  // Update local data
+  if (mapping.status) { rows[selectedIdx][mapping.status] = 'Unsubscribed'; }
+  if (mapping.last_email_date) { rows[selectedIdx][mapping.last_email_date] = timestamp; }
+  if (mapping.last_email_type) { rows[selectedIdx][mapping.last_email_type] = 'Unsubscribed'; }
+
+  // Send update to n8n if configured
+  if (CONFIG.UPDATE_URL) {
+    try {
+      await fetch(CONFIG.UPDATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          name: nm,
+          new_status: 'Unsubscribed',
+          email_type: 'Unsubscribed',
+          timestamp: timestamp,
+          subject: '',
+        }),
+      });
+    } catch (e) { /* update locally even if webhook fails */ }
+  }
+
+  renderSelBanner();
+  renderFilterPills();
+  renderLeads();
+  showToast('\u26d4 ' + nm + ' marked as Unsubscribed');
 }
 
 /* ═══════════════════════════════════════════
@@ -1080,15 +1133,16 @@ async function markAsSent() {
    BULK GENERATE
    ═══════════════════════════════════════════ */
 function renderBulk() {
-  const el = document.getElementById('formArea');
-  const total = rows.length;
+  var el = document.getElementById('formArea');
+  var eligible = rows.filter(function(r) { var s = getStatus(r); return s !== 'unsub' && s !== 'bounced'; });
+  var total = eligible.length;
+  var excluded = rows.length - total;
 
-  let html = `<div class="form-card">
-    <div class="form-heading">Bulk Email Generator</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">
-      Generate a personalized re-engagement email for every lead. Processes one at a time via n8n.
-    </div>
-    <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px">${total} leads ready to process</div>`;
+  var html = '<div class="form-card">'
+    + '<div class="form-heading">Bulk Email Generator</div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Generate a personalized re-engagement email for every eligible lead. Processes one at a time via n8n.</div>'
+    + '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">' + total + ' leads ready to process</div>'
+    + (excluded > 0 ? '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">' + excluded + ' skipped (unsubscribed or bounced)</div>' : '<div style="margin-bottom:12px"></div>');
 
   if (!bulkRunning && bulkResults.length === 0) {
     html += `<button class="gen-btn" onclick="runBulk()" ${total===0?'disabled':''}>Generate All Emails</button>`;
@@ -1144,12 +1198,13 @@ function copyAllBulk() {
 
 async function runBulk() {
   if (!CONFIG.GENERATE_URL) { showSettings(); return; }
+  var eligible = rows.filter(function(r) { var s = getStatus(r); return s !== 'unsub' && s !== 'bounced'; });
   bulkRunning = true; bulkProgress = 0; bulkResults = []; abortBulk = false;
   renderBulk();
 
-  for (let i = 0; i < rows.length; i++) {
+  for (var i = 0; i < eligible.length; i++) {
     if (abortBulk) break;
-    const lead = rows[i];
+    var lead = eligible[i];
     const days = getDays(lead);
     const nm = getName(lead);
     const form = {
