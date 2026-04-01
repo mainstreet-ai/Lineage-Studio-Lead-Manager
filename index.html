@@ -1135,17 +1135,48 @@ async function markAsSent() {
 /* ═══════════════════════════════════════════
    BULK GENERATE
    ═══════════════════════════════════════════ */
+var bulkStatusFilter = 'all';
+
+function getBulkEligible() {
+  return rows.filter(function(r) {
+    var s = getStatus(r);
+    if (s === 'unsub' || s === 'bounced') return false;
+    if (bulkStatusFilter === 'all') return true;
+    return s === bulkStatusFilter;
+  });
+}
+
 function renderBulk() {
   var el = document.getElementById('formArea');
-  var eligible = rows.filter(function(r) { var s = getStatus(r); return s !== 'unsub' && s !== 'bounced'; });
+  var eligible = getBulkEligible();
   var total = eligible.length;
-  var excluded = rows.length - total;
+  var totalUnsub = rows.filter(function(r) { var s = getStatus(r); return s === 'unsub' || s === 'bounced'; }).length;
+
+  var counts = getStatusCounts();
 
   var html = '<div class="form-card">'
     + '<div class="form-heading">Bulk Email Generator</div>'
-    + '<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Generate a personalized re-engagement email for every eligible lead. Processes one at a time via n8n.</div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Generate a personalized email for a group of leads filtered by status. Processes one at a time via n8n.</div>'
+    + '<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px">'
+    + '<div class="form-group" style="min-width:200px;max-width:300px"><label class="form-label">Which leads to email?</label>'
+    + '<select class="form-select" id="bulkFilter" onchange="bulkStatusFilter=this.value;renderBulk()">'
+    + '<option value="all"' + (bulkStatusFilter==='all'?' selected':'') + '>All eligible (' + (rows.length - totalUnsub) + ')</option>'
+    + '<option value="new"' + (bulkStatusFilter==='new'?' selected':'') + '>🟢 New only (' + counts.new + ')</option>'
+    + '<option value="warm"' + (bulkStatusFilter==='warm'?' selected':'') + '>🟡 Warm only (' + counts.warm + ')</option>'
+    + '<option value="cold"' + (bulkStatusFilter==='cold'?' selected':'') + '>🔴 Cold only (' + counts.cold + ')</option>'
+    + '<option value="contacted"' + (bulkStatusFilter==='contacted'?' selected':'') + '>📧 Contacted only (' + counts.contacted + ')</option>'
+    + '</select></div>'
+    + '<div class="form-group" style="min-width:200px;max-width:300px"><label class="form-label">Email type to generate</label>'
+    + '<select class="form-select" id="bulkEmailType">'
+    + '<option value="reengage">Re-Engage</option>'
+    + '<option value="initial">Initial Response</option>'
+    + '<option value="followup">Follow-Up</option>'
+    + '<option value="newsletter">Newsletter</option>'
+    + '<option value="promo">Promo</option>'
+    + '</select></div>'
+    + '</div>'
     + '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">' + total + ' leads ready to process</div>'
-    + (excluded > 0 ? '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">' + excluded + ' skipped (unsubscribed or bounced)</div>' : '<div style="margin-bottom:12px"></div>');
+    + (totalUnsub > 0 ? '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">' + totalUnsub + ' always skipped (unsubscribed or bounced)</div>' : '<div style="margin-bottom:12px"></div>');
 
   if (!bulkRunning && bulkResults.length === 0) {
     html += `<button class="gen-btn" onclick="runBulk()" ${total===0?'disabled':''}>Generate All Emails</button>`;
@@ -1201,16 +1232,17 @@ function copyAllBulk() {
 
 async function runBulk() {
   if (!CONFIG.GENERATE_URL) { showSettings(); return; }
-  var eligible = rows.filter(function(r) { var s = getStatus(r); return s !== 'unsub' && s !== 'bounced'; });
+  var eligible = getBulkEligible();
+  var emailType = document.getElementById('bulkEmailType')?.value || 'reengage';
   bulkRunning = true; bulkProgress = 0; bulkResults = []; abortBulk = false;
   renderBulk();
 
   for (var i = 0; i < eligible.length; i++) {
     if (abortBulk) break;
     var lead = eligible[i];
-    const days = getDays(lead);
-    const nm = getName(lead);
-    const form = {
+    var days = getDays(lead);
+    var nm = getName(lead);
+    var form = {
       firstName: lead[mapping.first_name] || nm,
       research: lead[mapping.research_interest] || '',
       service: lead[mapping.service] || 'Family History Book',
@@ -1221,9 +1253,9 @@ async function runBulk() {
       unsub: true,
     };
     try {
-      const res = await fetch(CONFIG.GENERATE_URL, {
+      var res = await fetch(CONFIG.GENERATE_URL, {
         method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ tab: 'reengage', ...form }),
+        body: JSON.stringify({ tab: emailType, ...form }),
       });
       const data = await res.json();
       bulkResults.push({ name: nm, email: form.email, ...data, ok: true });
