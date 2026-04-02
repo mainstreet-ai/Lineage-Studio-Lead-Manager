@@ -3,1385 +3,676 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Lineage Studio — Lead Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<title>Lead Manager v2 — The Lineage Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🌳</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   CSS CUSTOM PROPERTIES & RESET
-   ═══════════════════════════════════════════ */
-:root {
-  --navy: #1a3a4a; --navy-light: #1f4a5c; --navy-dark: #112a36;
-  --warm: #c9a96e; --warm-light: #e8d5a8; --warm-bg: #faf6ef;
-  --cream: #fdfbf7; --sage-bg: #dfeee1; --sage-border: #b5d4b8;
-  --red: #c0392b; --red-bg: #fce4e1;
-  --yellow: #b8860b; --yellow-bg: #fdf3d7;
-  --green: #27824a; --green-bg: #d6f0df;
-  --text: #2c2c2c; --muted: #7a7062;
-  --border: #e2ddd4; --border-light: #f0ece4;
-  --white: #ffffff;
-  --font: 'Raleway', 'Segoe UI', system-ui, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); color: var(--text); background: var(--cream); font-size: 14px; }
-button { font-family: var(--font); cursor: pointer; transition: filter 0.15s; }
-button:hover { filter: brightness(1.05); }
-input, select { font-family: var(--font); }
-input:focus, select:focus { outline: none; border-color: var(--warm) !important; box-shadow: 0 0 0 2px var(--warm-light); }
-select { cursor: pointer; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+:root{--forest:#5B8C5A;--forest-d:#4A7A49;--forest-bg:#5B8C5A14;--gold:#D4A853;--gold-bg:#D4A85314;--ember:#E8913A;--ember-bg:#E8913A14;--crimson:#C75146;--crimson-bg:#C7514614;--teal:#2E7D6F;--teal-bg:#2E7D6F14;--slate:#8B8B8B;--slate-bg:#8B8B8B14;--purple:#7B68A5;--purple-bg:#7B68A514;--parchment:#FAF7F2;--cream:#F3EDE3;--bark:#3B2F24;--bark-m:#6B5D50;--bark-l:#9B8E80;--ink:#2C2420;--white:#fff;--rad:10px;--rad-s:6px;--sh:0 1px 3px rgba(59,47,36,.06);--sh-m:0 4px 16px rgba(59,47,36,.08);--sh-l:0 8px 32px rgba(59,47,36,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--parchment);color:var(--ink);min-height:100vh;line-height:1.5}
+h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:600}
+::selection{background:#5B8C5A33}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#C4B49A55;border-radius:3px}
+input,select,textarea,button{font-family:'DM Sans',sans-serif}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--forest)!important;box-shadow:0 0 0 3px #5B8C5A22}
+button{cursor:pointer;transition:all .15s;border:none}
+button:active{transform:scale(.97)}
+a{color:var(--forest);text-decoration:none}
 
-/* ═══════════════════════════════════════════
-   LAYOUT
-   ═══════════════════════════════════════════ */
-.app { display: flex; height: 100vh; overflow: hidden; }
-.sidebar {
-  width: 340px; min-width: 340px; background: var(--white);
-  border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
-}
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.main-header { padding: 24px 32px 0; }
-.main-body { flex: 1; overflow: auto; padding: 0 32px 32px; }
+header{background:var(--white);border-bottom:1px solid #E8E2D8;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.h-left{display:flex;align-items:center;gap:12px}
+.logo{width:34px;height:34px;background:var(--forest);color:var(--white);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:12px;letter-spacing:.5px}
+.h-title{font-size:18px;color:var(--bark);line-height:1.1}
+.h-sub{font-size:10px;color:var(--bark-l);font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+nav{display:flex;gap:3px}
+.nb{padding:7px 14px;border-radius:var(--rad-s);background:0 0;color:var(--bark-m);font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px}
+.nb:hover{background:var(--cream);color:var(--bark)}
+.nb.on{background:var(--forest);color:var(--white)}
+.nb.on:hover{background:var(--forest-d)}
 
-/* ═══════════════════════════════════════════
-   SIDEBAR
-   ═══════════════════════════════════════════ */
-.sidebar-header {
-  padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
-}
-.brand-title {
-  font-family: var(--font-display); font-size: 18px; font-weight: 700;
-  letter-spacing: 0.08em; color: var(--navy); text-transform: uppercase;
-}
-.brand-sub { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 2px; }
+main{flex:1;padding:24px 28px;max-width:1320px;width:100%;margin:0 auto}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bark);color:var(--white);padding:10px 18px;border-radius:var(--rad);font-size:12px;font-weight:500;box-shadow:var(--sh-l);z-index:999;animation:ti .3s ease}
+@keyframes ti{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes si{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pu{0%,100%{opacity:.4}50%{opacity:1}}
 
-.upload-zone {
-  margin: 16px 16px 12px; padding: 28px 16px; border: 2px dashed var(--border);
-  border-radius: 10px; text-align: center; cursor: pointer; background: var(--cream);
-  transition: all 0.2s;
-}
-.upload-zone.dragging, .upload-zone:hover { border-color: var(--warm); background: var(--warm-bg); }
-.upload-zone .icon { font-size: 28px; margin-bottom: 8px; }
-.upload-zone .label { font-weight: 700; color: var(--navy); font-size: 14px; margin-bottom: 4px; }
-.upload-zone .hint { font-size: 12px; color: var(--muted); }
-.upload-zone .hint-sm { font-size: 11px; color: var(--muted); margin-top: 2px; }
+/* Dashboard */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;margin-bottom:24px}
+.sc{background:var(--white);border-radius:var(--rad);padding:18px;box-shadow:var(--sh);border-left:4px solid var(--forest);animation:fi .3s ease both}
+.sc .lb{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--bark-l);font-weight:600;margin-bottom:4px}
+.sc .vl{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:var(--bark)}
+.sc .su{font-size:11px;color:var(--bark-m);margin-top:2px}
+.pc{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px}
+.pcol{background:var(--white);border-radius:var(--rad);padding:14px;box-shadow:var(--sh);animation:fi .35s ease both}
+.pcol-h{display:flex;align-items:center;gap:7px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #EDE8E0}
+.sd{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pcol-t{font-size:12px;font-weight:600;color:var(--bark)}
+.pcol-c{font-size:10px;color:var(--bark-l);margin-left:auto;font-weight:600;background:var(--cream);padding:1px 7px;border-radius:10px}
+.pi{padding:7px 9px;margin-bottom:5px;background:var(--parchment);border-radius:var(--rad-s);font-size:12px;color:var(--bark);cursor:pointer;transition:background .1s}
+.pi:hover{background:var(--cream)}
+.pi-n{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-s{font-size:10px;color:var(--bark-l);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* Column mapper */
-.mapper {
-  margin: 0 16px 12px; padding: 16px; background: var(--warm-bg);
-  border-radius: 10px; border: 1px solid var(--warm-light); overflow-y: auto; max-height: 400px;
-}
-.mapper-title {
-  font-family: var(--font-display); font-size: 15px; font-weight: 700;
-  color: var(--navy); margin-bottom: 4px; letter-spacing: 0.04em;
-}
-.mapper-hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
-.mapper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.mapper-field label { font-size: 11px; font-weight: 600; color: var(--navy); display: block; margin-bottom: 3px; }
-.mapper-field select {
-  width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border);
-  font-size: 12px; background: var(--white);
-}
-.mapper-btn {
-  margin-top: 14px; width: 100%; padding: 10px; background: var(--navy); color: var(--white);
-  border: none; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
-}
+/* Toolbar */
+.tb{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.sw{position:relative;flex:1;min-width:180px}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--bark-l);font-size:13px;pointer-events:none}
+.sb{width:100%;padding:8px 12px 8px 32px;border:1px solid #DDD7CD;border-radius:var(--rad-s);font-size:12px;background:var(--white)}
+.fs{padding:8px 12px;border:1px solid #DDD7CD;border-radius:var(--rad-s);font-size:12px;background:var(--white);color:var(--bark);min-width:130px}
+.btn{padding:8px 14px;border-radius:var(--rad-s);font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.bp{background:var(--forest);color:var(--white)}.bp:hover{background:var(--forest-d)}
+.bs{background:var(--cream);color:var(--bark)}.bs:hover{background:#E8E2D8}
+.bd{background:var(--crimson);color:var(--white)}.bd:hover{background:#B04439}
+.bg{background:0 0;color:var(--bark-m)}.bg:hover{background:var(--cream);color:var(--bark)}
+.bsm{padding:5px 10px;font-size:11px}
 
-/* Search & filters */
-.search-wrap { padding: 0 16px 8px; position: relative; }
-.search-icon { position: absolute; left: 26px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; }
-.search-input {
-  width: 100%; padding: 10px 12px 10px 32px; border: 1px solid var(--border);
-  border-radius: 8px; font-size: 12px; background: var(--white);
-}
-.filter-pills { display: flex; gap: 4px; padding: 0 16px 8px; flex-wrap: wrap; }
-.pill {
-  padding: 3px 10px; border: 1px solid var(--border); border-radius: 20px;
-  font-size: 10px; font-weight: 600; background: transparent; color: var(--muted);
-}
-.pill.active { border-color: var(--navy); background: var(--navy); color: var(--white); }
-.lead-count { font-size: 11px; color: var(--muted); padding: 0 16px 6px; font-weight: 600; }
+/* Table */
+.tw{background:var(--white);border-radius:var(--rad);box-shadow:var(--sh);overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+thead{background:#F9F6F1}
+th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);border-bottom:1px solid #EDE8E0}
+td{padding:10px 14px;font-size:12px;border-bottom:1px solid #F3EDE3;color:var(--bark);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tbody tr{transition:background .1s}
+tbody tr:hover{background:#FAF7F2}
+.sb-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.ln{font-weight:600;cursor:pointer;color:var(--bark)}.ln:hover{color:var(--forest)}
+.le{font-size:11px;color:var(--bark-l)}
+.lck{width:15px;height:15px;accent-color:var(--forest);cursor:pointer}
+.empty{text-align:center;padding:50px 20px;color:var(--bark-l)}
+.empty h3{font-size:18px;margin-bottom:6px;color:var(--bark-m)}
 
-/* Lead list */
-.lead-list { flex: 1; overflow-y: auto; }
-.lead-card {
-  padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light);
-  border-left: 3px solid transparent; transition: background 0.15s;
-}
-.lead-card:hover { background: #faf8f4; }
-.lead-card.active { background: var(--warm-bg); border-left-color: var(--warm); }
-.lead-name { font-weight: 700; font-size: 13px; color: var(--navy); }
-.lead-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.lead-service { font-size: 11px; color: var(--text); margin-top: 2px; }
-.status-badge {
-  display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 700;
-  padding: 2px 8px; border-radius: 10px;
-}
-.status-cold { color: var(--red); background: var(--red-bg); }
-.status-warm { color: var(--yellow); background: var(--yellow-bg); }
-.status-new { color: var(--green); background: var(--green-bg); }
-.status-unsub { color: #888; background: #eee; }
-.status-bounced { color: #888; background: #eee; }
-.status-contacted { color: #2563eb; background: #dbeafe; }
+/* Bulk bar */
+.bb{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--forest);color:var(--white);border-radius:var(--rad);margin-bottom:10px;font-size:12px;font-weight:500;animation:fi .2s ease}
+.bb button{background:rgba(255,255,255,.2);color:#fff;padding:4px 10px;border-radius:var(--rad-s);font-size:11px;font-weight:600}
+.bb button:hover{background:rgba(255,255,255,.3)}
+.bb .bbd{background:rgba(199,81,70,.7)}.bb .bbd:hover{background:rgba(199,81,70,.9)}
 
-/* Sync bar */
-.sync-bar {
-  display: flex; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--border);
-  align-items: center;
-}
-.sync-btn {
-  padding: 6px 12px; background: var(--warm); color: var(--white); border: none;
-  border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
-  display: flex; align-items: center; gap: 4px;
-}
-.sync-btn:disabled { opacity: 0.6; cursor: default; }
-.add-btn {
-  padding: 6px 12px; background: transparent; color: var(--navy); border: 1.5px solid var(--navy);
-  border-radius: 6px; font-size: 11px; font-weight: 600;
-}
-.sync-status { font-size: 10px; color: var(--muted); margin-left: auto; }
+/* Detail panel */
+.ov{position:fixed;inset:0;background:rgba(44,36,32,.25);z-index:200;display:flex;justify-content:flex-end}
+.dp{width:480px;max-width:100vw;background:var(--white);height:100vh;overflow-y:auto;box-shadow:-8px 0 32px rgba(44,36,32,.12);animation:si .25s ease;padding:24px}
+.dp-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.dp-n{font-size:24px;color:var(--bark)}
+.dp-x{background:none;font-size:20px;color:var(--bark-l);padding:4px}.dp-x:hover{color:var(--bark)}
+.dp-g{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.df label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);font-weight:600;margin-bottom:3px}
+.df .v{font-size:13px;color:var(--bark)}
+.dp-msg{margin-bottom:20px}
+.dp-msg .v{font-size:13px;color:var(--bark);white-space:pre-wrap;background:var(--parchment);padding:10px;border-radius:var(--rad-s);min-height:40px;line-height:1.6}
+.dp-a{display:flex;gap:6px;flex-wrap:wrap}
 
-/* ═══════════════════════════════════════════
-   MAIN PANEL
-   ═══════════════════════════════════════════ */
-.main-title { font-family: var(--font-display); font-size: 28px; color: var(--navy); font-weight: 600; }
-.main-sub { font-size: 13px; color: var(--muted); font-style: italic; margin-top: 4px; }
+/* Forms */
+.fc{background:var(--white);border-radius:var(--rad);padding:24px;box-shadow:var(--sh);animation:fi .3s ease;margin-bottom:16px}
+.fc h2{font-size:20px;color:var(--bark);margin-bottom:16px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fi-g{display:flex;flex-direction:column}
+.fi-g.full{grid-column:1/-1}
+.fi-g label{font-size:11px;font-weight:600;color:var(--bark-m);margin-bottom:4px}
+.fi{padding:8px 10px;border:1px solid #DDD7CD;border-radius:var(--rad-s);font-size:12px;background:var(--white);color:var(--ink);width:100%}
+textarea.fi{resize:vertical;min-height:60px}
+.fa{display:flex;gap:6px;margin-top:14px;grid-column:1/-1}
 
-/* Selected banner */
-.sel-banner {
-  display: flex; align-items: center; gap: 12px; padding: 14px 18px;
-  background: var(--navy); border-radius: 10px; color: var(--white);
-  margin: 20px 0;
-}
-.sel-avatar {
-  width: 38px; height: 38px; border-radius: 50%; background: var(--navy-light);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 700; flex-shrink: 0;
-}
-.sel-info { flex: 1; min-width: 0; }
-.sel-name { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sel-detail { font-size: 11px; opacity: 0.7; margin-top: 1px; }
-.sel-clear {
-  background: rgba(255,255,255,0.15); border: none; color: var(--white);
-  padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap;
-}
+/* Compose */
+.cl{display:grid;grid-template-columns:260px 1fr;gap:16px}
+.c-sb{display:flex;flex-direction:column;gap:6px}
+.tc{background:var(--white);border-radius:var(--rad);padding:12px 14px;box-shadow:var(--sh);cursor:pointer;border:2px solid transparent;transition:all .15s}
+.tc:hover{border-color:var(--cream)}
+.tc.on{border-color:var(--forest);background:var(--forest-bg)}
+.tc-i{font-size:16px;margin-bottom:2px}
+.tc-l{font-size:12px;font-weight:600;color:var(--bark)}
+.tc-d{font-size:10px;color:var(--bark-l);margin-top:1px}
+.cc{background:var(--white);border-radius:var(--rad);padding:20px;box-shadow:var(--sh)}
+.cc h3{font-size:16px;color:var(--bark);margin-bottom:12px}
+.eo{background:var(--parchment);border-radius:var(--rad-s);padding:16px;font-size:13px;line-height:1.7;color:var(--bark);white-space:pre-wrap;min-height:160px;border:1px solid #EDE8E0}
+.es-line{background:var(--parchment);border-radius:var(--rad-s);padding:8px 12px;font-size:12px;font-weight:500;color:var(--bark);margin-bottom:10px;border:1px solid #EDE8E0}
+.gen{color:var(--bark-l);font-style:italic;animation:pu 1.5s ease infinite}
+.lpl{max-height:180px;overflow-y:auto}
+.lpi{padding:7px 10px;border-radius:var(--rad-s);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s;font-size:12px}
+.lpi:hover{background:var(--cream)}
+.lpi.on{background:var(--forest-bg)}
 
-/* Tabs */
-.tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
-.tab-btn {
-  padding: 10px 16px; border: none; font-size: 13px; font-weight: 600;
-  background: transparent; color: var(--muted); border-radius: 8px 8px 0 0;
-  transition: all 0.15s; letter-spacing: 0.02em;
-}
-.tab-btn.active { background: var(--navy); color: var(--white); }
-.tab-desc {
-  padding: 10px 16px; background: var(--sage-bg); border-radius: 8px;
-  font-size: 12px; color: #3a5c40; margin-bottom: 20px; line-height: 1.6;
-  font-style: italic; border: 1px solid var(--sage-border);
-}
+/* Import */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.cpre{margin-top:12px;overflow-x:auto}
+.cpre table{font-size:11px;min-width:auto}
+.cpre th{background:var(--cream);font-size:9px}
+.cpre td{font-size:11px;padding:5px 8px;max-width:140px}
 
-/* Form */
-.form-card {
-  background: var(--warm-bg); border: 1px solid var(--warm-light);
-  border-radius: 10px; padding: 20px; margin-bottom: 20px;
-}
-.form-heading {
-  font-family: var(--font-display); font-size: 14px; font-weight: 700;
-  color: var(--navy); letter-spacing: 0.06em; margin-bottom: 14px; text-transform: uppercase;
-}
-.form-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
-.form-row:first-of-type { margin-top: 0; }
-.form-group { flex: 1; min-width: 200px; }
-.form-label {
-  font-size: 12px; font-weight: 600; color: var(--navy);
-  font-style: italic; margin-bottom: 5px; display: block;
-}
-.form-input, .form-select {
-  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
-  border-radius: 8px; font-size: 13px; background: var(--white); color: var(--text);
-}
-.gen-btn {
-  margin-top: 18px; padding: 12px 28px; background: var(--navy); color: var(--white);
-  border: none; border-radius: 8px; font-size: 14px; font-weight: 700; letter-spacing: 0.03em;
-}
-.gen-btn:disabled { background: var(--muted); opacity: 0.7; cursor: default; }
+/* Settings */
+.s-row{margin-bottom:16px}
+.s-row label{font-size:11px;font-weight:600;color:var(--bark-m);display:block;margin-bottom:4px}
+.s-row p{font-size:11px;color:var(--bark-l);margin-bottom:6px}
 
-/* Output */
-.output-card {
-  background: var(--warm-bg); border: 1px solid var(--warm-light);
-  border-radius: 10px; padding: 20px;
-}
-.output-label { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
-.output-subject {
-  padding: 10px 14px; background: var(--white); border-radius: 8px;
-  border: 1px solid var(--border); font-size: 13px; font-weight: 600; margin-bottom: 14px;
-}
-.output-body-wrap { position: relative; }
-.output-body {
-  padding: 14px 16px; background: var(--white); border-radius: 8px;
-  border: 1px solid var(--border); font-size: 13px; line-height: 1.65;
-  white-space: pre-wrap; min-height: 100px;
-}
-.copy-btn {
-  position: absolute; top: 8px; right: 8px; padding: 4px 12px;
-  background: var(--navy); color: var(--white); border: none;
-  border-radius: 6px; font-size: 11px; font-weight: 600;
-}
-.output-actions { display: flex; gap: 10px; margin-top: 14px; }
-.btn-outline {
-  padding: 8px 18px; background: transparent; color: var(--navy);
-  border: 1.5px solid var(--navy); border-radius: 8px; font-size: 12px; font-weight: 600;
-}
-.btn-solid {
-  padding: 8px 18px; background: var(--navy); color: var(--white);
-  border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
-}
-
-/* Progress */
-.progress-track { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--warm); border-radius: 4px; transition: width 0.3s; }
-@keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-.loading-bar { width: 60%; height: 100%; background: var(--warm); border-radius: 3px; animation: pulse 1.5s infinite; }
-
-/* Bulk result cards */
-.bulk-card {
-  padding: 10px 14px; background: var(--white); border-radius: 8px;
-  border: 1px solid var(--border); cursor: pointer; margin-bottom: 6px;
-}
-.bulk-card-header { display: flex; justify-content: space-between; align-items: center; }
-.bulk-card-name { font-weight: 600; font-size: 13px; color: var(--navy); }
-.bulk-ok { font-size: 11px; color: var(--green); font-weight: 600; }
-.bulk-err { font-size: 11px; color: var(--red); font-weight: 600; }
-.bulk-email { font-size: 11px; color: var(--muted); }
-.bulk-expand { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 24px; right: 24px; padding: 10px 20px;
-  background: var(--navy); color: var(--white); border-radius: 8px;
-  font-size: 13px; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  z-index: 999; transition: opacity 0.3s; opacity: 0; pointer-events: none;
-}
-.toast.show { opacity: 1; }
-
-/* Empty state */
-.empty { text-align: center; padding-top: 60px; }
-.empty-icon { font-size: 48px; margin-bottom: 16px; }
-.empty-title { font-family: var(--font-display); font-size: 20px; color: var(--navy); margin-bottom: 8px; }
-.empty-desc { font-size: 13px; color: var(--muted); max-width: 420px; margin: 0 auto; line-height: 1.6; }
-.empty-cols {
-  margin: 24px auto 0; padding: 16px; background: var(--warm-bg); border-radius: 10px;
-  border: 1px solid var(--warm-light); max-width: 420px; text-align: left;
-}
-
-/* Add lead modal */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100;
-  display: flex; align-items: center; justify-content: center;
-}
-.modal {
-  background: var(--white); border-radius: 12px; padding: 28px; width: 480px;
-  max-width: 90vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-}
-.modal-title {
-  font-family: var(--font-display); font-size: 20px; color: var(--navy);
-  font-weight: 600; margin-bottom: 16px;
-}
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-
-/* Config banner */
-.config-bar {
-  padding: 8px 16px; background: #fff3cd; border-bottom: 1px solid #ffc107;
-  font-size: 12px; color: #856404; display: flex; align-items: center; gap: 8px;
-}
-.config-bar button {
-  padding: 4px 10px; background: var(--navy); color: var(--white); border: none;
-  border-radius: 4px; font-size: 11px; font-weight: 600;
-}
-
-/* Settings modal */
-.settings-grid { display: grid; gap: 12px; }
-.settings-label { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 4px; display: block; }
-.settings-input {
-  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
-  font-size: 12px; font-family: 'Courier New', monospace;
-}
-.settings-hint { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-@media (max-width: 768px) {
-  .app { flex-direction: column; }
-  .sidebar { width: 100%; min-width: unset; height: 50vh; }
-  .main-header { padding: 16px 16px 0; }
-  .main-body { padding: 0 16px 16px; }
-  .form-group { min-width: 100%; }
+@media(max-width:768px){
+  header{padding:0 12px;flex-wrap:wrap;height:auto;padding:10px 12px;gap:6px}
+  main{padding:14px}
+  .cl{grid-template-columns:1fr}
+  .fg{grid-template-columns:1fr}
+  .dp{width:100%}
+  .dg{grid-template-columns:repeat(2,1fr)}
+  .pc{grid-template-columns:repeat(2,1fr)}
+  .mg{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-
-<!-- ═══════════════════════════════════════════
-     CONFIGURATION — CHANGE THESE TO YOUR n8n WEBHOOK URLs
-     ═══════════════════════════════════════════ -->
+<div class="app" id="app"></div>
 <script>
-// ┌──────────────────────────────────────────┐
-// │  CONFIGURE YOUR n8n WEBHOOK URLS HERE    │
-// └──────────────────────────────────────────┘
-const CONFIG = {
-  // n8n webhook that generates emails (POST)
-  GENERATE_URL: localStorage.getItem('ls_generate_url') || '',
-
-  // n8n webhook that returns leads from Google Sheet (GET)
-  SYNC_URL: localStorage.getItem('ls_sync_url') || '',
-
-  // n8n webhook that saves a new lead to Google Sheet (POST)
-  ADD_LEAD_URL: localStorage.getItem('ls_add_lead_url') || '',
-
-  // n8n webhook that updates lead status in Excel (POST)
-  UPDATE_URL: localStorage.getItem('ls_update_url') || '',
+const STATUS_CFG={
+  'New':{color:'#5B8C5A',bg:'#5B8C5A14',label:'New'},
+  'Contacted':{color:'#D4A853',bg:'#D4A85314',label:'Contacted'},
+  'Warm':{color:'#E8913A',bg:'#E8913A14',label:'Warm'},
+  'Replied':{color:'#2E7D6F',bg:'#2E7D6F14',label:'Replied'},
+  'Bounced':{color:'#C75146',bg:'#C7514614',label:'Bounced'},
+  'Unsubscribed':{color:'#8B8B8B',bg:'#8B8B8B14',label:'Unsubscribed'},
+  'Won':{color:'#2E7D6F',bg:'#2E7D6F14',label:'Won'},
+  'Lost':{color:'#7B68A5',bg:'#7B68A514',label:'Lost'},
+};
+const INTERESTS=['Family History Book','Family Tree Chart','Genealogy Research','Photo Restoration',
+  'Legacy or Memorial Book','Oral History Interview','DNA Interpretation','Heritage Consultation',
+  'Reunion Memory Book','Obituary Writing','Gift','Just Exploring','Not sure yet','Custom Package'];
+const EMAIL_TYPES={
+  initial:{label:'Initial Response',icon:'✦',desc:'First reply to a new inquiry'},
+  reengage:{label:'Re-Engage',icon:'↻',desc:'Reconnect with cold leads'},
+  followup:{label:'Follow-Up',icon:'→',desc:'Continue the conversation'},
+  promo:{label:'Service Promo',icon:'★',desc:'Introduce a specific service'},
+};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const SEED_DATA=[{"Name":"Chelsia  chanel willis","Email":"30cwillis@blrv.org","Interest":"Family Tree Chart","Message":"I want to document my grandparents story\" / \" I want to trace my ancestors in Africa","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Chelsia Chanel Willis","Email":"30cwillis@blrv.org","Interest":"Family Tree Chart","Message":"I want to trace my ancestors in Africa","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Alejandro Villanueva Hernandez a","Email":"a540516villa@netzero.net","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I want to understand my family and eventually create something to share.","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":61,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Adrian Guadalupe huerta flores","Email":"adrianguadalupehuertaflores76@gmail.com","Interest":"Family History Book","Message":"want a book about my grandparents\u2019","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":61,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea Jordan","Email":"ajtravis87@gmail.com","Interest":"Family History Book","Message":"Ancestry book","Submitted_At":"2026-01-17","Status":"Contacted","Days_Since_Inquiry":73,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea v Jordan","Email":"ajtravis87@gmail.com","Interest":"Family History Book","Message":"Family history book","Submitted_At":"2026-02-05","Status":"Contacted","Days_Since_Inquiry":54,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea Victoria Jordan","Email":"Ajtravis87@gmail.com","Interest":"Family History Book","Message":"I have a ancestry tree and want to turn it into a book","Submitted_At":"2026-01-25","Status":"Contacted","Days_Since_Inquiry":65,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Akhtarhussain","Email":"akhtarlovefull@gmail.com","Interest":"Family History Book","Message":"Sayed","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Ali Baghaee","Email":"ali_baghaee_2005@yahoo.com","Interest":"Unknown","Message":"Message","Submitted_At":"2025-12-21","Status":"Contacted","Days_Since_Inquiry":95,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Janet Needham","Email":"alluetta@live.com","Interest":"Family History Book","Message":"I have an Ancestry tree and want to turn it into a book","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Anthony Peter Gutierrez","Email":"anthonypgutierrez77@Gmail.com","Interest":"Genealogy Research","Message":"I want to know my ancestry tree","Submitted_At":"2026-01-28","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Arily faith Lynn Blevins","Email":"arilyblevins0@gmail.com","Interest":"Photo Restoration","Message":"My parents are dead and I live with my grandparents Cherie blevins and Eric apking they are both fiancee","Submitted_At":"2026-01-04","Status":"Contacted","Days_Since_Inquiry":86,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"\u0627\u0633\u0644\u0645 \u0645\u062d\u0645\u062f \u0639\u0628\u062f\u0627\u0644\u0644\u0647 \u0639\u0628\u062f\u0627\u0644\u0644\u0647 \u062c\u0627\u062f","Email":"aslmmohammed555@gmail.com","Interest":"Family History Book","Message":"A family history book","Submitted_At":"2026-02-05","Status":"Contacted","Days_Since_Inquiry":54,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Annette Loriso","Email":"auntiebeanie@hotmail.com","Interest":"Genealogy Research","Message":"Where grandma and grandpa came from","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"akoul","Email":"bgllyas@gmail.com","Interest":"Family Tree Chart","Message":"my dad was a south sudanese lost boy","Submitted_At":"2026-03-17","Status":"Bounced","Days_Since_Inquiry":14,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Makayla dawn fields","Email":"biscuit.listens@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I would like to find out who I'm related to!","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Bruce colburn","Email":"brucecolburn5520@yahoo.com","Interest":"Family History Book","Message":"Colburn s","Submitted_At":"2026-01-23","Status":"Contacted","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Deanna Sue Salyers","Email":"bumdunkin@yahoo.com","Interest":"Family History Book","Message":"I\u2019m just courious","Submitted_At":"2026-01-22","Status":"Contacted","Days_Since_Inquiry":68,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Terry Chance Foley","Email":"chancefoley@icloud.com","Interest":"Family Tree Chart","Message":"military","Submitted_At":"2025-12-31","Status":"Contacted","Days_Since_Inquiry":90,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Carlos Hernandez Esparza","Email":"chdez7085@gmail.com","Interest":"Genealogy Research","Message":"My family is from El Valle de Ju\u00e1rez, Porvenir, near Chihuahua, Mexico, and next to the border with the United States. I would like to see my ancestors.","Submitted_At":"2026-01-01","Status":"Contacted","Days_Since_Inquiry":89,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Christopher Allen Ostrander","Email":"chrisheckman692@gmail.com","Interest":"Photo Restoration","Message":".","Submitted_At":"2026-01-19","Status":"Contacted","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Charles C Harrison","Email":"chuck.harrison@yahoo.com","Interest":"Genealogy Research","Message":"Grandparents history","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Christi JonesMcNeill","Email":"christijmcneill@icloud.com","Interest":"Genealogy Research","Message":"Please send some information to my email","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Carla Mar\u00eda S\u00e1nchez Paredes","Email":"Cmsp1030@gmail.com","Interest":"Family History Book","Message":"I want a book about my family, and my acenstry tree","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Alexander James Vance","Email":"Coldsoda49@gmail.com","Interest":"Photo Restoration","Message":"I want a book about my family","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Colleen Smith","Email":"colleen.s88@yahoo.com","Interest":"Genealogy Research","Message":"Like to find marriage licenses","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Dakota\u00a0 Llaneras","Email":"Dakotatl11515@gmail.com","Interest":"Family History Book","Message":"We are nice","Submitted_At":"2026-01-01","Status":"Contacted","Days_Since_Inquiry":89,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Daniel Ramirez Ayon","Email":"danielay182@gmail.com","Interest":"Family History Book","Message":"Quiero saber sobre antepasados","Submitted_At":"2026-02-07","Status":"Contacted","Days_Since_Inquiry":52,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Aaliyah Marie Parker","Email":"dannmilano@icloud.com","Interest":"Not sure yet \u2014 I\u2019d like guidance","Message":"Who I\u2019m connected too","Submitted_At":"2026-01-08","Status":"Contacted","Days_Since_Inquiry":82,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda Joan Sarao","Email":"Deangelis421@comcast.net","Interest":"Family History Book","Message":"Relatives in Sicily Italy","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda sarao","Email":"deangelis421@comcast.net","Interest":"Genealogy Research","Message":"Any relatives ion SICILY OR ANYWHERE IN Italy","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda Sarao","Email":"deangelis421@comcast.net","Interest":"Family History Book","Message":"","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Debbie Woodyard","Email":"debbiewoodyard79@gmail.com","Interest":"Family History Book","Message":"I would like to have the history of my family","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Delaney","Email":"delaney.brice2013@gmail.com","Interest":"Genealogy Research","Message":"I want to figure out who my ancestors were and where they came from","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Erica Kempler","Email":"ekempler@gmail.com","Interest":"Photo Restoration","Message":"Please contact me by email to arrange a convenient time for discussion","Submitted_At":"2026-01-15","Status":"Contacted","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elizabeth Laura kaufman","Email":"elizabeth.l.kaufman@gmail.com","Interest":"Family History Book","Message":"I just wanna know if a billionaire is related to me","Submitted_At":"2025-12-30","Status":"Contacted","Days_Since_Inquiry":91,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elliana Spalding","Email":"elliana.spalding@icloud.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Amos","Email":"ezchibo@hotmail.com","Interest":"Family History Book","Message":"genealogy","Submitted_At":"2026-03-23","Status":"Contacted","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Angelica Garcia Najera","Email":"familiagarcianajera47@gmail.com","Interest":"Family Tree Chart","Message":"names","Submitted_At":"2026-03-16","Status":"Contacted","Days_Since_Inquiry":15,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"FERNANDO MARTINEZ AGUILAR","Email":"fernando.martinez5@penske.com","Interest":"Family History Book","Message":"Just for me","Submitted_At":"2026-02-06","Status":"Bounced","Days_Since_Inquiry":53,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"skye adele ford","Email":"fireball12@gmail.com","Interest":"Family Tree Chart","Message":"my dad is william ford, my grandma is nancy ford","Submitted_At":"2026-03-29","Status":"Contacted","Days_Since_Inquiry":2,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Debra Esquivel","Email":"gloriadebra43@gmail.com","Interest":"Family History Book","Message":"I want to understand my family","Submitted_At":"2026-01-28","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Roger Glass","Email":"glrod201@aol.com","Interest":"Family History Book","Message":"I would like to know about my grandmother whose name was Valcov when they entered this country from Europe and was changed at Ellis Island to Falk","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Grace Smallwood","Email":"gracesmallwood508@gmail.com","Interest":"Family History Book","Message":"Eddie Tobler grandfather","Submitted_At":"2026-03-28","Status":"Contacted","Days_Since_Inquiry":3,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Joyce Ann George Medley","Email":"grandma1230787@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I would like to build my family tree","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Genna Alexandra Granillo salazar","Email":"granillosalazargenns@gmail.com","Interest":"Family History Book","Message":"Quiero conocer un poco de mi historial familiar","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Hilary","Email":"hilaryheloisa34@gmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-03-26","Status":"Contacted","Days_Since_Inquiry":5,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Glenda Howze","Email":"HowzeHowze_Glenda@liveagent.com","Interest":"Family History Book","Message":"I\u2019d like to learn more about The Lineage Studio\u2019s service of creating lasting family legacies by transforming family trees, records, and photos into beautiful family books. Could you share details on what the process of creating a family book involves, what customization options are available, and what\u2019s included in their \u201cWhat You Get\u201d offering? Also, I\u2019d be interested in understanding the range of services they provide, how they handle historical documents and photos, and what typical timelines and costs are for these projects.","Submitted_At":"2026-01-16","Status":"Bounced","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Hubert James Friar","Email":"hugh.friar@comcast.net","Interest":"Genealogy Research","Message":"I want to  my grand parents","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elijah Hurdle","Email":"hurdle.elijah@icloud.com","Interest":"Family Tree Chart","Message":"I want to see my ancestors names and their years they were alive","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"JahCura","Email":"jazzbbracy21@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"What  race am i","Submitted_At":"2026-01-23","Status":"Bounced","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Justice Otto","Email":"jcotto2278@icloud.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Justess","Email":"jdmartin21914@icloud.com","Interest":"Family Tree Chart","Message":"Anything or any royals im related to","Submitted_At":"2026-03-21","Status":"Contacted","Days_Since_Inquiry":10,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Josian martin","Email":"jglomartin20@gmail.com","Interest":"Family History Book","Message":"Idk","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"","Email":"","Interest":"Family Tree Chart","Message":"","Submitted_At":"2026-03-23","Status":"Bounced","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Julia Tori germano campos","Email":"juliatorl9@gmail.com","Interest":"Family History Book","Message":"My family from my dad's side","Submitted_At":"2026-03-23","Status":"Bounced","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Karen seitzinger","Email":"karencrump371@gmail.com","Interest":"Not sure yet \u2014 I\u2019d like guidance","Message":"I would like to know all about them.","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Kathern morrison","Email":"kathymorrison1965@gmail.com","Interest":"Family History Book","Message":"I want to know if I have a...","Submitted_At":"2026-03-24","Status":"Contacted","Days_Since_Inquiry":7,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Keegan duty","Email":"kduty2011@gmail.com","Interest":"Just Exploring","Message":"What country  my family originally comes from","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"keyla alessandra dos santos","Email":"keyalessandrasantos@gmail.com","Interest":"Family History Book","Message":"I want a book about my grandparents\u2019 story | I have an Ancestry tree and want to turn it into a book","Submitted_At":"2026-02-07","Status":"Contacted","Days_Since_Inquiry":52,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"King Connally Bey","Email":"kingconnallybey@gmail.com","Interest":"Genealogy Research","Message":"the bloodline of my ancestors\u2026","Submitted_At":"2026-01-26","Status":"Contacted","Days_Since_Inquiry":64,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Landon Jaimes Lee Hinerman","Email":"landonroberson95@gmail.com","Interest":"Genealogy Research","Message":"I was in multiple families and just wondering about my first family.","Submitted_At":"2026-01-04","Status":"Contacted","Days_Since_Inquiry":86,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Leah Christine Dodson","Email":"leah.c.hutchins@gmail.com","Interest":"Family History Book","Message":"Dodson family history","Submitted_At":"2026-01-22","Status":"Contacted","Days_Since_Inquiry":68,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Brisa juliana lechuga Luj\u00e1n","Email":"lechugabrisa22@gmail.com","Interest":"Family History Book","Message":"Quieri un \u00e1rbol geneal\u00f3gico","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Librada Contreras Rivera","Email":"letty542000@hotmail.com","Interest":"Family Tree Chart","Message":"Quiero hacer mi arbol genealogico =  I want to make my family tree.","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Librada Contreras Rivera","Email":"letty542000@hotmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Liane Menendez","Email":"lianemenendez@gmail.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-04-01","Status":"Unsubscribed","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01T21:14:28.431Z","Last_Email_Type":"Unsubscribed"},{"Name":"Liane Menendez","Email":"liasnemesnendez@gmail.com","Interest":"Legacy or Memorial Book","Message":"","Submitted_At":"2026-04-01","Status":"Bounced","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Lillie Swenson","Email":"lilliebswenson08@gmail.com","Interest":"Genealogy Research","Message":"Just curious","Submitted_At":"2026-01-12","Status":"Contacted","Days_Since_Inquiry":78,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"ROGELIO DE JESUS ROBINSON BOURS ESCAMILLA","Email":"lynnecelaya@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"entender a mi familia","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Macie","Email":"maciogle2@gmail.com","Interest":"Genealogy Research","Message":"Ogles from North Carolina","Submitted_At":"2026-03-15","Status":"Bounced","Days_Since_Inquiry":16,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Maci Ann Spurrier","Email":"macispurrier08@gmail.com","Interest":"Genealogy Research","Message":"I want to know what Native American tribe I\u2019m in and my ancestors","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Libby Johnson","Email":"maguirelibby73@gmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-03-26","Status":"Contacted","Days_Since_Inquiry":5,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"I\u00f1igo Matteo I. Malay","Email":"Malaydonah@gmail.com","Interest":"Family History Book","Message":"I really needed to find my great grandparents.","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Marianne Barbieri","Email":"Marebar56@gmail.com","Interest":"Family History Book","Message":"Know my family","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Hamza Nestor Bouabr\u00e9 Madi","Email":"Mariamaichasheriff@gmail.com","Interest":"Genealogy Research","Message":"Je veux voir qui est dans ma famille","Submitted_At":"2026-01-25","Status":"Contacted","Days_Since_Inquiry":65,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Mariana Guimar\u00e3es Ribeiro","Email":"Marianaribeiro0224@gmail.com","Interest":"Family History Book","Message":"Quero saber de tudo dos meus antepassados e minhas decend\u00eancias","Submitted_At":"2026-02-02","Status":"Contacted","Days_Since_Inquiry":57,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Marjorie E Hamm","Email":"marjoriehamm62@gmail.com","Interest":"Family History Book","Message":"I want to trace my family and  create something to share.","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"markis brown","Email":"markisbrown54@gmail.com","Interest":"Genealogy Research","Message":"I want to know more.","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Diego Alejandro perez gonalez","Email":"mayrasofiaalfarovaldez2@gmail.com","Interest":"Family History Book","Message":"I want know of where I come","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Omar Mej\u00eda caldera","Email":"mejiacalderaomar@gmail.com","Interest":"Genealogy Research","Message":"I want ancestrors in M\u00e9xico","Submitted_At":"2026-01-09","Status":"Contacted","Days_Since_Inquiry":81,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Denise Michelle Nutter","Email":"michellep1153@yahoo.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I have an ancestry tree and want a keepsake book made","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"skuija michael","Email":"mikeskuija@gmail.com","Interest":"Genealogy Research","Message":"Please send an email to my email address","Submitted_At":"2026-01-15","Status":"Contacted","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Zain Patrick Mattingley Evans","Email":"monsterarmy21st@gmail.com","Interest":"Family History Book","Message":"I got a solid lead leading back to 1500s england","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Tomeka Smith","Email":"mrs.tanishahunter@gmail.com","Interest":"Genealogy Research","Message":"I want a book about my grandma","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"NICKIE BRAGG","Email":"msdeielreese@sbcglobal.net","Interest":"Genealogy Research","Message":"I want a family tree","Submitted_At":"2026-01-15","Status":"Bounced","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Henrico de macedo Mendon\u00e7a cust\u00f3dio","Email":"mundomundolindo118@gmail.com","Interest":"Family History Book","Message":"plss","Submitted_At":"2026-01-23","Status":"Contacted","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrew Taylor","Email":"mvashunda@gmail.com","Interest":"Genealogy Research","Message":"Please get back to me at your earliest convenience","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Myles","Email":"Myleswood68@Gmail.Com","Interest":"Family History Book","Message":"A family history book","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"George Alexander Louis Mounthbaten-Windsor","Email":"nicoleberdeja3@gmail.com","Interest":"Family History Book","Message":"I want to know the story of my ancestors.","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Valeria padron velazquez","Email":"Padronvaleria08@gmail.com","Interest":"Genealogy Research","Message":"Ancestros","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Omar Galv\u00e1n S\u00e1nchez","Email":"perlagalvan0502@gmail.com","Interest":"Family History Book","Message":"Quiero conocer a mis ancestros","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Nicole E. Sanchez","Email":"phoenixfire2576@gmail.com","Interest":"Family History Book","Message":"I am researching on Family Search and writing down each lineage to myself and my infant grandchildren. Our family lineages are qualifies for the General Mayflower Society in my home state and the main society. I\u2019m currently working on the application, and then will be working on the other societies and orders that my family will qualify for as well. This will turn into a book that can be printed and preserved for the coming generations.","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Autumn Pierson","Email":"piersonautumn5@gmail.com","Interest":"Family History Book","Message":"Who is my whole family","Submitted_At":"2026-03-12","Status":"Contacted","Days_Since_Inquiry":19,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"George Ray grindstaff","Email":"preacherray@gmail.com","Interest":"Family History Book","Message":"I would like to know about where my family came from why they came here and what they did.","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Tyler Russell","Email":"russelltyler798@gmail.com","Interest":"Genealogy Research","Message":"My dad","Submitted_At":"2026-03-15","Status":"Contacted","Days_Since_Inquiry":16,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Janori Lamar Carson","Email":"sayakacarson@gmail.com","Interest":"Family History Book","Message":"For fun.","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Shye","Email":"shyet10@gmail.com","Interest":"Family Tree Chart","Message":"I don't know much!","Submitted_At":"2026-03-17","Status":"Contacted","Days_Since_Inquiry":14,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Skye Armone\u2019e Sinai Whitfield","Email":"skyeperiod9@icloud.com","Interest":"Family History Book","Message":"I want to know my ancestors","Submitted_At":"2026-02-06","Status":"Contacted","Days_Since_Inquiry":53,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"AARON SULLIVAN","Email":"sullivanaaron100@gmail.com","Interest":"Gift","Message":"Family tree for both my side and my wives side with blank pages to fill in children and grand children and future generations","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Sunehra Jasiah","Email":"sunehrajasiah1@gmail.com","Interest":"Family History Book","Message":"To preserve my family history and to learn more about my lineage","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"george haralambakis","Email":"timbo3210@yahoo.com","Interest":"Family History Book","Message":"I saw your ad and would like to discuss further. Please contact me.","Submitted_At":"2026-01-19","Status":"Bounced","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Patrick Tison Gilpin Jr.","Email":"tisongilpin2@gmail.com","Interest":"Family Tree Chart","Message":"i want a book of my ancestry tree","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"karen torres","Email":"torrestkaren77@yahoo.com","Interest":"Family History Book","Message":"Please contact me by email.","Submitted_At":"2026-01-18","Status":"Bounced","Days_Since_Inquiry":72,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Sharon","Email":"txcowgirl647@yahoo.com","Interest":"Family History Book","Message":"My family is hulsey king sanders harrell","Submitted_At":"2026-03-19","Status":"Contacted","Days_Since_Inquiry":12,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Brandon Kovach","Email":"vach254@gmail.com","Interest":"Photo Restoration","Message":"Please get in touch with me as soon as possible. Thanks a lot!","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Dario Velazquez Rivera","Email":"velazquezbiggers@gmail.com","Interest":"Photo Restoration","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Dario Velazquez Rivera","Email":"Velazquezdario1@hotmail.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Amy M Vick","Email":"vickamy972@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"Learn more about my ancestry","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Vincent Iain Arrington","Email":"vince.arrington@sbcglobal.net","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I want to understand my family and eventually create something to share.","Submitted_At":"2026-01-19","Status":"Contacted","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Jade cristal Guadalupe Vazquez de la Cruz","Email":"vs1096258@gmail.com","Interest":"Family History Book","Message":"To learn about my family history","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Montell Williams","Email":"williamsmontell05@gmail.com","Interest":"Legacy or Memorial Book","Message":"Who's my family","Submitted_At":"2026-03-18","Status":"Bounced","Days_Since_Inquiry":13,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Zachary Meyer","Email":"zeegeemeyer@gmail.com","Interest":"Family History Book","Message":"Messager","Submitted_At":"2025-12-31","Status":"Contacted","Days_Since_Inquiry":90,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Zach Glore","Email":"zglore06@gmail.com","Interest":"Family Tree Chart","Message":"","Submitted_At":"2026-01-08","Status":"Contacted","Days_Since_Inquiry":82,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Jami stevenson","Email":"jamistevenson432.com@gmail.com","Interest":"Family Tree Chart","Message":"I want to know about me being irish","Submitted_At":"2026-04-02","Status":"New","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"","Last_Email_Type":""}];
+let S={
+  leads:[],view:'dashboard',sel:null,editing:null,search:'',filter:'all',
+  showAdd:false,tpl:'reengage',cLead:null,genEmail:'',genSubj:'',isGen:false,
+  bulk:new Set(),csv:null,csvMap:{},
+  apiKey:localStorage.getItem('tls_api_key')||'',
+  webhooks:JSON.parse(localStorage.getItem('tls_webhooks')||'{}'),
+  notif:null,nTimer:null
 };
 
-function saveConfig(key, value) {
-  CONFIG[key] = value;
-  var storageKeys = {};
-  storageKeys['GENERATE_URL'] = 'ls_generate_url';
-  storageKeys['SYNC_URL'] = 'ls_sync_url';
-  storageKeys['ADD_LEAD_URL'] = 'ls_add_lead_url';
-  storageKeys['UPDATE_URL'] = 'ls_update_url';
-  localStorage.setItem(storageKeys[key] || key, value);
+function init(){
+  try{
+    const d=localStorage.getItem('tls_leads_v2');
+    if(d){S.leads=JSON.parse(d)}
+    else{S.leads=SEED_DATA.map((r,i)=>({...r,id:'s'+i}));saveL()}
+  }catch(e){S.leads=SEED_DATA.map((r,i)=>({...r,id:'s'+i}));saveL()}
+  render();
 }
-</script>
+function saveL(){localStorage.setItem('tls_leads_v2',JSON.stringify(S.leads))}
+function saveK(){localStorage.setItem('tls_api_key',S.apiKey)}
+function saveW(){localStorage.setItem('tls_webhooks',JSON.stringify(S.webhooks))}
+function notify(m){S.notif=m;clearTimeout(S.nTimer);render();S.nTimer=setTimeout(()=>{S.notif=null;render()},3e3)}
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function sbadge(st){const c=STATUS_CFG[st]||STATUS_CFG.New;return`<span class="sb-badge" style="background:${c.bg};color:${c.color}">● ${c.label}</span>`}
+function daysSince(d){if(!d)return'';const ms=Date.now()-new Date(d).getTime();return Math.max(0,Math.floor(ms/864e5))}
 
-<div class="app" id="app">
-
-  <!-- ═══ SIDEBAR ═══ -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header" style="display:flex;justify-content:space-between;align-items:start">
-      <div>
-        <div class="brand-title">The Lineage Studio</div>
-        <div class="brand-sub">Lead Manager · Email Composer</div>
-      </div>
-      <button onclick="showSettings()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px;opacity:0.5;color:var(--navy)" title="Settings">⚙️</button>
-    </div>
-
-    <!-- Upload zone -->
-    <div class="upload-zone" id="uploadZone">
-      <div class="icon" id="uploadIcon">📋</div>
-      <div class="label" id="uploadLabel">Upload Your Leads</div>
-      <div class="hint">CSV or Excel (.xlsx)</div>
-      <div class="hint-sm">Drag & drop or click</div>
-      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.tsv" hidden>
-    </div>
-
-    <!-- Column mapper (hidden initially) -->
-    <div class="mapper" id="mapper" style="display:none"></div>
-
-    <!-- Sync bar (hidden until leads loaded) -->
-    <div class="sync-bar" id="syncBar" style="display:none">
-      <button class="sync-btn" id="syncBtn" onclick="syncLeads()">🔄 Sync</button>
-      <button class="add-btn" id="addBtn" onclick="showAddModal()">+ Add Lead</button>
-      <span class="sync-status" id="syncStatus"></span>
-    </div>
-
-    <!-- Search -->
-    <div class="search-wrap" id="searchWrap" style="display:none">
-      <span class="search-icon">🔍</span>
-      <input class="search-input" id="searchInput" placeholder="Search leads…" oninput="renderLeads()">
-    </div>
-
-    <!-- Filter pills -->
-    <div class="filter-pills" id="filterPills" style="display:none"></div>
-
-    <!-- Lead count -->
-    <div class="lead-count" id="leadCount" style="display:none"></div>
-
-    <!-- Lead list -->
-    <div class="lead-list" id="leadList"></div>
-  </div>
-
-  <!-- ═══ MAIN PANEL ═══ -->
-  <div class="main">
-    <!-- Config warning -->
-    <div class="config-bar" id="configBar" style="display:none">
-      ⚠️ n8n webhooks not configured.
-      <button onclick="showSettings()">Configure</button>
-    </div>
-
-    <div class="main-header">
-      <div class="main-title">Email Composer</div>
-      <div class="main-sub">Select a lead from the sidebar — it auto-fills the form. Then generate a personalized email in seconds.</div>
-    </div>
-    <div class="main-body" id="mainBody">
-      <!-- Selected banner -->
-      <div id="selBanner" style="display:none"></div>
-
-      <!-- Tabs -->
-      <div class="tab-bar" id="tabBar" style="margin-top:20px"></div>
-
-      <!-- Tab description -->
-      <div class="tab-desc" id="tabDesc"></div>
-
-      <!-- Form area -->
-      <div id="formArea"></div>
-
-      <!-- Output area -->
-      <div id="outputArea" style="display:none"></div>
-
-      <!-- Empty state -->
-      <div class="empty" id="emptyState">
-        <div class="empty-icon">📋</div>
-        <div class="empty-title">Upload your lead spreadsheet to get started</div>
-        <div class="empty-desc">
-          Drop a CSV or Excel file in the sidebar, or click Sync to pull leads from your Google Sheet via n8n.
-          The tool will auto-detect your columns, color-code leads by status, and let you generate personalized emails with one click.
-        </div>
-        <div class="empty-cols">
-          <div style="font-weight:700; font-size:12px; color:var(--navy); margin-bottom:6px;">Suggested columns:</div>
-          <div style="font-size:12px; color:var(--muted); line-height:1.8; font-family:'Courier New',monospace;">
-            first_name · last_name · email · inquiry_date · days_since · service · research_interest · notes · status
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast">✓ Copied to clipboard</div>
-
-<!-- Add Lead Modal -->
-<div class="modal-overlay" id="addModal" style="display:none" onclick="if(event.target===this)closeAddModal()">
-  <div class="modal">
-    <div class="modal-title">Add New Lead</div>
-    <div class="form-row"><div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="addFirst"></div><div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="addLast"></div></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="addEmail" type="email"></div><div class="form-group"><label class="form-label">Service Interest</label><select class="form-select" id="addService"></select></div></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Research Interest</label><input class="form-input" id="addResearch" placeholder="e.g., Williams family, Mississippi"></div></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="addNotes" placeholder="Any details from their inquiry"></div></div>
-    <div class="modal-actions">
-      <button class="btn-outline" onclick="closeAddModal()">Cancel</button>
-      <button class="btn-solid" onclick="addLead()">Add Lead</button>
-    </div>
-  </div>
-</div>
-
-<!-- Settings Modal -->
-<div class="modal-overlay" id="settingsModal" style="display:none" onclick="if(event.target===this)closeSettings()">
-  <div class="modal">
-    <div class="modal-title">n8n Webhook Configuration</div>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">
-      Enter your n8n webhook URLs below. These are saved in your browser so you only configure once.
-    </p>
-    <div class="settings-grid">
-      <div>
-        <label class="settings-label">Email Generation Webhook (POST)</label>
-        <input class="settings-input" id="settGenerate" placeholder="https://your-n8n.app.n8n.cloud/webhook/generate-email">
-        <div class="settings-hint">Receives lead data + email type, returns generated email via Anthropic API</div>
-      </div>
-      <div>
-        <label class="settings-label">Lead Sync Webhook (GET)</label>
-        <input class="settings-input" id="settSync" placeholder="https://your-n8n.app.n8n.cloud/webhook/get-leads">
-        <div class="settings-hint">Returns all leads from your Google Sheet as JSON</div>
-      </div>
-      <div>
-        <label class="settings-label">Add Lead Webhook (POST)</label>
-        <input class="settings-input" id="settAddLead" placeholder="https://your-n8n.app.n8n.cloud/webhook/add-lead">
-        <div class="settings-hint">Saves a manually added lead to your Google Sheet</div>
-      </div>
-      <div>
-        <label class="settings-label">Update Status Webhook (POST)</label>
-        <input class="settings-input" id="settUpdate" placeholder="https://your-n8n.app.n8n.cloud/webhook/update-lead">
-        <div class="settings-hint">Updates lead status and timestamp in your Excel after sending an email</div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-outline" onclick="closeSettings()">Cancel</button>
-      <button class="btn-solid" onclick="saveSettings()">Save Configuration</button>
-    </div>
-  </div>
-</div>
-
-
-<script>
-/* ═══════════════════════════════════════════
-   STATE
-   ═══════════════════════════════════════════ */
-let headers = [];
-let rows = [];
-let mapping = {};
-let mapped = false;
-let selectedIdx = null;
-let activeTab = 'initial';
-let filterStatus = 'all';
-let loading = false;
-let result = null;
-let error = null;
-let bulkRunning = false;
-let bulkProgress = 0;
-let bulkResults = [];
-let bulkViewing = null;
-let abortBulk = false;
-
-const FIELDS = [
-  { key:'first_name', label:'First Name', aliases:['firstname','first name','first','fname','given name','given_name','name','contact','contact name','contact_name'] },
-  { key:'last_name', label:'Last Name', aliases:['lastname','last name','last','lname','surname','family_name'] },
-  { key:'email', label:'Email', aliases:['email','email address','e-mail','email_address','emailaddress','mail'] },
-  { key:'inquiry_date', label:'Inquiry Date', aliases:['inquiry_date','inquirydate','inquiry date','date','date_contacted','date first contacted','contact_date','contacted','created','date_created','submitted_at','submitted at','submitted'] },
-  { key:'days_since', label:'Days Since', aliases:['days_since','dayssince','days since','days','age','days_since_inquiry','days since inquiry'] },
-  { key:'service', label:'Service', aliases:['service','service interest','service_interest','inquiry type','inquiry_type','product','offering','interest'] },
-  { key:'research_interest', label:'Research Interest', aliases:['research_interest','research interest','research','family','family name','surnames','topic','subject'] },
-  { key:'notes', label:'Notes', aliases:['notes','note','comments','comment','details','additional','message','inquiry_text','inquiry text'] },
-  { key:'status', label:'Status', aliases:['status','lead status','outcome','intent','intent level','intent_level','stage'] },
-  { key:'last_email_date', label:'Last Email Date', aliases:['last_email_date','last email date','last_contacted','last contacted','last_action','last_sent','sent_date'] },
-  { key:'last_email_type', label:'Last Email Type', aliases:['last_email_type','last email type','last_action_type','email_type'] },
-];
-
-const SERVICES = ['Family History Book','Legacy or Memorial Book','Genealogy Research','Family Tree Chart','Photo Restoration','Gift','Just Exploring','Not sure yet','Military Records Research','Immigration Research','DNA Analysis Help','Other'];
-const TONES = ['Warm & Personal','Professional','Casual & Friendly','Urgent but Kind'];
-const OFFERS = [{v:'none',l:'No offer'},{v:'discount_10',l:'10% off first project'},{v:'free_consult',l:'Free 15-min consultation'},{v:'free_preview',l:'Free sample page / preview'},{v:'custom',l:'Custom offer…'}];
-const TIME_OPTS = [{v:'less_week',l:'Less than a week ago'},{v:'1_2_weeks',l:'1–2 weeks ago'},{v:'2_3_weeks',l:'2–3 weeks ago'},{v:'3_4_weeks',l:'3–4 weeks ago'},{v:'1_2_months',l:'1–2 months ago'},{v:'over_2_months',l:'Over 2 months ago'},{v:'unknown',l:'Unknown'}];
-
-const TABS = [
-  { key:'initial', label:'Initial Response', desc:'For brand-new inquiries. A warm, personalized first reply that acknowledges what they asked about and makes it easy to take the next step.' },
-  { key:'reengage', label:'Re-Engage', desc:'For leads who never replied after your initial response. Warm, personal, low-pressure — designed to reopen the conversation.' },
-  { key:'followup', label:'Follow-Up', desc:'For leads who showed interest but went quiet. Gently check in and make it easy to pick up where they left off.' },
-  { key:'newsletter', label:'Newsletter', desc:'A light-touch value email — share a story, tip, or seasonal note that keeps you top of mind without asking for anything.' },
-  { key:'promo', label:'Promo', desc:'Time-sensitive or seasonal offer email. Best used sparingly for holidays, milestones, or limited availability.' },
-  { key:'bulk', label:'Bulk Generate', desc:'Generate a personalized re-engagement email for every lead in your list at once.' },
-];
-
-/* ═══════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════ */
-function autoMap(hdrs) {
-  const m = {};
-  const lh = hdrs.map(h => h.toLowerCase().trim().replace(/[_\-]/g,' '));
-  FIELDS.forEach(f => {
-    const idx = lh.findIndex(h => h === f.key.replace(/_/g,' ') || f.aliases.includes(h));
-    if (idx !== -1) m[f.key] = hdrs[idx];
-  });
-  return m;
-}
-
-function getStatus(row) {
-  if (mapping.status && row[mapping.status]) {
-    var s = (row[mapping.status]+'').toLowerCase().trim();
-    if (['unsubscribed','unsub','stop','opted out','opt out','removed'].some(k=>s.includes(k))) return 'unsub';
-    if (['bounced','bounce','invalid','bad email'].some(k=>s.includes(k))) return 'bounced';
-    if (['responded','re-engaged','reengaged','followed up','contacted','newsletter sent','promo sent'].some(k=>s.includes(k))) return 'contacted';
-    if (['cold','dormant','old','inactive'].some(k=>s.includes(k))) return 'cold';
-    if (['warm','medium','follow','pending'].some(k=>s.includes(k))) return 'warm';
-    if (['new','hot','high','fresh','lead','active'].some(k=>s.includes(k))) return 'new';
-  }
-  var days = getDays(row);
-  if (days !== null) { if (days > 30) return 'cold'; if (days > 7) return 'warm'; return 'new'; }
-  return 'cold';
-}
-
-function getDays(row) {
-  let d = parseInt(row[mapping.days_since]);
-  if (isNaN(d) && mapping.inquiry_date && row[mapping.inquiry_date]) {
-    const dt = new Date(row[mapping.inquiry_date]);
-    if (!isNaN(dt.getTime())) d = Math.floor((Date.now() - dt.getTime()) / 86400000);
-  }
-  return isNaN(d) ? null : d;
-}
-
-function daysToTimeBucket(days) {
-  if (days === null) return 'unknown';
-  if (days <= 7) return 'less_week';
-  if (days <= 14) return '1_2_weeks';
-  if (days <= 21) return '2_3_weeks';
-  if (days <= 30) return '3_4_weeks';
-  if (days <= 60) return '1_2_months';
-  return 'over_2_months';
-}
-
-function getName(row) {
-  return [row[mapping.first_name], row[mapping.last_name]].filter(Boolean).join(' ') || 'Unknown';
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg || '✓ Copied to clipboard';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-  showToast();
-}
-
-/* ═══════════════════════════════════════════
-   FILE UPLOAD
-   ═══════════════════════════════════════════ */
-const uploadZone = document.getElementById('uploadZone');
-const fileInput = document.getElementById('fileInput');
-
-uploadZone.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragging'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
-uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('dragging'); if (e.dataTransfer.files[0]) parseFile(e.dataTransfer.files[0]); });
-fileInput.addEventListener('change', e => { if (e.target.files[0]) parseFile(e.target.files[0]); e.target.value = ''; });
-
-function parseFile(file) {
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext === 'csv' || ext === 'tsv') {
-    Papa.parse(file, {
-      header: true, skipEmptyLines: true,
-      complete: r => loadData(r.meta.fields || [], r.data),
-    });
-  } else {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-      const h = json.length ? Object.keys(json[0]) : [];
-      loadData(h, json);
-    };
-    reader.readAsArrayBuffer(file);
-  }
-}
-
-function loadData(h, r) {
-  headers = h; rows = r; mapping = autoMap(h); mapped = false;
-  selectedIdx = null; result = null; error = null;
-  showMapper();
-}
-
-/* ═══════════════════════════════════════════
-   COLUMN MAPPER
-   ═══════════════════════════════════════════ */
-function showMapper() {
-  const el = document.getElementById('mapper');
-  let html = '<div class="mapper-title">MAP YOUR COLUMNS</div>';
-  html += '<div class="mapper-hint">Auto-detected what we could. Adjust anything wrong.</div>';
-  html += '<div class="mapper-grid">';
-  FIELDS.forEach(f => {
-    html += `<div class="mapper-field"><label>${f.label}</label><select onchange="mapping['${f.key}']=this.value">`;
-    html += `<option value="">— skip —</option>`;
-    headers.forEach(h => {
-      html += `<option value="${h}" ${mapping[f.key]===h?'selected':''}>${h}</option>`;
-    });
-    html += `</select></div>`;
-  });
-  html += '</div>';
-  html += '<button class="mapper-btn" onclick="confirmMapping()">Confirm & Load Leads</button>';
-  el.innerHTML = html;
-  el.style.display = 'block';
-  // Hide lead UI
-  ['syncBar','searchWrap','filterPills','leadCount'].forEach(id => document.getElementById(id).style.display = 'none');
-  document.getElementById('leadList').innerHTML = '';
-}
-
-function confirmMapping() {
-  mapped = true;
-  document.getElementById('mapper').style.display = 'none';
-  document.getElementById('uploadIcon').textContent = '✅';
-  document.getElementById('uploadLabel').textContent = 'Leads Loaded — Upload New?';
-  document.getElementById('syncBar').style.display = 'flex';
-  document.getElementById('searchWrap').style.display = 'block';
-  document.getElementById('filterPills').style.display = 'flex';
-  document.getElementById('leadCount').style.display = 'block';
-  document.getElementById('emptyState').style.display = 'none';
-  renderFilterPills();
-  renderLeads();
-  renderTabs();
-  renderForm();
-  checkConfig();
-}
-
-/* ═══════════════════════════════════════════
-   SYNC FROM GOOGLE SHEET VIA n8n
-   ═══════════════════════════════════════════ */
-async function syncLeads() {
-  if (!CONFIG.SYNC_URL) { showSettings(); return; }
-  const btn = document.getElementById('syncBtn');
-  const status = document.getElementById('syncStatus');
-  btn.disabled = true; btn.textContent = '🔄 Syncing…';
-  try {
-    const res = await fetch(CONFIG.SYNC_URL);
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      const h = Object.keys(data[0]);
-      headers = h; rows = data; mapping = autoMap(h);
-      if (!mapped) {
-        showMapper();
-      } else {
-        renderLeads();
-        renderFilterPills();
-      }
-      status.textContent = `Synced ${data.length} leads`;
-    } else {
-      status.textContent = 'No leads returned';
-    }
-  } catch (e) {
-    status.textContent = 'Sync failed — check webhook URL';
-  }
-  btn.disabled = false; btn.textContent = '🔄 Sync';
-}
-
-/* ═══════════════════════════════════════════
-   LEAD LIST
-   ═══════════════════════════════════════════ */
-function getFilteredLeads() {
-  if (!mapped) return [];
-  let leads = rows.map((r,i) => ({...r, _idx:i, _status: getStatus(r)}));
-  if (filterStatus !== 'all') leads = leads.filter(l => l._status === filterStatus);
-  const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-  if (q) {
-    leads = leads.filter(l => {
-      const nm = getName(l).toLowerCase();
-      const em = (l[mapping.email]||'').toLowerCase();
-      const re = (l[mapping.research_interest]||'').toLowerCase();
-      return nm.includes(q) || em.includes(q) || re.includes(q);
-    });
-  }
-  return leads;
-}
-
-function getStatusCounts() {
-  var all = rows.map(r => getStatus(r));
-  return {
-    all: all.length,
-    new: all.filter(s=>s==='new').length,
-    warm: all.filter(s=>s==='warm').length,
-    cold: all.filter(s=>s==='cold').length,
-    contacted: all.filter(s=>s==='contacted').length,
-    unsub: all.filter(s=>s==='unsub').length,
-    bounced: all.filter(s=>s==='bounced').length,
+function getStats(){
+  const l=S.leads;
+  return{
+    total:l.length,
+    new_ct:l.filter(x=>x.Status==='New').length,
+    contacted:l.filter(x=>x.Status==='Contacted').length,
+    warm:l.filter(x=>x.Status==='Warm').length,
+    replied:l.filter(x=>x.Status==='Replied').length,
+    bounced:l.filter(x=>x.Status==='Bounced').length,
+    unsub:l.filter(x=>x.Status==='Unsubscribed').length,
+    byInterest:{}
   };
 }
-
-function renderFilterPills() {
-  var counts = getStatusCounts();
-  var el = document.getElementById('filterPills');
-  var statuses = [
-    {k:'all', l:'All (' + counts.all + ')'},
-    {k:'new', l:'\u{1F7E2} New (' + counts.new + ')'},
-    {k:'warm', l:'\u{1F7E1} Warm (' + counts.warm + ')'},
-    {k:'cold', l:'\u{1F534} Cold (' + counts.cold + ')'},
-    {k:'contacted', l:'\u{1F4E7} Contacted (' + counts.contacted + ')'},
-    {k:'unsub', l:'\u{1F6AB} Unsub (' + counts.unsub + ')'},
-  ];
-  el.innerHTML = statuses.map(s =>
-    `<button class="pill ${filterStatus===s.k?'active':''}" onclick="filterStatus='${s.k}';renderFilterPills();renderLeads()">${s.l}</button>`
-  ).join('');
+function getFiltered(){
+  return S.leads.filter(l=>{
+    const q=S.search.toLowerCase();
+    const ms=!q||[l.Name,l.Email,l.Interest,l.Message,l.Notes].some(f=>f&&f.toLowerCase().includes(q));
+    const mf=S.filter==='all'||l.Status===S.filter;
+    return ms&&mf;
+  });
 }
 
-function renderLeads() {
-  const leads = getFilteredLeads();
-  document.getElementById('leadCount').textContent = `${leads.length} lead${leads.length!==1?'s':''}`;
-  const el = document.getElementById('leadList');
-  if (leads.length === 0) {
-    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;font-style:italic">No leads match your search.</div>';
-    return;
-  }
-  el.innerHTML = leads.map(l => {
-    var nm = getName(l);
-    var days = getDays(l);
-    var daysLabel = days !== null ? ' \u00b7 ' + days + 'd ago' : '';
-    var active = selectedIdx === l._idx;
-    var statusLabels = {new:'New',warm:'Warm',cold:'Cold',contacted:'Contacted',unsub:'Unsubscribed',bounced:'Bounced'};
-    var opacity = (l._status === 'unsub' || l._status === 'bounced') ? 'opacity:0.5;' : '';
-    return '<div class="lead-card ' + (active?'active':'') + '" onclick="selectLead(' + l._idx + ')" style="' + opacity + '">'
-      + '<div class="lead-name">' + esc(nm) + '</div>'
-      + '<div class="lead-meta">' + esc(l[mapping.email]||'No email') + daysLabel + '</div>'
-      + (l[mapping.service] ? '<div class="lead-service">' + esc(l[mapping.service]) + '</div>' : '')
-      + (l[mapping.last_email_date] ? '<div style="font-size:10px;color:var(--muted);margin-top:2px">Last emailed: ' + esc(l[mapping.last_email_date]) + '</div>' : '')
-      + '<span class="status-badge status-' + l._status + '">' + (statusLabels[l._status] || l._status) + '</span>'
-      + '</div>';
-  }).join('');
-}
-
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-/* ═══════════════════════════════════════════
-   SELECT LEAD
-   ═══════════════════════════════════════════ */
-function selectLead(idx) {
-  selectedIdx = idx;
-  result = null; error = null;
-  if (activeTab === 'bulk') activeTab = 'initial';
-  const lead = rows[idx];
-  const days = getDays(lead);
-  // Auto-fill form
-  document.getElementById('emptyState').style.display = 'none';
-  renderSelBanner();
-  renderLeads();
-  renderTabs();
-  renderForm();
-  renderOutput();
-  // Set form values after render
-  setTimeout(() => {
-    setVal('formFirst', getName(lead));
-    setVal('formResearch', lead[mapping.research_interest] || '');
-    setVal('formService', lead[mapping.service] || 'Family History Book');
-    setVal('formDetail', lead[mapping.notes] || '');
-    setVal('formTone', 'Warm & Personal');
-    setVal('formOffer', 'none');
-    setVal('formTime', daysToTimeBucket(days));
-    const status = getStatus(lead);
-    if (status === 'new') activeTab = 'initial';
-    else if (status === 'cold') activeTab = 'reengage';
-    else activeTab = 'followup';
-    renderTabs();
-  }, 10);
-}
-
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.value = val;
-}
-
-function clearSelection() {
-  selectedIdx = null; result = null; error = null;
-  renderSelBanner(); renderLeads(); renderOutput();
-}
-
-function renderSelBanner() {
-  var el = document.getElementById('selBanner');
-  if (selectedIdx === null) { el.style.display = 'none'; return; }
-  var lead = rows[selectedIdx];
-  var nm = getName(lead);
-  var days = getDays(lead);
-  var status = getStatus(lead);
-  var isUnsub = status === 'unsub';
-  var isBounced = status === 'bounced';
-  el.style.display = 'flex';
-  el.className = 'sel-banner';
-  el.style.background = isUnsub ? '#666' : isBounced ? '#888' : 'var(--navy)';
-  el.innerHTML = '<div class="sel-avatar">' + (nm[0]||'?').toUpperCase() + '</div>'
-    + '<div class="sel-info">'
-    + '<div class="sel-name">' + esc(nm) + ' \u00b7 ' + esc(lead[mapping.email]||'no email') + '</div>'
-    + '<div class="sel-detail">' + esc(lead[mapping.service]||'No service') + (days!==null?' \u00b7 '+days+' days since inquiry':'')
-    + (isUnsub ? ' \u00b7 \u26d4 UNSUBSCRIBED' : '') + (isBounced ? ' \u00b7 \u26a0 BOUNCED' : '') + '</div>'
-    + '</div>'
-    + ((!isUnsub && !isBounced) ? '<button class="sel-clear" style="background:rgba(255,0,0,0.2);margin-right:6px" onclick="markUnsubscribed()">Unsubscribe</button>' : '')
-    + '<button class="sel-clear" onclick="clearSelection()">\u2715 Clear</button>';
-}
-
-async function markUnsubscribed() {
-  if (selectedIdx === null) return;
-  var lead = rows[selectedIdx];
-  var email = lead[mapping.email] || '';
-  var nm = getName(lead);
-  var timestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
-
-  // Update local data
-  if (mapping.status) { rows[selectedIdx][mapping.status] = 'Unsubscribed'; }
-  if (mapping.last_email_date) { rows[selectedIdx][mapping.last_email_date] = timestamp; }
-  if (mapping.last_email_type) { rows[selectedIdx][mapping.last_email_type] = 'Unsubscribed'; }
-
-  // Send update to n8n if configured
-  if (CONFIG.UPDATE_URL) {
-    try {
-      await fetch(CONFIG.UPDATE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          name: nm,
-          new_status: 'Unsubscribed',
-          email_type: 'Unsubscribed',
-          timestamp: timestamp,
-          subject: '',
-        }),
-      });
-    } catch (e) { /* update locally even if webhook fails */ }
-  }
-
-  renderSelBanner();
-  renderFilterPills();
-  renderLeads();
-  showToast('\u26d4 ' + nm + ' marked as Unsubscribed');
-}
-
-/* ═══════════════════════════════════════════
-   TABS
-   ═══════════════════════════════════════════ */
-function renderTabs() {
-  const el = document.getElementById('tabBar');
-  el.innerHTML = TABS.map(t =>
-    `<button class="tab-btn ${activeTab===t.key?'active':''}" onclick="switchTab('${t.key}')">${t.label}</button>`
-  ).join('');
-  document.getElementById('tabDesc').textContent = TABS.find(t=>t.key===activeTab)?.desc || '';
-}
-
-function switchTab(key) {
-  activeTab = key; result = null; error = null;
-  renderTabs(); renderForm(); renderOutput();
-}
-
-/* ═══════════════════════════════════════════
-   FORM
-   ═══════════════════════════════════════════ */
-function renderForm() {
-  const el = document.getElementById('formArea');
-  if (activeTab === 'bulk') {
-    renderBulk(); return;
-  }
-  const serviceOpts = SERVICES.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
-  const toneOpts = TONES.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
-  const offerOpts = OFFERS.map(o => `<option value="${o.v}">${esc(o.l)}</option>`).join('');
-  const timeOpts = TIME_OPTS.map(t => `<option value="${t.v}">${esc(t.l)}</option>`).join('');
-
-  el.innerHTML = `
-    <div class="form-card">
-      <div class="form-heading">Lead Details</div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="formFirst"></div>
-        <div class="form-group"><label class="form-label">How long since inquiry?</label><select class="form-select" id="formTime">${timeOpts}</select></div>
+/* ── RENDER ── */
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML=`
+    ${S.notif?`<div class="toast">${esc(S.notif)}</div>`:''}
+    <header>
+      <div class="h-left">
+        <div class="logo">TLS</div>
+        <div><h1 class="h-title">Lead Manager <span style="font-family:'DM Sans';font-size:11px;font-weight:400;color:var(--bark-l)">v2</span></h1><div class="h-sub">The Lineage Studio</div></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">What they were researching</label><input class="form-input" id="formResearch" placeholder="e.g., Williams family, Mississippi"></div>
-        <div class="form-group"><label class="form-label">Service interested in</label><select class="form-select" id="formService">${serviceOpts}</select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Detail from their inquiry (optional)</label><input class="form-input" id="formDetail" placeholder="e.g., Looking for grandfather born in Georgia"></div>
-        <div class="form-group"><label class="form-label">Tone</label><select class="form-select" id="formTone">${toneOpts}</select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Include a special offer?</label><select class="form-select" id="formOffer" onchange="toggleCustomOffer()">${offerOpts}</select></div>
-        <div class="form-group" id="customOfferGroup" style="display:none"><label class="form-label">Custom offer text</label><input class="form-input" id="formCustomOffer" placeholder="Describe your offer…"></div>
-      </div>
-      <button class="gen-btn" id="genBtn" onclick="generate()">
-        ${activeTab==='initial'?'Generate Initial Response':'Generate Email'}
-      </button>
-    </div>
+      <nav>
+        ${['dashboard','leads','compose','settings'].map(v=>`<button class="nb ${S.view===v?'on':''}" onclick="go('${v}')">${{dashboard:'◉ Dashboard',leads:'☰ Leads',compose:'✎ Compose',settings:'⚙ Settings'}[v]}</button>`).join('')}
+      </nav>
+    </header>
+    <main>${views[S.view]?views[S.view]():views.dashboard()}</main>
+    ${S.sel&&!S.editing?detailPanel():''}
+    ${S.editing?editPanel():''}
   `;
 }
+function go(v){S.view=v;S.showAdd=false;render()}
 
-function toggleCustomOffer() {
-  const v = document.getElementById('formOffer').value;
-  document.getElementById('customOfferGroup').style.display = v === 'custom' ? 'block' : 'none';
-}
-
-/* ═══════════════════════════════════════════
-   GENERATE EMAIL VIA n8n
-   ═══════════════════════════════════════════ */
-async function generate() {
-  if (!CONFIG.GENERATE_URL) { showSettings(); return; }
-  const form = getFormData();
-  const btn = document.getElementById('genBtn');
-  loading = true; result = null; error = null;
-  btn.disabled = true; btn.textContent = 'Generating…';
-  renderOutput();
-
-  try {
-    const res = await fetch(CONFIG.GENERATE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tab: activeTab, ...form }),
-    });
-    if (!res.ok) throw new Error('Webhook returned ' + res.status);
-    const data = await res.json();
-    result = data;
-  } catch (e) {
-    error = e.message;
+/* ── DASHBOARD ── */
+const views={};
+views.dashboard=()=>{
+  const s=getStats();
+  const groups={};
+  Object.keys(STATUS_CFG).forEach(k=>groups[k]=S.leads.filter(l=>l.Status===k));
+  let pipe='';
+  for(const[k,cfg]of Object.entries(STATUS_CFG)){
+    const items=groups[k]||[];
+    if(!items.length)continue;
+    pipe+=`<div class="pcol"><div class="pcol-h"><span class="sd" style="background:${cfg.color}"></span><span class="pcol-t">${cfg.label}</span><span class="pcol-c">${items.length}</span></div>${items.slice(0,5).map(l=>`<div class="pi" onclick="openLead('${l.id}')"><div class="pi-n">${esc(l.Name)}</div><div class="pi-s">${esc(l.Interest||'')}</div></div>`).join('')}${items.length>5?`<div style="font-size:10px;color:var(--bark-l);padding:3px 9px">+${items.length-5} more</div>`:''}</div>`;
   }
-  loading = false;
-  btn.disabled = false;
-  btn.textContent = activeTab === 'initial' ? 'Generate Initial Response' : 'Generate Email';
-  renderOutput();
-}
+  // Interest breakdown
+  const intCounts={};
+  S.leads.forEach(l=>{const k=l.Interest||'Unknown';intCounts[k]=(intCounts[k]||0)+1});
+  const intSorted=Object.entries(intCounts).sort((a,b)=>b[1]-a[1]);
+  let intHTML=intSorted.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #F3EDE3"><span style="color:var(--bark)">${esc(k)}</span><span style="font-weight:600;color:var(--bark-m)">${v}</span></div>`).join('');
 
-function getFormData() {
-  return {
-    firstName: document.getElementById('formFirst')?.value || '',
-    research: document.getElementById('formResearch')?.value || '',
-    service: document.getElementById('formService')?.value || 'Family History Book',
-    detail: document.getElementById('formDetail')?.value || '',
-    tone: document.getElementById('formTone')?.value || 'Warm & Personal',
-    offer: document.getElementById('formOffer')?.value || 'none',
-    customOffer: document.getElementById('formCustomOffer')?.value || '',
-    timeBucket: document.getElementById('formTime')?.value || '2_3_weeks',
-    email: selectedIdx !== null ? (rows[selectedIdx][mapping.email] || '') : '',
-  };
-}
-
-/* ═══════════════════════════════════════════
-   OUTPUT
-   ═══════════════════════════════════════════ */
-function renderOutput() {
-  const el = document.getElementById('outputArea');
-  if (!result && !loading && !error) { el.style.display = 'none'; return; }
-  el.style.display = 'block';
-
-  if (loading) {
-    el.innerHTML = `<div class="output-card">
-      <div class="form-heading">Generated Email</div>
-      <div style="padding:20px;text-align:center">
-        <div class="progress-track"><div class="loading-bar"></div></div>
-        <div style="margin-top:10px;font-size:12px;color:var(--muted);font-style:italic">Writing your email…</div>
+  return`
+    <div class="dg">
+      <div class="sc" style="border-left-color:var(--forest)"><div class="lb">Total Leads</div><div class="vl">${s.total}</div></div>
+      <div class="sc" style="border-left-color:#5B8C5A"><div class="lb">New</div><div class="vl">${s.new_ct}</div></div>
+      <div class="sc" style="border-left-color:var(--gold)"><div class="lb">Contacted</div><div class="vl">${s.contacted}</div></div>
+      <div class="sc" style="border-left-color:var(--ember)"><div class="lb">Warm / Replied</div><div class="vl">${s.warm+s.replied}</div></div>
+      <div class="sc" style="border-left-color:var(--crimson)"><div class="lb">Bounced</div><div class="vl">${s.bounced}</div></div>
+      <div class="sc" style="border-left-color:var(--slate)"><div class="lb">Unsubscribed</div><div class="vl">${s.unsub}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
+      <div>
+        <h2 style="font-size:20px;color:var(--bark);margin-bottom:12px">Pipeline</h2>
+        <div class="pc">${pipe}</div>
       </div>
-    </div>`;
-    return;
-  }
-
-  if (error) {
-    el.innerHTML = `<div class="output-card">
-      <div class="form-heading">Generated Email</div>
-      <div style="padding:16px;background:var(--red-bg);border-radius:8px;color:var(--red);font-size:13px">Error: ${esc(error)}</div>
-    </div>`;
-    return;
-  }
-
-  el.innerHTML = `<div class="output-card">
-    <div class="form-heading">Generated Email</div>
-    <div class="output-label">Subject:</div>
-    <div class="output-subject">${esc(result.subject)}</div>
-    <div class="output-label">Body:</div>
-    <div class="output-body-wrap">
-      <button class="copy-btn" onclick="copyText(document.getElementById('emailBody').textContent)">Copy</button>
-      <div class="output-body" id="emailBody">${esc(result.body)}</div>
-    </div>
-    <div class="output-actions">
-      <button class="btn-outline" onclick="generate()">Regenerate</button>
-      <button class="btn-solid" onclick="copyText('Subject: '+${JSON.stringify(result.subject)}+'\\n\\n'+${JSON.stringify(result.body)})">Copy Subject + Body</button>
-      <button class="btn-solid" id="outlookBtn" style="background:#0078d4;display:flex;align-items:center;gap:6px" onclick="openInOutlook()">📧 Open in Outlook</button>
-      <button class="btn-solid" id="markSentBtn" style="background:var(--green);display:none;align-items:center;gap:6px" onclick="markAsSent()">✓ Mark as Sent</button>
-    </div>
-  </div>`;
-}
-
-function openInOutlook() {
-  if (!result) return;
-  var email = '';
-  if (selectedIdx !== null) { email = rows[selectedIdx][mapping.email] || ''; }
-  var mailtoUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(result.subject) + '&body=' + encodeURIComponent(result.body);
-  var a = document.createElement('a');
-  a.href = mailtoUrl;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  // Show Mark as Sent button
-  setTimeout(function() {
-    var ob = document.getElementById('outlookBtn');
-    var mb = document.getElementById('markSentBtn');
-    if (ob) { ob.style.display = 'none'; }
-    if (mb) { mb.style.display = 'flex'; }
-  }, 500);
-}
-
-function openMailto(email, subject, body) {
-  var mailtoUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  var a = document.createElement('a');
-  a.href = mailtoUrl;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-var STATUS_MAP = {};
-STATUS_MAP['initial'] = 'Responded';
-STATUS_MAP['reengage'] = 'Re-engaged';
-STATUS_MAP['followup'] = 'Followed Up';
-STATUS_MAP['newsletter'] = 'Newsletter Sent';
-STATUS_MAP['promo'] = 'Promo Sent';
-
-async function markAsSent() {
-  var btn = document.getElementById('markSentBtn');
-  var email = '';
-  var leadName = '';
-  if (selectedIdx !== null) {
-    email = rows[selectedIdx][mapping.email] || '';
-    leadName = getName(rows[selectedIdx]);
-  }
-  var newStatus = STATUS_MAP[activeTab] || 'Contacted';
-  var timestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
-
-  // Update local data
-  if (selectedIdx !== null) {
-    if (mapping.status) { rows[selectedIdx][mapping.status] = newStatus; }
-    if (mapping.last_email_date) { rows[selectedIdx][mapping.last_email_date] = timestamp; }
-  }
-
-  // Send update to n8n if configured
-  if (CONFIG.UPDATE_URL) {
-    btn.textContent = 'Updating…';
-    btn.disabled = true;
-    try {
-      await fetch(CONFIG.UPDATE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          name: leadName,
-          new_status: newStatus,
-          email_type: activeTab,
-          timestamp: timestamp,
-          subject: result ? result.subject : '',
-        }),
-      });
-    } catch (e) {
-      // Update locally even if webhook fails
-    }
-  }
-
-  btn.textContent = '✓ Sent — Status Updated';
-  btn.style.background = 'var(--sage-bg)';
-  btn.style.color = 'var(--green)';
-  btn.style.border = '1.5px solid var(--green)';
-  btn.disabled = true;
-
-  // Refresh sidebar
-  renderFilterPills();
-  renderLeads();
-  showToast('✓ ' + leadName + ' marked as ' + newStatus);
-}
-
-/* ═══════════════════════════════════════════
-   BULK GENERATE
-   ═══════════════════════════════════════════ */
-var bulkStatusFilter = 'all';
-
-function getBulkEligible() {
-  return rows.filter(function(r) {
-    var s = getStatus(r);
-    if (s === 'unsub' || s === 'bounced') return false;
-    if (bulkStatusFilter === 'all') return true;
-    return s === bulkStatusFilter;
-  });
-}
-
-function renderBulk() {
-  var el = document.getElementById('formArea');
-  var eligible = getBulkEligible();
-  var total = eligible.length;
-  var totalUnsub = rows.filter(function(r) { var s = getStatus(r); return s === 'unsub' || s === 'bounced'; }).length;
-
-  var counts = getStatusCounts();
-
-  var html = '<div class="form-card">'
-    + '<div class="form-heading">Bulk Email Generator</div>'
-    + '<div style="font-size:12px;color:var(--muted);margin-bottom:16px">Generate a personalized email for a group of leads filtered by status. Processes one at a time via n8n.</div>'
-    + '<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px">'
-    + '<div class="form-group" style="min-width:200px;max-width:300px"><label class="form-label">Which leads to email?</label>'
-    + '<select class="form-select" id="bulkFilter" onchange="bulkStatusFilter=this.value;renderBulk()">'
-    + '<option value="all"' + (bulkStatusFilter==='all'?' selected':'') + '>All eligible (' + (rows.length - totalUnsub) + ')</option>'
-    + '<option value="new"' + (bulkStatusFilter==='new'?' selected':'') + '>🟢 New only (' + counts.new + ')</option>'
-    + '<option value="warm"' + (bulkStatusFilter==='warm'?' selected':'') + '>🟡 Warm only (' + counts.warm + ')</option>'
-    + '<option value="cold"' + (bulkStatusFilter==='cold'?' selected':'') + '>🔴 Cold only (' + counts.cold + ')</option>'
-    + '<option value="contacted"' + (bulkStatusFilter==='contacted'?' selected':'') + '>📧 Contacted only (' + counts.contacted + ')</option>'
-    + '</select></div>'
-    + '<div class="form-group" style="min-width:200px;max-width:300px"><label class="form-label">Email type to generate</label>'
-    + '<select class="form-select" id="bulkEmailType">'
-    + '<option value="reengage">Re-Engage</option>'
-    + '<option value="initial">Initial Response</option>'
-    + '<option value="followup">Follow-Up</option>'
-    + '<option value="newsletter">Newsletter</option>'
-    + '<option value="promo">Promo</option>'
-    + '</select></div>'
-    + '</div>'
-    + '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">' + total + ' leads ready to process</div>'
-    + (totalUnsub > 0 ? '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">' + totalUnsub + ' always skipped (unsubscribed or bounced)</div>' : '<div style="margin-bottom:12px"></div>');
-
-  if (!bulkRunning && bulkResults.length === 0) {
-    html += `<button class="gen-btn" onclick="runBulk()" ${total===0?'disabled':''}>Generate All Emails</button>`;
-  }
-
-  if (bulkRunning) {
-    const pct = total > 0 ? (bulkProgress / total * 100) : 0;
-    html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-      <div class="progress-track" style="flex:1"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <span style="font-size:13px;font-weight:700;color:var(--navy)">${bulkProgress}/${total}</span>
-    </div>
-    <button style="padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600" onclick="abortBulk=true">Stop</button>`;
-  }
-
-  if (bulkResults.length > 0 && !bulkRunning) {
-    html += `<div style="display:flex;gap:10px;margin-bottom:14px">
-      <button class="btn-solid" onclick="copyAllBulk()">Copy All as Text</button>
-      <button class="btn-outline" onclick="bulkResults=[];bulkProgress=0;renderBulk()">Reset</button>
-    </div>`;
-    bulkResults.forEach((r,i) => {
-      html += `<div class="bulk-card" onclick="toggleBulkView(${i})">
-        <div class="bulk-card-header">
-          <span class="bulk-card-name">${esc(r.name)}</span>
-          <span class="${r.ok?'bulk-ok':'bulk-err'}">${r.ok?'✓ Done':'✕ Error'}</span>
+      <div>
+        <div class="fc" style="margin-bottom:0">
+          <h3 style="font-size:16px;margin-bottom:10px">By Interest</h3>
+          ${intHTML}
         </div>
-        <div class="bulk-email">${esc(r.email)}</div>
-        ${bulkViewing===i && r.ok ? `<div class="bulk-expand">
-          <div style="font-size:11px;font-weight:700;color:var(--navy)">Subject: ${esc(r.subject)}</div>
-          <div style="font-size:12px;margin-top:6px;line-height:1.6;white-space:pre-wrap">${esc(r.body)}</div>
-          <button class="btn-solid" style="margin-top:8px;font-size:11px;padding:4px 12px" onclick="event.stopPropagation();copyBulkItem(${i})">Copy</button>
-          <button class="btn-solid" style="margin-top:8px;margin-left:6px;font-size:11px;padding:4px 12px;background:#0078d4" onclick="event.stopPropagation();outlookBulkItem(${i})">📧 Outlook</button>
-        </div>` : ''}
-      </div>`;
-    });
+      </div>
+    </div>
+  `;
+};
+
+/* ── LEADS ── */
+views.leads=()=>{
+  const fl=getFiltered();
+  const bs=S.bulk.size;
+  let bulkBar='';
+  if(bs>0){
+    bulkBar=`<div class="bb"><span>${bs} selected</span>
+      <select onchange="bulkSt(this.value)" style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:4px 7px;border-radius:4px;font-size:11px">
+        <option value="">Change status…</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}">${k}</option>`).join('')}
+      </select>
+      <button onclick="bulkComp()">✎ Compose</button>
+      <button class="bbd" onclick="bulkDel()">✕ Delete</button>
+      <button onclick="clearBk()" style="margin-left:auto">Cancel</button>
+    </div>`;
   }
-
-  html += '</div>';
-  el.innerHTML = html;
-  document.getElementById('outputArea').style.display = 'none';
-}
-
-function toggleBulkView(idx) {
-  bulkViewing = bulkViewing === idx ? null : idx;
-  renderBulk();
-}
-
-function copyAllBulk() {
-  var text = bulkResults.filter(function(r){return r.ok;}).map(function(r) {
-    return 'TO: ' + r.email + '\nSUBJECT: ' + r.subject + '\n\n' + r.body + '\n\n' + Array(51).join('\u2500');
-  }).join('\n\n');
-  copyText(text);
-}
-
-function copyBulkItem(idx) {
-  var r = bulkResults[idx];
-  if (r) copyText('Subject: ' + r.subject + '\n\n' + r.body);
-}
-
-function outlookBulkItem(idx) {
-  var r = bulkResults[idx];
-  if (r) openMailto(r.email, r.subject, r.body);
-}
-
-async function runBulk() {
-  if (!CONFIG.GENERATE_URL) { showSettings(); return; }
-  var eligible = getBulkEligible();
-  var emailType = document.getElementById('bulkEmailType')?.value || 'reengage';
-  bulkRunning = true; bulkProgress = 0; bulkResults = []; abortBulk = false;
-  renderBulk();
-
-  for (var i = 0; i < eligible.length; i++) {
-    if (abortBulk) break;
-    var lead = eligible[i];
-    var days = getDays(lead);
-    var nm = getName(lead);
-    var form = {
-      firstName: lead[mapping.first_name] || nm,
-      research: lead[mapping.research_interest] || '',
-      service: lead[mapping.service] || 'Family History Book',
-      detail: lead[mapping.notes] || '',
-      tone: 'Warm & Personal', offer: 'none', customOffer: '',
-      timeBucket: daysToTimeBucket(days),
-      email: lead[mapping.email] || '',
-    };
-    try {
-      var res = await fetch(CONFIG.GENERATE_URL, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ tab: emailType, ...form }),
-      });
-      const data = await res.json();
-      bulkResults.push({ name: nm, email: form.email, ...data, ok: true });
-    } catch (e) {
-      bulkResults.push({ name: nm, email: form.email, subject:'', body:'', ok: false, err: e.message });
-    }
-    bulkProgress = i + 1;
-    renderBulk();
+  let addHTML='';
+  if(S.showAdd){
+    addHTML=`<div class="fc"><h2>Add New Lead</h2><div class="fg">
+      <div class="fi-g"><label>Name *</label><input class="fi" id="af-n" placeholder="Full name"></div>
+      <div class="fi-g"><label>Email</label><input class="fi" id="af-e" type="email" placeholder="email@example.com"></div>
+      <div class="fi-g"><label>Interest</label><select class="fi" id="af-i"><option value="">Select…</option>${INTERESTS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div class="fi-g"><label>Status</label><select class="fi" id="af-s">${Object.keys(STATUS_CFG).map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div>
+      <div class="fi-g full"><label>Message</label><textarea class="fi" id="af-m" placeholder="What they said…"></textarea></div>
+      <div class="fi-g full"><label>Notes</label><textarea class="fi" id="af-no" placeholder="Internal notes…"></textarea></div>
+      <div class="fa"><button class="btn bp" onclick="submitAdd()">Add Lead</button><button class="btn bs" onclick="togAdd()">Cancel</button></div>
+    </div></div>`;
   }
-  bulkRunning = false;
-  renderBulk();
+  const rows=fl.map((l,i)=>`<tr style="animation:fi ${.03*Math.min(i,20)}s ease both">
+    <td><input type="checkbox" class="lck" ${S.bulk.has(l.id)?'checked':''} onchange="togBk('${l.id}')"></td>
+    <td><span class="ln" onclick="openLead('${l.id}')">${esc(l.Name||'(no name)')}</span><div class="le">${esc(l.Email||'')}</div></td>
+    <td>${sbadge(l.Status)}</td>
+    <td title="${esc(l.Interest)}">${esc(l.Interest||'—')}</td>
+    <td>${l.Days_Since_Inquiry||daysSince(l.Submitted_At)||'—'}</td>
+    <td>${esc(l.Last_Email_Type||'—')}</td>
+    <td><button class="btn bg bsm" onclick="compFor('${l.id}')" title="Compose">✎</button></td>
+  </tr>`).join('');
+
+  return`
+    <div class="tb">
+      <div class="sw"><span class="si">⌕</span><input class="sb" placeholder="Search leads…" value="${esc(S.search)}" oninput="doSearch(this.value)"></div>
+      <select class="fs" onchange="doFilter(this.value)"><option value="all" ${S.filter==='all'?'selected':''}>All Status</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}" ${S.filter===k?'selected':''}>${k}</option>`).join('')}</select>
+      <button class="btn bp" onclick="togAdd()">+ Add Lead</button>
+      <button class="btn bs" onclick="trigImp()">↑ Import</button>
+      <button class="btn bs" onclick="expCSV()">↓ Export</button>
+      <input type="file" id="csv-in" accept=".csv,.xlsx,.tsv,.txt" style="display:none" onchange="handleCSV(event)">
+    </div>
+    ${bulkBar}${addHTML}
+    ${fl.length===0?`<div class="empty"><h3>${S.leads.length===0?'No Leads Yet':'No Results'}</h3><p>${S.leads.length===0?'Add leads or import a file.':'Adjust your search or filters.'}</p></div>`:`
+    <div class="tw"><table>
+      <thead><tr><th style="width:32px"><input type="checkbox" class="lck" onchange="togAllBk(this.checked)" ${bs===fl.length&&fl.length?'checked':''}></th><th>Name</th><th>Status</th><th>Interest</th><th>Days</th><th>Last Email</th><th style="width:40px"></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`}
+    <div style="margin-top:10px;font-size:11px;color:var(--bark-l)">${fl.length} of ${S.leads.length} leads</div>
+  `;
+};
+
+/* ── DETAIL PANEL ── */
+function detailPanel(){
+  const l=S.sel;
+  return`<div class="ov" onclick="closeDet(event)"><div class="dp" onclick="event.stopPropagation()">
+    <div class="dp-h"><h2 class="dp-n">${esc(l.Name)}</h2><button class="dp-x" onclick="S.sel=null;render()">✕</button></div>
+    ${sbadge(l.Status)}
+    <div class="dp-g" style="margin-top:16px">
+      <div class="df"><label>Email</label><div class="v">${l.Email?`<a href="mailto:${esc(l.Email)}">${esc(l.Email)}</a>`:'—'}</div></div>
+      <div class="df"><label>Interest</label><div class="v">${esc(l.Interest||'—')}</div></div>
+      <div class="df"><label>Submitted</label><div class="v">${esc(l.Submitted_At||'—')}</div></div>
+      <div class="df"><label>Days Since</label><div class="v">${l.Days_Since_Inquiry||daysSince(l.Submitted_At)||'—'}</div></div>
+      <div class="df"><label>Last Email</label><div class="v">${esc(l.Last_Email_Date?l.Last_Email_Date.split('T')[0]:'—')}</div></div>
+      <div class="df"><label>Last Type</label><div class="v">${esc(l.Last_Email_Type||'—')}</div></div>
+    </div>
+    <div class="dp-msg"><label style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);font-weight:600;margin-bottom:4px">Message</label><div class="v">${esc(l.Message||'No message.')}</div></div>
+    <div class="dp-msg"><label style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);font-weight:600;margin-bottom:4px">Notes</label><div class="v">${esc(l.Notes||'No notes.')}</div></div>
+    <div class="dp-a">
+      <button class="btn bp bsm" onclick="editL('${l.id}')">Edit</button>
+      <button class="btn bs bsm" onclick="compFor('${l.id}')">✎ Compose</button>
+      <select class="fi" style="padding:5px 8px;font-size:11px;min-width:120px;width:auto" onchange="qSt('${l.id}',this.value)">
+        <option value="">Change status…</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}" ${l.Status===k?'selected':''}>${k}</option>`).join('')}
+      </select>
+      <button class="btn bd bsm" onclick="delL('${l.id}')" style="margin-left:auto">Delete</button>
+    </div>
+  </div></div>`;
 }
 
-/* ═══════════════════════════════════════════
-   ADD LEAD
-   ═══════════════════════════════════════════ */
-function showAddModal() {
-  document.getElementById('addModal').style.display = 'flex';
-  const sel = document.getElementById('addService');
-  if (sel.options.length <= 1) {
-    sel.innerHTML = SERVICES.map(s => `<option value="${s}">${s}</option>`).join('');
-  }
+/* ── EDIT PANEL ── */
+function editPanel(){
+  const l=S.editing;
+  return`<div class="ov" onclick="closeEd(event)"><div class="dp" onclick="event.stopPropagation()">
+    <div class="dp-h"><h2 class="dp-n">Edit Lead</h2><button class="dp-x" onclick="S.editing=null;render()">✕</button></div>
+    <div class="fg">
+      <div class="fi-g"><label>Name</label><input class="fi" id="ef-n" value="${esc(l.Name)}"></div>
+      <div class="fi-g"><label>Email</label><input class="fi" id="ef-e" value="${esc(l.Email||'')}"></div>
+      <div class="fi-g"><label>Interest</label><select class="fi" id="ef-i"><option value="">Select…</option>${INTERESTS.map(s=>`<option value="${s}" ${l.Interest===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="fi-g"><label>Status</label><select class="fi" id="ef-s">${Object.keys(STATUS_CFG).map(k=>`<option value="${k}" ${l.Status===k?'selected':''}>${k}</option>`).join('')}</select></div>
+      <div class="fi-g"><label>Last Email Date</label><input class="fi" id="ef-led" type="date" value="${(l.Last_Email_Date||'').split('T')[0]}"></div>
+      <div class="fi-g"><label>Last Email Type</label><select class="fi" id="ef-let"><option value="">—</option>${Object.values(EMAIL_TYPES).map(t=>`<option value="${t.label}" ${l.Last_Email_Type===t.label?'selected':''}>${t.label}</option>`).join('')}<option value="Unsubscribed" ${l.Last_Email_Type==='Unsubscribed'?'selected':''}>Unsubscribed</option></select></div>
+      <div class="fi-g full"><label>Message</label><textarea class="fi" id="ef-m">${esc(l.Message||'')}</textarea></div>
+      <div class="fi-g full"><label>Notes</label><textarea class="fi" id="ef-no">${esc(l.Notes||'')}</textarea></div>
+      <div class="fa"><button class="btn bp" onclick="submitEd('${l.id}')">Save</button><button class="btn bs" onclick="S.editing=null;render()">Cancel</button></div>
+    </div>
+  </div></div>`;
 }
-function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
 
-async function addLead() {
-  const lead = {
-    first_name: document.getElementById('addFirst').value,
-    last_name: document.getElementById('addLast').value,
-    email: document.getElementById('addEmail').value,
-    service: document.getElementById('addService').value,
-    research_interest: document.getElementById('addResearch').value,
-    notes: document.getElementById('addNotes').value,
-    inquiry_date: new Date().toISOString().split('T')[0],
-    days_since: '0',
-    status: 'New',
+/* ── COMPOSE ── */
+views.compose=()=>{
+  const tpls=Object.entries(EMAIL_TYPES).map(([k,v])=>`<div class="tc ${S.tpl===k?'on':''}" onclick="pickTpl('${k}')"><div class="tc-i">${v.icon}</div><div class="tc-l">${v.label}</div><div class="tc-d">${v.desc}</div></div>`).join('');
+  const ll=S.leads.filter(l=>l.Email&&l.Status!=='Bounced'&&l.Status!=='Unsubscribed').map(l=>`<div class="lpi ${S.cLead?.id===l.id?'on':''}" onclick="pickCL('${l.id}')"><span class="sd" style="background:${(STATUS_CFG[l.Status]||STATUS_CFG.New).color};width:7px;height:7px;display:inline-block;border-radius:50%;flex-shrink:0"></span><div><div style="font-weight:500;color:var(--bark)">${esc(l.Name)}</div><div style="font-size:10px;color:var(--bark-l)">${esc(l.Email)}</div></div></div>`).join('');
+  return`
+    <div class="cl">
+      <div class="c-sb">
+        <div style="font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Template</div>
+        ${tpls}
+        <div style="margin-top:8px;font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Select Lead</div>
+        <div class="cc" style="padding:10px">
+          <input class="fi" placeholder="Search…" oninput="filterCL(this.value)" style="margin-bottom:6px;font-size:11px">
+          <div class="lpl" id="lp">${ll}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        ${!S.apiKey?`<div style="font-size:12px;color:var(--crimson);padding:12px;background:var(--crimson-bg);border-radius:var(--rad-s)">⚠ Add your API key in <a href="#" onclick="go('settings');return false" style="color:var(--crimson);font-weight:600">Settings</a> to generate emails.</div>`:''}
+        <div class="cc">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3 style="margin:0">Generated Email</h3>
+            <div style="display:flex;gap:6px">
+              <button class="btn bp bsm" onclick="genEmail()" ${S.isGen?'disabled':''}>
+                ${S.isGen?'⟳ Generating…':'⚡ Generate'}
+              </button>
+              ${S.genEmail&&!S.isGen?`<button class="btn bs bsm" onclick="copyEm()">📋 Copy</button><button class="btn bs bsm" onclick="sendViaWebhook()">📤 Send via n8n</button>`:''}
+            </div>
+          </div>
+          ${S.cLead?`<div style="font-size:11px;color:var(--bark-l);margin-bottom:10px">To: <strong>${esc(S.cLead.Name)}</strong> ${S.cLead.Email?'‹'+esc(S.cLead.Email)+'›':''} · ${EMAIL_TYPES[S.tpl]?.label||''}</div>`:'<div style="font-size:12px;color:var(--bark-l);margin-bottom:10px">Select a lead from the sidebar</div>'}
+          ${S.genSubj?`<div class="es-line"><strong>Subject:</strong> ${esc(S.genSubj)}</div>`:''}
+          <div class="eo">${S.isGen?'<span class="gen">Crafting your email…</span>':esc(S.genEmail||'Select a lead and template, then click Generate.')}</div>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+/* ── IMPORT ── */
+views.import=()=>{
+  if(!S.csv){S.view='leads';return views.leads()}
+  const{headers,rows}=S.csv;
+  const flds=[{k:'Name',l:'Name'},{k:'Email',l:'Email'},{k:'Interest',l:'Interest'},{k:'Message',l:'Message'},{k:'Status',l:'Status'},{k:'Submitted_At',l:'Submitted Date'},{k:'Notes',l:'Notes'},{k:'Days_Since_Inquiry',l:'Days Since'}];
+  const mr=flds.map(f=>`<div class="fi-g"><label>${f.l}</label><select class="fi" onchange="setMap('${f.k}',this.value)"><option value="">— skip —</option>${headers.map((h,i)=>`<option value="${i}" ${S.csvMap[f.k]==i?'selected':''}>${esc(h)}</option>`).join('')}</select></div>`).join('');
+  const pr=rows.slice(0,4).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('');
+  return`<div class="fc"><h2>Import Leads</h2><p style="font-size:12px;color:var(--bark-l);margin-bottom:16px">${rows.length} rows · ${headers.length} columns</p>
+    <h3 style="font-size:15px;margin-bottom:10px">Map Columns</h3>
+    <div class="mg">${mr}</div>
+    <div style="display:flex;gap:6px"><button class="btn bp" onclick="doImport()">Import ${rows.length} Leads</button><button class="btn bs" onclick="S.csv=null;go('leads')">Cancel</button></div>
+    <div class="cpre"><h3 style="font-size:13px;margin:12px 0 6px;color:var(--bark-m)">Preview</h3><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${pr}</tbody></table></div>
+  </div>`;
+};
+
+/* ── SETTINGS ── */
+views.settings=()=>`
+  <div class="fc" style="max-width:640px">
+    <h2>Settings</h2>
+    <div class="s-row">
+      <label>Anthropic API Key</label>
+      <p>For AI email generation. Stored only in your browser — sent only to Anthropic's API.</p>
+      <input class="fi" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" oninput="S.apiKey=this.value;saveK()" style="font-family:monospace">
+    </div>
+    <hr style="border:none;border-top:1px solid #EDE8E0;margin:18px 0">
+    <h3 style="font-size:16px;margin-bottom:12px">n8n Webhooks</h3>
+    <div class="s-row">
+      <label>Email Generation Webhook (POST)</label>
+      <p>Receives lead data + email type, returns generated email</p>
+      <input class="fi" value="${esc(S.webhooks.emailGen||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.emailGen=this.value;saveW()">
+    </div>
+    <div class="s-row">
+      <label>Lead Sync Webhook (GET)</label>
+      <p>Returns all leads from your Google Sheet as JSON</p>
+      <input class="fi" value="${esc(S.webhooks.sync||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.sync=this.value;saveW()">
+    </div>
+    <div class="s-row">
+      <label>Add Lead Webhook (POST)</label>
+      <p>Saves a manually added lead to your Google Sheet</p>
+      <input class="fi" value="${esc(S.webhooks.addLead||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.addLead=this.value;saveW()">
+    </div>
+    <div class="s-row">
+      <label>Status Update Webhook (POST)</label>
+      <p>Updates lead status and email timestamp in your sheet</p>
+      <input class="fi" value="${esc(S.webhooks.updateStatus||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.updateStatus=this.value;saveW()">
+    </div>
+    <hr style="border:none;border-top:1px solid #EDE8E0;margin:18px 0">
+    <h3 style="font-size:16px;margin-bottom:12px">Data</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn bs" onclick="expCSV()">↓ Export CSV</button>
+      <button class="btn bs" onclick="syncLeads()">🔄 Sync from Google Sheet</button>
+      <button class="btn bs" onclick="reloadSeed()">↻ Reload Original Data</button>
+      <button class="btn bd" onclick="resetAll()">Clear All</button>
+    </div>
+    <p style="font-size:11px;color:var(--bark-l);margin-top:10px">${S.leads.length} leads in browser storage</p>
+  </div>
+`;
+
+/* ── ACTIONS ── */
+function openLead(id){S.sel=S.leads.find(l=>l.id===id)||null;render()}
+function closeDet(e){if(e.target.classList.contains('ov')){S.sel=null;render()}}
+function closeEd(e){if(e.target.classList.contains('ov')){S.editing=null;render()}}
+function editL(id){const l=S.leads.find(x=>x.id===id);if(l){S.editing={...l};S.sel=null;render()}}
+function submitEd(id){
+  const u={...S.leads.find(l=>l.id===id),
+    Name:document.getElementById('ef-n').value.trim(),
+    Email:document.getElementById('ef-e').value.trim(),
+    Interest:document.getElementById('ef-i').value,
+    Status:document.getElementById('ef-s').value,
+    Last_Email_Date:document.getElementById('ef-led').value,
+    Last_Email_Type:document.getElementById('ef-let').value,
+    Message:document.getElementById('ef-m').value,
+    Notes:document.getElementById('ef-no').value
   };
+  S.leads=S.leads.map(l=>l.id===id?u:l);saveL();
+  S.editing=null;S.sel=u;notify('Lead updated');render();
+}
+function qSt(id,val){
+  if(!val)return;
+  S.leads=S.leads.map(l=>l.id===id?{...l,Status:val}:l);saveL();
+  S.sel=S.leads.find(l=>l.id===id);notify('Status → '+val);render();
+  // Fire webhook
+  if(S.webhooks.updateStatus){
+    const l=S.leads.find(x=>x.id===id);
+    fetch(S.webhooks.updateStatus,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:l.Email,status:val,timestamp:new Date().toISOString()})}).catch(()=>{});
+  }
+}
+function delL(id){if(!confirm('Remove this lead?'))return;S.leads=S.leads.filter(l=>l.id!==id);saveL();S.sel=null;notify('Removed');render()}
+function togAdd(){S.showAdd=!S.showAdd;render()}
+function submitAdd(){
+  const n=document.getElementById('af-n').value.trim();
+  if(!n){notify('Name required');return}
+  const lead={id:uid(),Name:n,Email:document.getElementById('af-e').value.trim(),Interest:document.getElementById('af-i').value,Status:document.getElementById('af-s').value,Message:document.getElementById('af-m').value,Notes:document.getElementById('af-no').value,Submitted_At:new Date().toISOString().slice(0,10),Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:''};
+  S.leads=[lead,...S.leads];saveL();S.showAdd=false;notify('Lead added');render();
+  // Fire webhook
+  if(S.webhooks.addLead){
+    fetch(S.webhooks.addLead,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)}).catch(()=>{});
+  }
+}
+function doSearch(q){S.search=q;render()}
+function doFilter(v){S.filter=v;render()}
 
-  // Add to local data
-  if (!mapped) {
-    headers = Object.keys(lead);
-    mapping = autoMap(headers);
-    mapped = true;
-    document.getElementById('mapper').style.display = 'none';
-    document.getElementById('syncBar').style.display = 'flex';
-    document.getElementById('searchWrap').style.display = 'block';
-    document.getElementById('filterPills').style.display = 'flex';
-    document.getElementById('leadCount').style.display = 'block';
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('uploadIcon').textContent = '✅';
-    document.getElementById('uploadLabel').textContent = 'Leads Loaded — Upload New?';
-    renderTabs();
+// Bulk
+function togBk(id){if(S.bulk.has(id))S.bulk.delete(id);else S.bulk.add(id);render()}
+function togAllBk(c){if(c)getFiltered().forEach(l=>S.bulk.add(l.id));else S.bulk.clear();render()}
+function clearBk(){S.bulk.clear();render()}
+function bulkSt(v){if(!v)return;S.leads=S.leads.map(l=>S.bulk.has(l.id)?{...l,Status:v}:l);saveL();const n=S.bulk.size;S.bulk.clear();notify(n+' leads → '+v);render()}
+function bulkDel(){if(!confirm('Delete '+S.bulk.size+' leads?'))return;S.leads=S.leads.filter(l=>!S.bulk.has(l.id));saveL();S.bulk.clear();notify('Deleted');render()}
+function bulkComp(){const f=S.leads.find(l=>S.bulk.has(l.id));if(f){S.cLead=f;go('compose')}}
+
+// Compose
+function compFor(id){const l=S.leads.find(x=>x.id===id);if(l){S.cLead=l;S.sel=null;S.genEmail='';S.genSubj='';go('compose')}}
+function pickTpl(k){S.tpl=k;S.genEmail='';S.genSubj='';render()}
+function pickCL(id){S.cLead=S.leads.find(l=>l.id===id)||null;S.genEmail='';S.genSubj='';render()}
+function filterCL(q){
+  const lp=document.getElementById('lp');if(!lp)return;
+  lp.querySelectorAll('.lpi').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'});
+}
+
+// AI Email
+async function genEmail(){
+  const lead=S.cLead;
+  if(!lead){notify('Select a lead first');return}
+  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set up API key or n8n webhook in Settings');return}
+  S.isGen=true;S.genEmail='';S.genSubj='';render();
+
+  // Try n8n webhook first if configured
+  if(S.webhooks.emailGen){
+    try{
+      const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:EMAIL_TYPES[S.tpl].label})});
+      const d=await r.json();
+      S.genEmail=d.email||d.body||d.text||JSON.stringify(d);
+      S.genSubj=d.subject||'';
+      S.isGen=false;render();return;
+    }catch(e){/* Fall through to API */}
   }
 
-  // Map to current header names
-  const row = {};
-  Object.entries(lead).forEach(([k,v]) => {
-    const col = mapping[k] || k;
-    row[col] = v;
+  const prompts={
+    initial:`Write a warm, welcoming first response email from Liane at The Lineage Studio to ${lead.Name}. They inquired about "${lead.Interest||'genealogy services'}" and said: "${lead.Message||''}". Thank them for reaching out, acknowledge their specific interest, explain briefly what The Lineage Studio can do for them, and invite them to schedule a free consultation. 3-4 short paragraphs. Warm and personal, not corporate.`,
+    reengage:`Write a warm re-engagement email from Liane at The Lineage Studio to ${lead.Name}. They previously showed interest in ${lead.Interest||'genealogy services'} (${lead.Days_Since_Inquiry||'many'} days ago) but haven't been in touch. Reference the value of preserving family history before it's too late. Warm, not salesy. 3-4 short paragraphs.`,
+    followup:`Write a friendly follow-up email from Liane at The Lineage Studio to ${lead.Name}. They're interested in ${lead.Interest||'genealogy services'}. Check in on their timeline and any questions. Gently move toward scheduling a consultation. 2-3 paragraphs.`,
+    promo:`Write a compelling but tasteful email from Liane at The Lineage Studio to ${lead.Name} about the "${lead.Interest||'Family History Book'}" service. Highlight the emotional and legacy value. Include what's involved and a soft call to action. 3-4 paragraphs.`,
+  };
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompts[S.tpl]+'\n\nReturn ONLY the email body. No subject line, no markdown, no labels. Start with the greeting.'}]})});
+    const d=await r.json();
+    S.genEmail=d.content?.map(c=>c.text||'').join('')||'Error generating email.';
+    const sr=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,messages:[{role:'user',content:'Write one email subject line for this email. Return ONLY the subject, nothing else:\n\n'+S.genEmail}]})});
+    const sd=await sr.json();
+    S.genSubj=sd.content?.[0]?.text||'';
+  }catch(e){S.genEmail='Generation failed. Check your API key.'}
+  S.isGen=false;render();
+}
+function copyEm(){
+  const full=(S.genSubj?'Subject: '+S.genSubj+'\n\n':'')+S.genEmail;
+  navigator.clipboard.writeText(full).then(()=>notify('Copied to clipboard'));
+}
+async function sendViaWebhook(){
+  if(!S.webhooks.emailGen){notify('Configure email webhook in Settings');return}
+  // Update lead status
+  if(S.cLead){
+    const now=new Date().toISOString().slice(0,10);
+    S.leads=S.leads.map(l=>l.id===S.cLead.id?{...l,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:EMAIL_TYPES[S.tpl].label}:l);
+    saveL();notify('Lead updated & email ready');render();
+  }
+}
+
+// CSV/Import
+function trigImp(){document.getElementById('csv-in').click()}
+function parseCSV(txt){
+  const lines=txt.split('\n').filter(l=>l.trim());
+  if(lines.length<2)return null;
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  const rows=lines.slice(1).map(line=>{
+    const vals=[];let cur='',inQ=false;
+    for(const ch of line){if(ch==='"')inQ=!inQ;else if(ch===','&&!inQ){vals.push(cur.trim());cur=''}else cur+=ch}
+    vals.push(cur.trim());return vals;
   });
-  rows.push(row);
-
-  // Save to Google Sheet via n8n if configured
-  if (CONFIG.ADD_LEAD_URL) {
-    try {
-      await fetch(CONFIG.ADD_LEAD_URL, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(lead),
-      });
-    } catch (e) { /* silently fail — lead is already local */ }
-  }
-
-  closeAddModal();
-  renderFilterPills();
-  renderLeads();
-  showToast('✓ Lead added');
-
-  // Clear form
-  ['addFirst','addLast','addEmail','addResearch','addNotes'].forEach(id => document.getElementById(id).value = '');
+  return{headers,rows};
+}
+function handleCSV(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    const data=parseCSV(ev.target.result);
+    if(!data){notify('Could not parse file');return}
+    S.csv=data;S.csvMap={};
+    data.headers.forEach((h,i)=>{
+      const hl=h.toLowerCase();
+      if(hl.includes('name')&&!hl.includes('last'))S.csvMap.Name=i;
+      else if(hl.includes('email'))S.csvMap.Email=i;
+      else if(hl.includes('interest')||hl.includes('service'))S.csvMap.Interest=i;
+      else if(hl.includes('message'))S.csvMap.Message=i;
+      else if(hl.includes('status'))S.csvMap.Status=i;
+      else if(hl.includes('submit')||hl.includes('date'))S.csvMap.Submitted_At=i;
+      else if(hl.includes('note'))S.csvMap.Notes=i;
+      else if(hl.includes('days'))S.csvMap.Days_Since_Inquiry=i;
+    });
+    S.view='import';render();
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+function setMap(f,v){S.csvMap[f]=v}
+function doImport(){
+  if(!S.csv)return;
+  const{rows}=S.csv;
+  const imported=rows.map(row=>{
+    const lead={id:uid(),Status:'New',Interest:'',Message:'',Notes:'',Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:'',Submitted_At:new Date().toISOString().slice(0,10),Name:'',Email:''};
+    Object.entries(S.csvMap).forEach(([f,ci])=>{if(ci!==''&&ci!==undefined)lead[f]=row[Number(ci)]||''});
+    if(lead.Days_Since_Inquiry)lead.Days_Since_Inquiry=Number(lead.Days_Since_Inquiry)||0;
+    return lead;
+  }).filter(l=>l.Name||l.Email);
+  S.leads=[...imported,...S.leads];saveL();S.csv=null;S.csvMap={};
+  go('leads');notify(imported.length+' leads imported');
+}
+function expCSV(){
+  const h=['Name','Email','Interest','Message','Submitted_At','Status','Days_Since_Inquiry','Notes','Last_Email_Date','Last_Email_Type'];
+  const rows=S.leads.map(l=>h.map(k=>{const v=(l[k]??'').toString();return v.includes(',')||v.includes('"')?'"'+v.replace(/"/g,'""')+'"':v}));
+  const csv=[h.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lineage-studio-leads.csv';a.click();
+  notify('Exported');
+}
+async function syncLeads(){
+  if(!S.webhooks.sync){notify('Configure sync webhook in Settings');return}
+  try{
+    notify('Syncing…');
+    const r=await fetch(S.webhooks.sync);
+    const data=await r.json();
+    if(Array.isArray(data)&&data.length){
+      S.leads=data.map((r,i)=>({...r,id:'sync'+i}));saveL();
+      notify(data.length+' leads synced');render();
+    }else{notify('No data returned')}
+  }catch(e){notify('Sync failed')}
+}
+function reloadSeed(){
+  if(!confirm('Reload the original 115 leads? Current data will be replaced.'))return;
+  S.leads=SEED_DATA.map((r,i)=>({...r,id:'s'+i}));saveL();notify('Original data restored');render();
+}
+function resetAll(){
+  if(!confirm('Clear ALL leads?'))return;
+  S.leads=[];saveL();notify('Cleared');render();
 }
 
-/* ═══════════════════════════════════════════
-   SETTINGS
-   ═══════════════════════════════════════════ */
-function checkConfig() {
-  document.getElementById('configBar').style.display = CONFIG.GENERATE_URL ? 'none' : 'flex';
-}
-
-function showSettings() {
-  document.getElementById('settingsModal').style.display = 'flex';
-  document.getElementById('settGenerate').value = CONFIG.GENERATE_URL;
-  document.getElementById('settSync').value = CONFIG.SYNC_URL;
-  document.getElementById('settAddLead').value = CONFIG.ADD_LEAD_URL;
-  document.getElementById('settUpdate').value = CONFIG.UPDATE_URL;
-}
-function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
-
-function saveSettings() {
-  saveConfig('GENERATE_URL', document.getElementById('settGenerate').value.trim());
-  saveConfig('SYNC_URL', document.getElementById('settSync').value.trim());
-  saveConfig('ADD_LEAD_URL', document.getElementById('settAddLead').value.trim());
-  saveConfig('UPDATE_URL', document.getElementById('settUpdate').value.trim());
-  closeSettings();
-  checkConfig();
-  showToast('✓ Configuration saved');
-}
-
-/* ═══════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════ */
-renderTabs();
-renderForm();
-checkConfig();
+init();
 </script>
 </body>
 </html>
