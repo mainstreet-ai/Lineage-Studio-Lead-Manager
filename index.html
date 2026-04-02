@@ -182,7 +182,7 @@ const SEED_DATA=[{"Name":"Chelsia  chanel willis","Email":"30cwillis@blrv.org","
 let S={
   leads:[],view:'dashboard',sel:null,editing:null,search:'',filter:'all',
   showAdd:false,tpl:'reengage',cLead:null,genEmail:'',genSubj:'',isGen:false,
-  bulk:new Set(),csv:null,csvMap:{},
+  bulk:new Set(),csv:null,csvMap:{},bulkQueue:[],bulkIdx:0,bulkResults:[],
   apiKey:localStorage.getItem('tls_api_key')||'',
   webhooks:JSON.parse(localStorage.getItem('tls_webhooks')||'{}'),
   notif:null,nTimer:null
@@ -300,6 +300,7 @@ views.leads=()=>{
         <option value="">Change status…</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}">${k}</option>`).join('')}
       </select>
       <button onclick="bulkComp()">✎ Compose</button>
+      <button onclick="bulkReply()">📧 Bulk Reply</button>
       <button class="bbd" onclick="bulkDel()">✕ Delete</button>
       <button onclick="clearBk()" style="margin-left:auto">Cancel</button>
     </div>`;
@@ -364,6 +365,7 @@ function detailPanel(){
     <div class="dp-a">
       <button class="btn bp bsm" onclick="editL('${l.id}')">Edit</button>
       <button class="btn bs bsm" onclick="compFor('${l.id}')">✎ Compose</button>
+      ${l.Email?`<button class="btn bs bsm" onclick="quickMail('${l.id}')">📧 Email</button>`:''}
       <select class="fi" style="padding:5px 8px;font-size:11px;min-width:120px;width:auto" onchange="qSt('${l.id}',this.value)">
         <option value="">Change status…</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}" ${l.Status===k?'selected':''}>${k}</option>`).join('')}
       </select>
@@ -415,7 +417,7 @@ views.compose=()=>{
               <button class="btn bp bsm" onclick="genEmail()" ${S.isGen?'disabled':''}>
                 ${S.isGen?'⟳ Generating…':'⚡ Generate'}
               </button>
-              ${S.genEmail&&!S.isGen?`<button class="btn bs bsm" onclick="copyEm()">📋 Copy</button><button class="btn bs bsm" onclick="sendViaWebhook()">📤 Send via n8n</button>`:''}
+              ${S.genEmail&&!S.isGen?`<button class="btn bs bsm" onclick="openMailto()">📧 Open in Mail</button><button class="btn bs bsm" onclick="copyEm()">📋 Copy</button><button class="btn bs bsm" onclick="sendViaWebhook()">📤 n8n</button>`:''}
             </div>
           </div>
           ${S.cLead?`<div style="font-size:11px;color:var(--bark-l);margin-bottom:10px">To: <strong>${esc(S.cLead.Name)}</strong> ${S.cLead.Email?'‹'+esc(S.cLead.Email)+'›':''} · ${EMAIL_TYPES[S.tpl]?.label||''}</div>`:'<div style="font-size:12px;color:var(--bark-l);margin-bottom:10px">Select a lead from the sidebar</div>'}
@@ -593,6 +595,112 @@ async function sendViaWebhook(){
     saveL();notify('Lead updated & email ready');render();
   }
 }
+
+// Open in Mail (mailto)
+function openMailto(){
+  if(!S.cLead||!S.genEmail)return;
+  const email=S.cLead.Email||'';
+  const subj=encodeURIComponent(S.genSubj||'');
+  const body=encodeURIComponent(S.genEmail);
+  window.open(`mailto:${email}?subject=${subj}&body=${body}`,'_blank');
+  // Update lead status
+  const now=new Date().toISOString().slice(0,10);
+  S.leads=S.leads.map(l=>l.id===S.cLead.id?{...l,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:EMAIL_TYPES[S.tpl].label}:l);
+  saveL();notify('Opened in mail client — lead updated');render();
+  if(S.webhooks.updateStatus){
+    fetch(S.webhooks.updateStatus,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:S.cLead.Email,status:'Contacted',timestamp:now,emailType:EMAIL_TYPES[S.tpl].label})}).catch(()=>{});
+  }
+}
+function quickMail(id){
+  const l=S.leads.find(x=>x.id===id);
+  if(!l||!l.Email)return;
+  window.open(`mailto:${l.Email}`,'_blank');
+}
+
+// Bulk Reply
+function bulkReply(){
+  const selected=S.leads.filter(l=>S.bulk.has(l.id)&&l.Email&&l.Status!=='Bounced'&&l.Status!=='Unsubscribed');
+  if(!selected.length){notify('No valid email leads selected');return}
+  S.bulkQueue=selected;
+  S.bulkIdx=0;
+  S.bulkResults=[];
+  S.bulk.clear();
+  S.view='bulkreply';
+  S.cLead=selected[0];
+  S.genEmail='';S.genSubj='';
+  render();
+}
+function brNext(){
+  if(S.bulkIdx<S.bulkQueue.length-1){
+    S.bulkIdx++;S.cLead=S.bulkQueue[S.bulkIdx];S.genEmail='';S.genSubj='';render();
+  }else{notify('All leads in queue done!');go('leads')}
+}
+function brPrev(){
+  if(S.bulkIdx>0){S.bulkIdx--;S.cLead=S.bulkQueue[S.bulkIdx];S.genEmail='';S.genSubj='';render();}
+}
+function brMailAll(){
+  // Open mailto for current generated email then advance
+  if(S.cLead&&S.genEmail){openMailto()}
+  // Store result
+  if(!S.bulkResults)S.bulkResults=[];
+  S.bulkResults[S.bulkIdx]={sent:true,name:S.cLead?.Name};
+  brNext();
+}
+views.bulkreply=()=>{
+  if(!S.bulkQueue||!S.bulkQueue.length){return views.leads()}
+  const q=S.bulkQueue;
+  const idx=S.bulkIdx||0;
+  const lead=q[idx];
+  const progress=`${idx+1} of ${q.length}`;
+  const queueList=q.map((l,i)=>{
+    const done=S.bulkResults&&S.bulkResults[i]?.sent;
+    const active=i===idx;
+    return`<div class="lpi ${active?'on':''}" onclick="S.bulkIdx=${i};S.cLead=S.bulkQueue[${i}];S.genEmail='';S.genSubj='';render()" style="${done?'opacity:.5':''}">
+      <span style="font-size:12px;width:18px;text-align:center;flex-shrink:0">${done?'✓':i+1}</span>
+      <div><div style="font-weight:500;color:var(--bark);font-size:12px">${esc(l.Name)}</div><div style="font-size:10px;color:var(--bark-l)">${esc(l.Email)}</div></div>
+    </div>`;
+  }).join('');
+
+  return`
+    <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h2 style="font-size:20px;color:var(--bark);margin-bottom:2px">Bulk Reply</h2>
+        <span style="font-size:12px;color:var(--bark-l)">${progress} · ${EMAIL_TYPES[S.tpl]?.label||'Re-Engage'}</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn bs bsm" onclick="go('leads')">✕ Exit Queue</button>
+      </div>
+    </div>
+    <div class="cl">
+      <div class="c-sb">
+        <div style="font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Template</div>
+        ${Object.entries(EMAIL_TYPES).map(([k,v])=>`<div class="tc ${S.tpl===k?'on':''}" onclick="pickTpl('${k}')"><div class="tc-i">${v.icon}</div><div class="tc-l">${v.label}</div></div>`).join('')}
+        <div style="margin-top:8px;font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Queue (${q.length})</div>
+        <div class="cc" style="padding:8px"><div class="lpl" style="max-height:260px">${queueList}</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="cc">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3 style="margin:0">${esc(lead.Name)}</h3>
+            <div style="display:flex;gap:6px">
+              <button class="btn bp bsm" onclick="genEmail()" ${S.isGen?'disabled':''}>${S.isGen?'⟳ Generating…':'⚡ Generate'}</button>
+              ${S.genEmail&&!S.isGen?`<button class="btn bp bsm" onclick="brMailAll()">📧 Send & Next</button><button class="btn bs bsm" onclick="openMailto()">📧 Open in Mail</button><button class="btn bs bsm" onclick="copyEm()">📋 Copy</button>`:``}
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--bark-l);margin-bottom:10px">To: <strong>${esc(lead.Name)}</strong> ‹${esc(lead.Email||'')}› · ${esc(lead.Interest||'')}</div>
+          ${lead.Message?`<div style="font-size:11px;color:var(--bark-m);margin-bottom:10px;padding:8px;background:var(--parchment);border-radius:var(--rad-s);border-left:3px solid var(--gold)"><strong>Their message:</strong> ${esc(lead.Message)}</div>`:''}
+          ${S.genSubj?`<div class="es-line"><strong>Subject:</strong> ${esc(S.genSubj)}</div>`:''}
+          <div class="eo">${S.isGen?'<span class="gen">Crafting email…</span>':esc(S.genEmail||'Click Generate to create a personalized email for this lead.')}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <button class="btn bs bsm" onclick="brPrev()" ${idx===0?'disabled':''}>← Previous</button>
+          <span style="font-size:12px;color:var(--bark-l)">${progress}</span>
+          <button class="btn bs bsm" onclick="brNext()" ${idx===q.length-1?'disabled':''}>Skip →</button>
+        </div>
+      </div>
+    </div>
+  `;
+};
 
 // CSV/Import
 function trigImp(){document.getElementById('csv-in').click()}
