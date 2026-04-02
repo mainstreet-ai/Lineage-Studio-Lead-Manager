@@ -7,145 +7,159 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🌳</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--forest:#5B8C5A;--forest-d:#4A7A49;--forest-bg:#5B8C5A14;--gold:#D4A853;--gold-bg:#D4A85314;--ember:#E8913A;--ember-bg:#E8913A14;--crimson:#C75146;--crimson-bg:#C7514614;--teal:#2E7D6F;--teal-bg:#2E7D6F14;--slate:#8B8B8B;--slate-bg:#8B8B8B14;--purple:#7B68A5;--purple-bg:#7B68A514;--parchment:#FAF7F2;--cream:#F3EDE3;--bark:#3B2F24;--bark-m:#6B5D50;--bark-l:#9B8E80;--ink:#2C2420;--white:#fff;--rad:10px;--rad-s:6px;--sh:0 1px 3px rgba(59,47,36,.06);--sh-m:0 4px 16px rgba(59,47,36,.08);--sh-l:0 8px 32px rgba(59,47,36,.12)}
+:root{--f:#5B8C5A;--fd:#4A7A49;--fbg:#5B8C5A14;--gold:#D4A853;--gbg:#D4A85314;--emb:#E8913A;--ebg:#E8913A14;--red:#C75146;--rbg:#C7514614;--teal:#2E7D6F;--tbg:#2E7D6F14;--sl:#8B8B8B;--slbg:#8B8B8B14;--bg:#FAF7F2;--cr:#F3EDE3;--bk:#3B2F24;--bm:#6B5D50;--bl:#9B8E80;--ink:#2C2420;--w:#fff;--r:10px;--rs:6px;--sh:0 1px 3px rgba(59,47,36,.06);--shm:0 4px 16px rgba(59,47,36,.08)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--parchment);color:var(--ink);min-height:100vh;line-height:1.5}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.5}
 h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:600}
 ::selection{background:#5B8C5A33}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#C4B49A55;border-radius:3px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#C4B49A55;border-radius:3px}
 input,select,textarea,button{font-family:'DM Sans',sans-serif}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--forest)!important;box-shadow:0 0 0 3px #5B8C5A22}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--f)!important;box-shadow:0 0 0 3px #5B8C5A22}
 button{cursor:pointer;transition:all .15s;border:none}
 button:active{transform:scale(.97)}
-a{color:var(--forest);text-decoration:none}
+a{color:var(--f);text-decoration:none}
 
-header{background:var(--white);border-bottom:1px solid #E8E2D8;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
-.h-left{display:flex;align-items:center;gap:12px}
-.logo{width:34px;height:34px;background:var(--forest);color:var(--white);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:12px;letter-spacing:.5px}
-.h-title{font-size:18px;color:var(--bark);line-height:1.1}
-.h-sub{font-size:10px;color:var(--bark-l);font-weight:600;letter-spacing:.8px;text-transform:uppercase}
-nav{display:flex;gap:3px}
-.nb{padding:7px 14px;border-radius:var(--rad-s);background:0 0;color:var(--bark-m);font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px}
-.nb:hover{background:var(--cream);color:var(--bark)}
-.nb.on{background:var(--forest);color:var(--white)}
-.nb.on:hover{background:var(--forest-d)}
+/* Layout */
+header{background:var(--w);border-bottom:1px solid #E8E2D8;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.hl{display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;background:var(--f);color:var(--w);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:11px;letter-spacing:.5px}
+.ht{font-size:17px;color:var(--bk);line-height:1.1}
+.hs{font-size:9px;color:var(--bl);font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+nav{display:flex;gap:2px}
+.nb{padding:6px 12px;border-radius:var(--rs);background:0 0;color:var(--bm);font-size:11px;font-weight:500;display:flex;align-items:center;gap:4px}
+.nb:hover{background:var(--cr);color:var(--bk)}
+.nb.on{background:var(--f);color:var(--w)}.nb.on:hover{background:var(--fd)}
+main{flex:1;padding:20px 24px;max-width:1400px;width:100%;margin:0 auto}
 
-main{flex:1;padding:24px 28px;max-width:1320px;width:100%;margin:0 auto}
-.toast{position:fixed;bottom:20px;right:20px;background:var(--bark);color:var(--white);padding:10px 18px;border-radius:var(--rad);font-size:12px;font-weight:500;box-shadow:var(--sh-l);z-index:999;animation:ti .3s ease}
+/* Toast */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--bk);color:var(--w);padding:9px 16px;border-radius:var(--r);font-size:11px;font-weight:500;box-shadow:var(--shm);z-index:999;animation:ti .3s ease}
 @keyframes ti{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes si{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pu{0%,100%{opacity:.4}50%{opacity:1}}
 
-/* Dashboard */
-.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;margin-bottom:24px}
-.sc{background:var(--white);border-radius:var(--rad);padding:18px;box-shadow:var(--sh);border-left:4px solid var(--forest);animation:fi .3s ease both}
-.sc .lb{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--bark-l);font-weight:600;margin-bottom:4px}
-.sc .vl{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:var(--bark)}
-.sc .su{font-size:11px;color:var(--bark-m);margin-top:2px}
-.pc{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px}
-.pcol{background:var(--white);border-radius:var(--rad);padding:14px;box-shadow:var(--sh);animation:fi .35s ease both}
-.pcol-h{display:flex;align-items:center;gap:7px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #EDE8E0}
-.sd{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.pcol-t{font-size:12px;font-weight:600;color:var(--bark)}
-.pcol-c{font-size:10px;color:var(--bark-l);margin-left:auto;font-weight:600;background:var(--cream);padding:1px 7px;border-radius:10px}
-.pi{padding:7px 9px;margin-bottom:5px;background:var(--parchment);border-radius:var(--rad-s);font-size:12px;color:var(--bark);cursor:pointer;transition:background .1s}
-.pi:hover{background:var(--cream)}
-.pi-n{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pi-s{font-size:10px;color:var(--bark-l);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Cards */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.sc{background:var(--w);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:4px solid var(--f);animation:fi .3s ease both}
+.sc .lb{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--bl);font-weight:600;margin-bottom:3px}
+.sc .vl{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--bk)}
+.sc .su{font-size:10px;color:var(--bm);margin-top:2px}
+
+/* Pipeline */
+.pc{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.pcol{background:var(--w);border-radius:var(--r);padding:12px;box-shadow:var(--sh)}
+.pch{display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid #EDE8E0}
+.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pct{font-size:11px;font-weight:600;color:var(--bk)}
+.pcc{font-size:9px;color:var(--bl);margin-left:auto;font-weight:600;background:var(--cr);padding:1px 6px;border-radius:10px}
+.pi{padding:6px 8px;margin-bottom:4px;background:var(--bg);border-radius:var(--rs);font-size:11px;color:var(--bk);cursor:pointer;transition:background .1s}
+.pi:hover{background:var(--cr)}
+.pin{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pis{font-size:9px;color:var(--bl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Toolbar */
-.tb{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.sw{position:relative;flex:1;min-width:180px}
-.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--bark-l);font-size:13px;pointer-events:none}
-.sb{width:100%;padding:8px 12px 8px 32px;border:1px solid #DDD7CD;border-radius:var(--rad-s);font-size:12px;background:var(--white)}
-.fs{padding:8px 12px;border:1px solid #DDD7CD;border-radius:var(--rad-s);font-size:12px;background:var(--white);color:var(--bark);min-width:130px}
-.btn{padding:8px 14px;border-radius:var(--rad-s);font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.bp{background:var(--forest);color:var(--white)}.bp:hover{background:var(--forest-d)}
-.bs{background:var(--cream);color:var(--bark)}.bs:hover{background:#E8E2D8}
-.bd{background:var(--crimson);color:var(--white)}.bd:hover{background:#B04439}
-.bg{background:0 0;color:var(--bark-m)}.bg:hover{background:var(--cream);color:var(--bark)}
-.bsm{padding:5px 10px;font-size:11px}
+.tb{display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.sw{position:relative;flex:1;min-width:160px}
+.sic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--bl);font-size:12px;pointer-events:none}
+.sb{width:100%;padding:7px 10px 7px 28px;border:1px solid #DDD7CD;border-radius:var(--rs);font-size:11px;background:var(--w)}
+.fs{padding:7px 10px;border:1px solid #DDD7CD;border-radius:var(--rs);font-size:11px;background:var(--w);color:var(--bk);min-width:120px}
+.btn{padding:7px 12px;border-radius:var(--rs);font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.bp{background:var(--f);color:var(--w)}.bp:hover{background:var(--fd)}
+.bs{background:var(--cr);color:var(--bk)}.bs:hover{background:#E8E2D8}
+.bd{background:var(--red);color:var(--w)}.bd:hover{background:#B04439}
+.bsm{padding:5px 9px;font-size:10px}
+.bo{background:#0078D4;color:var(--w)}.bo:hover{background:#106EBE}
+.bmark{background:var(--teal);color:var(--w)}.bmark:hover{background:#236B5F}
 
 /* Table */
-.tw{background:var(--white);border-radius:var(--rad);box-shadow:var(--sh);overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:700px}
+.tw{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
 thead{background:#F9F6F1}
-th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);border-bottom:1px solid #EDE8E0}
-td{padding:10px 14px;font-size:12px;border-bottom:1px solid #F3EDE3;color:var(--bark);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-tbody tr{transition:background .1s}
+th{padding:8px 12px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--bl);border-bottom:1px solid #EDE8E0;cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:var(--bk)}
+th.sorted{color:var(--f)}
+td{padding:8px 12px;font-size:11px;border-bottom:1px solid #F3EDE3;color:var(--bk);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tbody tr{transition:background .1s;cursor:pointer}
 tbody tr:hover{background:#FAF7F2}
-.sb-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.ln{font-weight:600;cursor:pointer;color:var(--bark)}.ln:hover{color:var(--forest)}
-.le{font-size:11px;color:var(--bark-l)}
-.lck{width:15px;height:15px;accent-color:var(--forest);cursor:pointer}
-.empty{text-align:center;padding:50px 20px;color:var(--bark-l)}
-.empty h3{font-size:18px;margin-bottom:6px;color:var(--bark-m)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.ln{font-weight:600;color:var(--bk)}.ln:hover{color:var(--f)}
+.le{font-size:10px;color:var(--bl)}
+.lck{width:14px;height:14px;accent-color:var(--f);cursor:pointer}
+
+/* Next Step badges */
+.ns-urgent{color:var(--red);font-weight:600;font-size:10px}
+.ns-ready{color:var(--emb);font-weight:500;font-size:10px}
+.ns-wait{color:var(--bl);font-size:10px}
+.ns-none{color:#BBB;font-size:10px;font-style:italic}
+.ns-action{color:var(--f);font-weight:600;font-size:10px;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.ns-action:hover{color:var(--fd)}
 
 /* Bulk bar */
-.bb{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--forest);color:var(--white);border-radius:var(--rad);margin-bottom:10px;font-size:12px;font-weight:500;animation:fi .2s ease}
-.bb button{background:rgba(255,255,255,.2);color:#fff;padding:4px 10px;border-radius:var(--rad-s);font-size:11px;font-weight:600}
+.bb{display:flex;align-items:center;gap:7px;padding:8px 12px;background:var(--f);color:var(--w);border-radius:var(--r);margin-bottom:10px;font-size:11px;font-weight:500;animation:fi .2s ease}
+.bb button{background:rgba(255,255,255,.2);color:#fff;padding:4px 9px;border-radius:var(--rs);font-size:10px;font-weight:600}
 .bb button:hover{background:rgba(255,255,255,.3)}
 .bb .bbd{background:rgba(199,81,70,.7)}.bb .bbd:hover{background:rgba(199,81,70,.9)}
 
-/* Detail panel */
+/* Panels */
 .ov{position:fixed;inset:0;background:rgba(44,36,32,.25);z-index:200;display:flex;justify-content:flex-end}
-.dp{width:480px;max-width:100vw;background:var(--white);height:100vh;overflow-y:auto;box-shadow:-8px 0 32px rgba(44,36,32,.12);animation:si .25s ease;padding:24px}
-.dp-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
-.dp-n{font-size:24px;color:var(--bark)}
-.dp-x{background:none;font-size:20px;color:var(--bark-l);padding:4px}.dp-x:hover{color:var(--bark)}
-.dp-g{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.df label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);font-weight:600;margin-bottom:3px}
-.df .v{font-size:13px;color:var(--bark)}
-.dp-msg{margin-bottom:20px}
-.dp-msg .v{font-size:13px;color:var(--bark);white-space:pre-wrap;background:var(--parchment);padding:10px;border-radius:var(--rad-s);min-height:40px;line-height:1.6}
-.dp-a{display:flex;gap:6px;flex-wrap:wrap}
+.dp{width:480px;max-width:100vw;background:var(--w);height:100vh;overflow-y:auto;box-shadow:-8px 0 32px rgba(44,36,32,.12);animation:si .25s ease;padding:22px}
+.dph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.dpn{font-size:22px;color:var(--bk)}
+.dpx{background:none;font-size:18px;color:var(--bl);padding:4px}.dpx:hover{color:var(--bk)}
+.dpg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.df label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--bl);font-weight:600;margin-bottom:2px}
+.df .v{font-size:12px;color:var(--bk)}
+.dpm{margin-bottom:16px}
+.dpm .v{font-size:12px;color:var(--bk);white-space:pre-wrap;background:var(--bg);padding:9px;border-radius:var(--rs);min-height:36px;line-height:1.5}
+.dpa{display:flex;gap:5px;flex-wrap:wrap}
 
 /* Forms */
-.fc{background:var(--white);border-radius:var(--rad);padding:24px;box-shadow:var(--sh);animation:fi .3s ease;margin-bottom:16px}
-.fc h2{font-size:20px;color:var(--bark);margin-bottom:16px}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fi-g{display:flex;flex-direction:column}
-.fi-g.full{grid-column:1/-1}
-.fi-g label{font-size:11px;font-weight:600;color:var(--bark-m);margin-bottom:4px}
-.fi{padding:8px 10px;border:1px solid #DDD7CD;border-radius:var(--rad-s);font-size:12px;background:var(--white);color:var(--ink);width:100%}
-textarea.fi{resize:vertical;min-height:60px}
-.fa{display:flex;gap:6px;margin-top:14px;grid-column:1/-1}
+.fc{background:var(--w);border-radius:var(--r);padding:22px;box-shadow:var(--sh);animation:fi .3s ease;margin-bottom:14px}
+.fc h2{font-size:18px;color:var(--bk);margin-bottom:14px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fig{display:flex;flex-direction:column}
+.fig.full{grid-column:1/-1}
+.fig label{font-size:10px;font-weight:600;color:var(--bm);margin-bottom:3px}
+.fi{padding:7px 9px;border:1px solid #DDD7CD;border-radius:var(--rs);font-size:11px;background:var(--w);color:var(--ink);width:100%}
+textarea.fi{resize:vertical;min-height:50px}
+.fa{display:flex;gap:5px;margin-top:12px;grid-column:1/-1}
 
 /* Compose */
-.cl{display:grid;grid-template-columns:260px 1fr;gap:16px}
-.c-sb{display:flex;flex-direction:column;gap:6px}
-.tc{background:var(--white);border-radius:var(--rad);padding:12px 14px;box-shadow:var(--sh);cursor:pointer;border:2px solid transparent;transition:all .15s}
-.tc:hover{border-color:var(--cream)}
-.tc.on{border-color:var(--forest);background:var(--forest-bg)}
-.tc-i{font-size:16px;margin-bottom:2px}
-.tc-l{font-size:12px;font-weight:600;color:var(--bark)}
-.tc-d{font-size:10px;color:var(--bark-l);margin-top:1px}
-.cc{background:var(--white);border-radius:var(--rad);padding:20px;box-shadow:var(--sh)}
-.cc h3{font-size:16px;color:var(--bark);margin-bottom:12px}
-.eo{background:var(--parchment);border-radius:var(--rad-s);padding:16px;font-size:13px;line-height:1.7;color:var(--bark);white-space:pre-wrap;min-height:160px;border:1px solid #EDE8E0}
-.es-line{background:var(--parchment);border-radius:var(--rad-s);padding:8px 12px;font-size:12px;font-weight:500;color:var(--bark);margin-bottom:10px;border:1px solid #EDE8E0}
-.gen{color:var(--bark-l);font-style:italic;animation:pu 1.5s ease infinite}
-.lpl{max-height:180px;overflow-y:auto}
-.lpi{padding:7px 10px;border-radius:var(--rad-s);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s;font-size:12px}
-.lpi:hover{background:var(--cream)}
-.lpi.on{background:var(--forest-bg)}
+.cl{display:grid;grid-template-columns:240px 1fr;gap:14px}
+.csb{display:flex;flex-direction:column;gap:5px}
+.tc{background:var(--w);border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);cursor:pointer;border:2px solid transparent;transition:all .15s}
+.tc:hover{border-color:var(--cr)}.tc.on{border-color:var(--f);background:var(--fbg)}
+.tcl{font-size:11px;font-weight:600;color:var(--bk)}
+.tcd{font-size:9px;color:var(--bl);margin-top:1px}
+.cc{background:var(--w);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.cc h3{font-size:15px;color:var(--bk);margin-bottom:10px}
+.eo{background:var(--bg);border-radius:var(--rs);padding:14px;font-size:12px;line-height:1.7;color:var(--bk);white-space:pre-wrap;min-height:140px;border:1px solid #EDE8E0}
+.esl{background:var(--bg);border-radius:var(--rs);padding:7px 10px;font-size:11px;font-weight:500;color:var(--bk);margin-bottom:8px;border:1px solid #EDE8E0}
+.gen{color:var(--bl);font-style:italic;animation:pu 1.5s ease infinite}
+.lpl{max-height:170px;overflow-y:auto}
+.lpi{padding:6px 8px;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .1s;font-size:11px}
+.lpi:hover{background:var(--cr)}.lpi.on{background:var(--fbg)}
+
+/* Sent actions bar */
+.sent-bar{display:flex;gap:6px;align-items:center;padding:10px 14px;background:var(--cr);border-radius:var(--rs);margin-top:10px}
+.sent-bar .sep{width:1px;height:20px;background:#DDD7CD}
 
 /* Import */
-.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.cpre{margin-top:12px;overflow-x:auto}
-.cpre table{font-size:11px;min-width:auto}
-.cpre th{background:var(--cream);font-size:9px}
-.cpre td{font-size:11px;padding:5px 8px;max-width:140px}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.cpre{margin-top:10px;overflow-x:auto}
+.cpre table{font-size:10px;min-width:auto}.cpre th{background:var(--cr);font-size:8px}.cpre td{font-size:10px;padding:4px 7px;max-width:120px}
 
 /* Settings */
-.s-row{margin-bottom:16px}
-.s-row label{font-size:11px;font-weight:600;color:var(--bark-m);display:block;margin-bottom:4px}
-.s-row p{font-size:11px;color:var(--bark-l);margin-bottom:6px}
+.sr{margin-bottom:14px}
+.sr label{font-size:10px;font-weight:600;color:var(--bm);display:block;margin-bottom:3px}
+.sr p{font-size:10px;color:var(--bl);margin-bottom:5px}
+
+.empty{text-align:center;padding:40px 20px;color:var(--bl)}
+.empty h3{font-size:16px;margin-bottom:5px;color:var(--bm)}
 
 @media(max-width:768px){
-  header{padding:0 12px;flex-wrap:wrap;height:auto;padding:10px 12px;gap:6px}
-  main{padding:14px}
+  header{padding:0 10px;flex-wrap:wrap;height:auto;padding:8px 10px;gap:5px}
+  main{padding:12px}
   .cl{grid-template-columns:1fr}
   .fg{grid-template-columns:1fr}
   .dp{width:100%}
@@ -156,629 +170,607 @@ textarea.fi{resize:vertical;min-height:60px}
 </style>
 </head>
 <body>
-<div class="app" id="app"></div>
+<div id="app"></div>
 <script>
-const STATUS_CFG={
-  'New':{color:'#5B8C5A',bg:'#5B8C5A14',label:'New'},
-  'Contacted':{color:'#D4A853',bg:'#D4A85314',label:'Contacted'},
-  'Warm':{color:'#E8913A',bg:'#E8913A14',label:'Warm'},
-  'Replied':{color:'#2E7D6F',bg:'#2E7D6F14',label:'Replied'},
-  'Bounced':{color:'#C75146',bg:'#C7514614',label:'Bounced'},
-  'Unsubscribed':{color:'#8B8B8B',bg:'#8B8B8B14',label:'Unsubscribed'},
-  'Won':{color:'#2E7D6F',bg:'#2E7D6F14',label:'Won'},
-  'Lost':{color:'#7B68A5',bg:'#7B68A514',label:'Lost'},
+const ST={
+  New:{c:'#5B8C5A',bg:'#5B8C5A14'},
+  Contacted:{c:'#D4A853',bg:'#D4A85314'},
+  Warm:{c:'#E8913A',bg:'#E8913A14'},
+  Replied:{c:'#2E7D6F',bg:'#2E7D6F14'},
+  Bounced:{c:'#C75146',bg:'#C7514614'},
+  Unsubscribed:{c:'#8B8B8B',bg:'#8B8B8B14'},
+  Won:{c:'#2E7D6F',bg:'#2E7D6F14'},
+  Lost:{c:'#7B68A5',bg:'#7B68A514'},
 };
-const INTERESTS=['Family History Book','Family Tree Chart','Genealogy Research','Photo Restoration',
-  'Legacy or Memorial Book','Oral History Interview','DNA Interpretation','Heritage Consultation',
-  'Reunion Memory Book','Obituary Writing','Gift','Just Exploring','Not sure yet','Custom Package'];
-const EMAIL_TYPES={
+const INTERESTS=['Family History Book','Family Tree Chart','Genealogy Research','Photo Restoration','Legacy or Memorial Book','Oral History Interview','DNA Interpretation','Heritage Consultation','Reunion Memory Book','Obituary Writing','Gift','Just Exploring','Not sure yet','Custom Package'];
+const ETYPES={
   initial:{label:'Initial Response',icon:'✦',desc:'First reply to a new inquiry'},
   reengage:{label:'Re-Engage',icon:'↻',desc:'Reconnect with cold leads'},
   followup:{label:'Follow-Up',icon:'→',desc:'Continue the conversation'},
-  promo:{label:'Service Promo',icon:'★',desc:'Introduce a specific service'},
+  promo:{label:'Promo / Newsletter',icon:'★',desc:'Promotional email with optional offer'},
 };
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const SEED_DATA=[{"Name":"Chelsia  chanel willis","Email":"30cwillis@blrv.org","Interest":"Family Tree Chart","Message":"I want to document my grandparents story\" / \" I want to trace my ancestors in Africa","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Chelsia Chanel Willis","Email":"30cwillis@blrv.org","Interest":"Family Tree Chart","Message":"I want to trace my ancestors in Africa","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Alejandro Villanueva Hernandez a","Email":"a540516villa@netzero.net","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I want to understand my family and eventually create something to share.","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":61,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Adrian Guadalupe huerta flores","Email":"adrianguadalupehuertaflores76@gmail.com","Interest":"Family History Book","Message":"want a book about my grandparents\u2019","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":61,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea Jordan","Email":"ajtravis87@gmail.com","Interest":"Family History Book","Message":"Ancestry book","Submitted_At":"2026-01-17","Status":"Contacted","Days_Since_Inquiry":73,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea v Jordan","Email":"ajtravis87@gmail.com","Interest":"Family History Book","Message":"Family history book","Submitted_At":"2026-02-05","Status":"Contacted","Days_Since_Inquiry":54,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea Victoria Jordan","Email":"Ajtravis87@gmail.com","Interest":"Family History Book","Message":"I have a ancestry tree and want to turn it into a book","Submitted_At":"2026-01-25","Status":"Contacted","Days_Since_Inquiry":65,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Akhtarhussain","Email":"akhtarlovefull@gmail.com","Interest":"Family History Book","Message":"Sayed","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Ali Baghaee","Email":"ali_baghaee_2005@yahoo.com","Interest":"Unknown","Message":"Message","Submitted_At":"2025-12-21","Status":"Contacted","Days_Since_Inquiry":95,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Janet Needham","Email":"alluetta@live.com","Interest":"Family History Book","Message":"I have an Ancestry tree and want to turn it into a book","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Anthony Peter Gutierrez","Email":"anthonypgutierrez77@Gmail.com","Interest":"Genealogy Research","Message":"I want to know my ancestry tree","Submitted_At":"2026-01-28","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Arily faith Lynn Blevins","Email":"arilyblevins0@gmail.com","Interest":"Photo Restoration","Message":"My parents are dead and I live with my grandparents Cherie blevins and Eric apking they are both fiancee","Submitted_At":"2026-01-04","Status":"Contacted","Days_Since_Inquiry":86,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"\u0627\u0633\u0644\u0645 \u0645\u062d\u0645\u062f \u0639\u0628\u062f\u0627\u0644\u0644\u0647 \u0639\u0628\u062f\u0627\u0644\u0644\u0647 \u062c\u0627\u062f","Email":"aslmmohammed555@gmail.com","Interest":"Family History Book","Message":"A family history book","Submitted_At":"2026-02-05","Status":"Contacted","Days_Since_Inquiry":54,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Annette Loriso","Email":"auntiebeanie@hotmail.com","Interest":"Genealogy Research","Message":"Where grandma and grandpa came from","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"akoul","Email":"bgllyas@gmail.com","Interest":"Family Tree Chart","Message":"my dad was a south sudanese lost boy","Submitted_At":"2026-03-17","Status":"Bounced","Days_Since_Inquiry":14,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Makayla dawn fields","Email":"biscuit.listens@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I would like to find out who I'm related to!","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Bruce colburn","Email":"brucecolburn5520@yahoo.com","Interest":"Family History Book","Message":"Colburn s","Submitted_At":"2026-01-23","Status":"Contacted","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Deanna Sue Salyers","Email":"bumdunkin@yahoo.com","Interest":"Family History Book","Message":"I\u2019m just courious","Submitted_At":"2026-01-22","Status":"Contacted","Days_Since_Inquiry":68,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Terry Chance Foley","Email":"chancefoley@icloud.com","Interest":"Family Tree Chart","Message":"military","Submitted_At":"2025-12-31","Status":"Contacted","Days_Since_Inquiry":90,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Carlos Hernandez Esparza","Email":"chdez7085@gmail.com","Interest":"Genealogy Research","Message":"My family is from El Valle de Ju\u00e1rez, Porvenir, near Chihuahua, Mexico, and next to the border with the United States. I would like to see my ancestors.","Submitted_At":"2026-01-01","Status":"Contacted","Days_Since_Inquiry":89,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Christopher Allen Ostrander","Email":"chrisheckman692@gmail.com","Interest":"Photo Restoration","Message":".","Submitted_At":"2026-01-19","Status":"Contacted","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Charles C Harrison","Email":"chuck.harrison@yahoo.com","Interest":"Genealogy Research","Message":"Grandparents history","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Christi JonesMcNeill","Email":"christijmcneill@icloud.com","Interest":"Genealogy Research","Message":"Please send some information to my email","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Carla Mar\u00eda S\u00e1nchez Paredes","Email":"Cmsp1030@gmail.com","Interest":"Family History Book","Message":"I want a book about my family, and my acenstry tree","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Alexander James Vance","Email":"Coldsoda49@gmail.com","Interest":"Photo Restoration","Message":"I want a book about my family","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Colleen Smith","Email":"colleen.s88@yahoo.com","Interest":"Genealogy Research","Message":"Like to find marriage licenses","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Dakota\u00a0 Llaneras","Email":"Dakotatl11515@gmail.com","Interest":"Family History Book","Message":"We are nice","Submitted_At":"2026-01-01","Status":"Contacted","Days_Since_Inquiry":89,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Daniel Ramirez Ayon","Email":"danielay182@gmail.com","Interest":"Family History Book","Message":"Quiero saber sobre antepasados","Submitted_At":"2026-02-07","Status":"Contacted","Days_Since_Inquiry":52,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Aaliyah Marie Parker","Email":"dannmilano@icloud.com","Interest":"Not sure yet \u2014 I\u2019d like guidance","Message":"Who I\u2019m connected too","Submitted_At":"2026-01-08","Status":"Contacted","Days_Since_Inquiry":82,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda Joan Sarao","Email":"Deangelis421@comcast.net","Interest":"Family History Book","Message":"Relatives in Sicily Italy","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda sarao","Email":"deangelis421@comcast.net","Interest":"Genealogy Research","Message":"Any relatives ion SICILY OR ANYWHERE IN Italy","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda Sarao","Email":"deangelis421@comcast.net","Interest":"Family History Book","Message":"","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Debbie Woodyard","Email":"debbiewoodyard79@gmail.com","Interest":"Family History Book","Message":"I would like to have the history of my family","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Delaney","Email":"delaney.brice2013@gmail.com","Interest":"Genealogy Research","Message":"I want to figure out who my ancestors were and where they came from","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Erica Kempler","Email":"ekempler@gmail.com","Interest":"Photo Restoration","Message":"Please contact me by email to arrange a convenient time for discussion","Submitted_At":"2026-01-15","Status":"Contacted","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elizabeth Laura kaufman","Email":"elizabeth.l.kaufman@gmail.com","Interest":"Family History Book","Message":"I just wanna know if a billionaire is related to me","Submitted_At":"2025-12-30","Status":"Contacted","Days_Since_Inquiry":91,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elliana Spalding","Email":"elliana.spalding@icloud.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Amos","Email":"ezchibo@hotmail.com","Interest":"Family History Book","Message":"genealogy","Submitted_At":"2026-03-23","Status":"Contacted","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Angelica Garcia Najera","Email":"familiagarcianajera47@gmail.com","Interest":"Family Tree Chart","Message":"names","Submitted_At":"2026-03-16","Status":"Contacted","Days_Since_Inquiry":15,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"FERNANDO MARTINEZ AGUILAR","Email":"fernando.martinez5@penske.com","Interest":"Family History Book","Message":"Just for me","Submitted_At":"2026-02-06","Status":"Bounced","Days_Since_Inquiry":53,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"skye adele ford","Email":"fireball12@gmail.com","Interest":"Family Tree Chart","Message":"my dad is william ford, my grandma is nancy ford","Submitted_At":"2026-03-29","Status":"Contacted","Days_Since_Inquiry":2,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Debra Esquivel","Email":"gloriadebra43@gmail.com","Interest":"Family History Book","Message":"I want to understand my family","Submitted_At":"2026-01-28","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Roger Glass","Email":"glrod201@aol.com","Interest":"Family History Book","Message":"I would like to know about my grandmother whose name was Valcov when they entered this country from Europe and was changed at Ellis Island to Falk","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Grace Smallwood","Email":"gracesmallwood508@gmail.com","Interest":"Family History Book","Message":"Eddie Tobler grandfather","Submitted_At":"2026-03-28","Status":"Contacted","Days_Since_Inquiry":3,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Joyce Ann George Medley","Email":"grandma1230787@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I would like to build my family tree","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Genna Alexandra Granillo salazar","Email":"granillosalazargenns@gmail.com","Interest":"Family History Book","Message":"Quiero conocer un poco de mi historial familiar","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Hilary","Email":"hilaryheloisa34@gmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-03-26","Status":"Contacted","Days_Since_Inquiry":5,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Glenda Howze","Email":"HowzeHowze_Glenda@liveagent.com","Interest":"Family History Book","Message":"I\u2019d like to learn more about The Lineage Studio\u2019s service of creating lasting family legacies by transforming family trees, records, and photos into beautiful family books. Could you share details on what the process of creating a family book involves, what customization options are available, and what\u2019s included in their \u201cWhat You Get\u201d offering? Also, I\u2019d be interested in understanding the range of services they provide, how they handle historical documents and photos, and what typical timelines and costs are for these projects.","Submitted_At":"2026-01-16","Status":"Bounced","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Hubert James Friar","Email":"hugh.friar@comcast.net","Interest":"Genealogy Research","Message":"I want to  my grand parents","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elijah Hurdle","Email":"hurdle.elijah@icloud.com","Interest":"Family Tree Chart","Message":"I want to see my ancestors names and their years they were alive","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"JahCura","Email":"jazzbbracy21@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"What  race am i","Submitted_At":"2026-01-23","Status":"Bounced","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Justice Otto","Email":"jcotto2278@icloud.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Justess","Email":"jdmartin21914@icloud.com","Interest":"Family Tree Chart","Message":"Anything or any royals im related to","Submitted_At":"2026-03-21","Status":"Contacted","Days_Since_Inquiry":10,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Josian martin","Email":"jglomartin20@gmail.com","Interest":"Family History Book","Message":"Idk","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"","Email":"","Interest":"Family Tree Chart","Message":"","Submitted_At":"2026-03-23","Status":"Bounced","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Julia Tori germano campos","Email":"juliatorl9@gmail.com","Interest":"Family History Book","Message":"My family from my dad's side","Submitted_At":"2026-03-23","Status":"Bounced","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Karen seitzinger","Email":"karencrump371@gmail.com","Interest":"Not sure yet \u2014 I\u2019d like guidance","Message":"I would like to know all about them.","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Kathern morrison","Email":"kathymorrison1965@gmail.com","Interest":"Family History Book","Message":"I want to know if I have a...","Submitted_At":"2026-03-24","Status":"Contacted","Days_Since_Inquiry":7,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Keegan duty","Email":"kduty2011@gmail.com","Interest":"Just Exploring","Message":"What country  my family originally comes from","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"keyla alessandra dos santos","Email":"keyalessandrasantos@gmail.com","Interest":"Family History Book","Message":"I want a book about my grandparents\u2019 story | I have an Ancestry tree and want to turn it into a book","Submitted_At":"2026-02-07","Status":"Contacted","Days_Since_Inquiry":52,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"King Connally Bey","Email":"kingconnallybey@gmail.com","Interest":"Genealogy Research","Message":"the bloodline of my ancestors\u2026","Submitted_At":"2026-01-26","Status":"Contacted","Days_Since_Inquiry":64,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Landon Jaimes Lee Hinerman","Email":"landonroberson95@gmail.com","Interest":"Genealogy Research","Message":"I was in multiple families and just wondering about my first family.","Submitted_At":"2026-01-04","Status":"Contacted","Days_Since_Inquiry":86,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Leah Christine Dodson","Email":"leah.c.hutchins@gmail.com","Interest":"Family History Book","Message":"Dodson family history","Submitted_At":"2026-01-22","Status":"Contacted","Days_Since_Inquiry":68,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Brisa juliana lechuga Luj\u00e1n","Email":"lechugabrisa22@gmail.com","Interest":"Family History Book","Message":"Quieri un \u00e1rbol geneal\u00f3gico","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Librada Contreras Rivera","Email":"letty542000@hotmail.com","Interest":"Family Tree Chart","Message":"Quiero hacer mi arbol genealogico =  I want to make my family tree.","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Librada Contreras Rivera","Email":"letty542000@hotmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Liane Menendez","Email":"lianemenendez@gmail.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-04-01","Status":"Unsubscribed","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01T21:14:28.431Z","Last_Email_Type":"Unsubscribed"},{"Name":"Liane Menendez","Email":"liasnemesnendez@gmail.com","Interest":"Legacy or Memorial Book","Message":"","Submitted_At":"2026-04-01","Status":"Bounced","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Lillie Swenson","Email":"lilliebswenson08@gmail.com","Interest":"Genealogy Research","Message":"Just curious","Submitted_At":"2026-01-12","Status":"Contacted","Days_Since_Inquiry":78,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"ROGELIO DE JESUS ROBINSON BOURS ESCAMILLA","Email":"lynnecelaya@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"entender a mi familia","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Macie","Email":"maciogle2@gmail.com","Interest":"Genealogy Research","Message":"Ogles from North Carolina","Submitted_At":"2026-03-15","Status":"Bounced","Days_Since_Inquiry":16,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Maci Ann Spurrier","Email":"macispurrier08@gmail.com","Interest":"Genealogy Research","Message":"I want to know what Native American tribe I\u2019m in and my ancestors","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Libby Johnson","Email":"maguirelibby73@gmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-03-26","Status":"Contacted","Days_Since_Inquiry":5,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"I\u00f1igo Matteo I. Malay","Email":"Malaydonah@gmail.com","Interest":"Family History Book","Message":"I really needed to find my great grandparents.","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Marianne Barbieri","Email":"Marebar56@gmail.com","Interest":"Family History Book","Message":"Know my family","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Hamza Nestor Bouabr\u00e9 Madi","Email":"Mariamaichasheriff@gmail.com","Interest":"Genealogy Research","Message":"Je veux voir qui est dans ma famille","Submitted_At":"2026-01-25","Status":"Contacted","Days_Since_Inquiry":65,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Mariana Guimar\u00e3es Ribeiro","Email":"Marianaribeiro0224@gmail.com","Interest":"Family History Book","Message":"Quero saber de tudo dos meus antepassados e minhas decend\u00eancias","Submitted_At":"2026-02-02","Status":"Contacted","Days_Since_Inquiry":57,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Marjorie E Hamm","Email":"marjoriehamm62@gmail.com","Interest":"Family History Book","Message":"I want to trace my family and  create something to share.","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"markis brown","Email":"markisbrown54@gmail.com","Interest":"Genealogy Research","Message":"I want to know more.","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Diego Alejandro perez gonalez","Email":"mayrasofiaalfarovaldez2@gmail.com","Interest":"Family History Book","Message":"I want know of where I come","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Omar Mej\u00eda caldera","Email":"mejiacalderaomar@gmail.com","Interest":"Genealogy Research","Message":"I want ancestrors in M\u00e9xico","Submitted_At":"2026-01-09","Status":"Contacted","Days_Since_Inquiry":81,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Denise Michelle Nutter","Email":"michellep1153@yahoo.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I have an ancestry tree and want a keepsake book made","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"skuija michael","Email":"mikeskuija@gmail.com","Interest":"Genealogy Research","Message":"Please send an email to my email address","Submitted_At":"2026-01-15","Status":"Contacted","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Zain Patrick Mattingley Evans","Email":"monsterarmy21st@gmail.com","Interest":"Family History Book","Message":"I got a solid lead leading back to 1500s england","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Tomeka Smith","Email":"mrs.tanishahunter@gmail.com","Interest":"Genealogy Research","Message":"I want a book about my grandma","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"NICKIE BRAGG","Email":"msdeielreese@sbcglobal.net","Interest":"Genealogy Research","Message":"I want a family tree","Submitted_At":"2026-01-15","Status":"Bounced","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Henrico de macedo Mendon\u00e7a cust\u00f3dio","Email":"mundomundolindo118@gmail.com","Interest":"Family History Book","Message":"plss","Submitted_At":"2026-01-23","Status":"Contacted","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrew Taylor","Email":"mvashunda@gmail.com","Interest":"Genealogy Research","Message":"Please get back to me at your earliest convenience","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Myles","Email":"Myleswood68@Gmail.Com","Interest":"Family History Book","Message":"A family history book","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"George Alexander Louis Mounthbaten-Windsor","Email":"nicoleberdeja3@gmail.com","Interest":"Family History Book","Message":"I want to know the story of my ancestors.","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Valeria padron velazquez","Email":"Padronvaleria08@gmail.com","Interest":"Genealogy Research","Message":"Ancestros","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Omar Galv\u00e1n S\u00e1nchez","Email":"perlagalvan0502@gmail.com","Interest":"Family History Book","Message":"Quiero conocer a mis ancestros","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Nicole E. Sanchez","Email":"phoenixfire2576@gmail.com","Interest":"Family History Book","Message":"I am researching on Family Search and writing down each lineage to myself and my infant grandchildren. Our family lineages are qualifies for the General Mayflower Society in my home state and the main society. I\u2019m currently working on the application, and then will be working on the other societies and orders that my family will qualify for as well. This will turn into a book that can be printed and preserved for the coming generations.","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Autumn Pierson","Email":"piersonautumn5@gmail.com","Interest":"Family History Book","Message":"Who is my whole family","Submitted_At":"2026-03-12","Status":"Contacted","Days_Since_Inquiry":19,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"George Ray grindstaff","Email":"preacherray@gmail.com","Interest":"Family History Book","Message":"I would like to know about where my family came from why they came here and what they did.","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Tyler Russell","Email":"russelltyler798@gmail.com","Interest":"Genealogy Research","Message":"My dad","Submitted_At":"2026-03-15","Status":"Contacted","Days_Since_Inquiry":16,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Janori Lamar Carson","Email":"sayakacarson@gmail.com","Interest":"Family History Book","Message":"For fun.","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Shye","Email":"shyet10@gmail.com","Interest":"Family Tree Chart","Message":"I don't know much!","Submitted_At":"2026-03-17","Status":"Contacted","Days_Since_Inquiry":14,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Skye Armone\u2019e Sinai Whitfield","Email":"skyeperiod9@icloud.com","Interest":"Family History Book","Message":"I want to know my ancestors","Submitted_At":"2026-02-06","Status":"Contacted","Days_Since_Inquiry":53,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"AARON SULLIVAN","Email":"sullivanaaron100@gmail.com","Interest":"Gift","Message":"Family tree for both my side and my wives side with blank pages to fill in children and grand children and future generations","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Sunehra Jasiah","Email":"sunehrajasiah1@gmail.com","Interest":"Family History Book","Message":"To preserve my family history and to learn more about my lineage","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"george haralambakis","Email":"timbo3210@yahoo.com","Interest":"Family History Book","Message":"I saw your ad and would like to discuss further. Please contact me.","Submitted_At":"2026-01-19","Status":"Bounced","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Patrick Tison Gilpin Jr.","Email":"tisongilpin2@gmail.com","Interest":"Family Tree Chart","Message":"i want a book of my ancestry tree","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"karen torres","Email":"torrestkaren77@yahoo.com","Interest":"Family History Book","Message":"Please contact me by email.","Submitted_At":"2026-01-18","Status":"Bounced","Days_Since_Inquiry":72,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Sharon","Email":"txcowgirl647@yahoo.com","Interest":"Family History Book","Message":"My family is hulsey king sanders harrell","Submitted_At":"2026-03-19","Status":"Contacted","Days_Since_Inquiry":12,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Brandon Kovach","Email":"vach254@gmail.com","Interest":"Photo Restoration","Message":"Please get in touch with me as soon as possible. Thanks a lot!","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Dario Velazquez Rivera","Email":"velazquezbiggers@gmail.com","Interest":"Photo Restoration","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Dario Velazquez Rivera","Email":"Velazquezdario1@hotmail.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Amy M Vick","Email":"vickamy972@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"Learn more about my ancestry","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Vincent Iain Arrington","Email":"vince.arrington@sbcglobal.net","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I want to understand my family and eventually create something to share.","Submitted_At":"2026-01-19","Status":"Contacted","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Jade cristal Guadalupe Vazquez de la Cruz","Email":"vs1096258@gmail.com","Interest":"Family History Book","Message":"To learn about my family history","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Montell Williams","Email":"williamsmontell05@gmail.com","Interest":"Legacy or Memorial Book","Message":"Who's my family","Submitted_At":"2026-03-18","Status":"Bounced","Days_Since_Inquiry":13,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Zachary Meyer","Email":"zeegeemeyer@gmail.com","Interest":"Family History Book","Message":"Messager","Submitted_At":"2025-12-31","Status":"Contacted","Days_Since_Inquiry":90,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Zach Glore","Email":"zglore06@gmail.com","Interest":"Family Tree Chart","Message":"","Submitted_At":"2026-01-08","Status":"Contacted","Days_Since_Inquiry":82,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Jami stevenson","Email":"jamistevenson432.com@gmail.com","Interest":"Family Tree Chart","Message":"I want to know about me being irish","Submitted_At":"2026-04-02","Status":"New","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"","Last_Email_Type":""}];
-let S={
-  leads:[],view:'dashboard',sel:null,editing:null,search:'',filter:'all',
-  showAdd:false,tpl:'reengage',cLead:null,genEmail:'',genSubj:'',isGen:false,
-  bulk:new Set(),csv:null,csvMap:{},bulkQueue:[],bulkIdx:0,bulkResults:[],
+const SEED=[{"Name":"Chelsia  chanel willis","Email":"30cwillis@blrv.org","Interest":"Family Tree Chart","Message":"I want to document my grandparents story\" / \" I want to trace my ancestors in Africa","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Chelsia Chanel Willis","Email":"30cwillis@blrv.org","Interest":"Family Tree Chart","Message":"I want to trace my ancestors in Africa","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Alejandro Villanueva Hernandez a","Email":"a540516villa@netzero.net","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I want to understand my family and eventually create something to share.","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":61,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Adrian Guadalupe huerta flores","Email":"adrianguadalupehuertaflores76@gmail.com","Interest":"Family History Book","Message":"want a book about my grandparents\u2019","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":61,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea Jordan","Email":"ajtravis87@gmail.com","Interest":"Family History Book","Message":"Ancestry book","Submitted_At":"2026-01-17","Status":"Contacted","Days_Since_Inquiry":73,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea v Jordan","Email":"ajtravis87@gmail.com","Interest":"Family History Book","Message":"Family history book","Submitted_At":"2026-02-05","Status":"Contacted","Days_Since_Inquiry":54,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrea Victoria Jordan","Email":"Ajtravis87@gmail.com","Interest":"Family History Book","Message":"I have a ancestry tree and want to turn it into a book","Submitted_At":"2026-01-25","Status":"Contacted","Days_Since_Inquiry":65,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Akhtarhussain","Email":"akhtarlovefull@gmail.com","Interest":"Family History Book","Message":"Sayed","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Ali Baghaee","Email":"ali_baghaee_2005@yahoo.com","Interest":"Unknown","Message":"Message","Submitted_At":"2025-12-21","Status":"Contacted","Days_Since_Inquiry":95,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Janet Needham","Email":"alluetta@live.com","Interest":"Family History Book","Message":"I have an Ancestry tree and want to turn it into a book","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Anthony Peter Gutierrez","Email":"anthonypgutierrez77@Gmail.com","Interest":"Genealogy Research","Message":"I want to know my ancestry tree","Submitted_At":"2026-01-28","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Arily faith Lynn Blevins","Email":"arilyblevins0@gmail.com","Interest":"Photo Restoration","Message":"My parents are dead and I live with my grandparents Cherie blevins and Eric apking they are both fiancee","Submitted_At":"2026-01-04","Status":"Contacted","Days_Since_Inquiry":86,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"\u0627\u0633\u0644\u0645 \u0645\u062d\u0645\u062f \u0639\u0628\u062f\u0627\u0644\u0644\u0647 \u0639\u0628\u062f\u0627\u0644\u0644\u0647 \u062c\u0627\u062f","Email":"aslmmohammed555@gmail.com","Interest":"Family History Book","Message":"A family history book","Submitted_At":"2026-02-05","Status":"Contacted","Days_Since_Inquiry":54,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Annette Loriso","Email":"auntiebeanie@hotmail.com","Interest":"Genealogy Research","Message":"Where grandma and grandpa came from","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"akoul","Email":"bgllyas@gmail.com","Interest":"Family Tree Chart","Message":"my dad was a south sudanese lost boy","Submitted_At":"2026-03-17","Status":"Bounced","Days_Since_Inquiry":14,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Makayla dawn fields","Email":"biscuit.listens@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I would like to find out who I'm related to!","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Bruce colburn","Email":"brucecolburn5520@yahoo.com","Interest":"Family History Book","Message":"Colburn s","Submitted_At":"2026-01-23","Status":"Contacted","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Deanna Sue Salyers","Email":"bumdunkin@yahoo.com","Interest":"Family History Book","Message":"I\u2019m just courious","Submitted_At":"2026-01-22","Status":"Contacted","Days_Since_Inquiry":68,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Terry Chance Foley","Email":"chancefoley@icloud.com","Interest":"Family Tree Chart","Message":"military","Submitted_At":"2025-12-31","Status":"Contacted","Days_Since_Inquiry":90,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Carlos Hernandez Esparza","Email":"chdez7085@gmail.com","Interest":"Genealogy Research","Message":"My family is from El Valle de Ju\u00e1rez, Porvenir, near Chihuahua, Mexico, and next to the border with the United States. I would like to see my ancestors.","Submitted_At":"2026-01-01","Status":"Contacted","Days_Since_Inquiry":89,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Christopher Allen Ostrander","Email":"chrisheckman692@gmail.com","Interest":"Photo Restoration","Message":".","Submitted_At":"2026-01-19","Status":"Contacted","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Charles C Harrison","Email":"chuck.harrison@yahoo.com","Interest":"Genealogy Research","Message":"Grandparents history","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Christi JonesMcNeill","Email":"christijmcneill@icloud.com","Interest":"Genealogy Research","Message":"Please send some information to my email","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Carla Mar\u00eda S\u00e1nchez Paredes","Email":"Cmsp1030@gmail.com","Interest":"Family History Book","Message":"I want a book about my family, and my acenstry tree","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Alexander James Vance","Email":"Coldsoda49@gmail.com","Interest":"Photo Restoration","Message":"I want a book about my family","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Colleen Smith","Email":"colleen.s88@yahoo.com","Interest":"Genealogy Research","Message":"Like to find marriage licenses","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Dakota\u00a0 Llaneras","Email":"Dakotatl11515@gmail.com","Interest":"Family History Book","Message":"We are nice","Submitted_At":"2026-01-01","Status":"Contacted","Days_Since_Inquiry":89,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Daniel Ramirez Ayon","Email":"danielay182@gmail.com","Interest":"Family History Book","Message":"Quiero saber sobre antepasados","Submitted_At":"2026-02-07","Status":"Contacted","Days_Since_Inquiry":52,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Aaliyah Marie Parker","Email":"dannmilano@icloud.com","Interest":"Not sure yet \u2014 I\u2019d like guidance","Message":"Who I\u2019m connected too","Submitted_At":"2026-01-08","Status":"Contacted","Days_Since_Inquiry":82,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda Joan Sarao","Email":"Deangelis421@comcast.net","Interest":"Family History Book","Message":"Relatives in Sicily Italy","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda sarao","Email":"deangelis421@comcast.net","Interest":"Genealogy Research","Message":"Any relatives ion SICILY OR ANYWHERE IN Italy","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Linda Sarao","Email":"deangelis421@comcast.net","Interest":"Family History Book","Message":"","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Debbie Woodyard","Email":"debbiewoodyard79@gmail.com","Interest":"Family History Book","Message":"I would like to have the history of my family","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Delaney","Email":"delaney.brice2013@gmail.com","Interest":"Genealogy Research","Message":"I want to figure out who my ancestors were and where they came from","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Erica Kempler","Email":"ekempler@gmail.com","Interest":"Photo Restoration","Message":"Please contact me by email to arrange a convenient time for discussion","Submitted_At":"2026-01-15","Status":"Contacted","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elizabeth Laura kaufman","Email":"elizabeth.l.kaufman@gmail.com","Interest":"Family History Book","Message":"I just wanna know if a billionaire is related to me","Submitted_At":"2025-12-30","Status":"Contacted","Days_Since_Inquiry":91,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elliana Spalding","Email":"elliana.spalding@icloud.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Amos","Email":"ezchibo@hotmail.com","Interest":"Family History Book","Message":"genealogy","Submitted_At":"2026-03-23","Status":"Contacted","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Angelica Garcia Najera","Email":"familiagarcianajera47@gmail.com","Interest":"Family Tree Chart","Message":"names","Submitted_At":"2026-03-16","Status":"Contacted","Days_Since_Inquiry":15,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"FERNANDO MARTINEZ AGUILAR","Email":"fernando.martinez5@penske.com","Interest":"Family History Book","Message":"Just for me","Submitted_At":"2026-02-06","Status":"Bounced","Days_Since_Inquiry":53,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"skye adele ford","Email":"fireball12@gmail.com","Interest":"Family Tree Chart","Message":"my dad is william ford, my grandma is nancy ford","Submitted_At":"2026-03-29","Status":"Contacted","Days_Since_Inquiry":2,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Debra Esquivel","Email":"gloriadebra43@gmail.com","Interest":"Family History Book","Message":"I want to understand my family","Submitted_At":"2026-01-28","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Roger Glass","Email":"glrod201@aol.com","Interest":"Family History Book","Message":"I would like to know about my grandmother whose name was Valcov when they entered this country from Europe and was changed at Ellis Island to Falk","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Grace Smallwood","Email":"gracesmallwood508@gmail.com","Interest":"Family History Book","Message":"Eddie Tobler grandfather","Submitted_At":"2026-03-28","Status":"Contacted","Days_Since_Inquiry":3,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Joyce Ann George Medley","Email":"grandma1230787@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I would like to build my family tree","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Genna Alexandra Granillo salazar","Email":"granillosalazargenns@gmail.com","Interest":"Family History Book","Message":"Quiero conocer un poco de mi historial familiar","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Hilary","Email":"hilaryheloisa34@gmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-03-26","Status":"Contacted","Days_Since_Inquiry":5,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Glenda Howze","Email":"HowzeHowze_Glenda@liveagent.com","Interest":"Family History Book","Message":"I\u2019d like to learn more about The Lineage Studio\u2019s service of creating lasting family legacies by transforming family trees, records, and photos into beautiful family books. Could you share details on what the process of creating a family book involves, what customization options are available, and what\u2019s included in their \u201cWhat You Get\u201d offering? Also, I\u2019d be interested in understanding the range of services they provide, how they handle historical documents and photos, and what typical timelines and costs are for these projects.","Submitted_At":"2026-01-16","Status":"Bounced","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Hubert James Friar","Email":"hugh.friar@comcast.net","Interest":"Genealogy Research","Message":"I want to  my grand parents","Submitted_At":"2026-01-14","Status":"Contacted","Days_Since_Inquiry":76,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Elijah Hurdle","Email":"hurdle.elijah@icloud.com","Interest":"Family Tree Chart","Message":"I want to see my ancestors names and their years they were alive","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"JahCura","Email":"jazzbbracy21@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"What  race am i","Submitted_At":"2026-01-23","Status":"Bounced","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Justice Otto","Email":"jcotto2278@icloud.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Justess","Email":"jdmartin21914@icloud.com","Interest":"Family Tree Chart","Message":"Anything or any royals im related to","Submitted_At":"2026-03-21","Status":"Contacted","Days_Since_Inquiry":10,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Josian martin","Email":"jglomartin20@gmail.com","Interest":"Family History Book","Message":"Idk","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"","Email":"","Interest":"Family Tree Chart","Message":"","Submitted_At":"2026-03-23","Status":"Bounced","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Julia Tori germano campos","Email":"juliatorl9@gmail.com","Interest":"Family History Book","Message":"My family from my dad's side","Submitted_At":"2026-03-23","Status":"Bounced","Days_Since_Inquiry":8,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Karen seitzinger","Email":"karencrump371@gmail.com","Interest":"Not sure yet \u2014 I\u2019d like guidance","Message":"I would like to know all about them.","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Kathern morrison","Email":"kathymorrison1965@gmail.com","Interest":"Family History Book","Message":"I want to know if I have a...","Submitted_At":"2026-03-24","Status":"Contacted","Days_Since_Inquiry":7,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Keegan duty","Email":"kduty2011@gmail.com","Interest":"Just Exploring","Message":"What country  my family originally comes from","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"keyla alessandra dos santos","Email":"keyalessandrasantos@gmail.com","Interest":"Family History Book","Message":"I want a book about my grandparents\u2019 story | I have an Ancestry tree and want to turn it into a book","Submitted_At":"2026-02-07","Status":"Contacted","Days_Since_Inquiry":52,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"King Connally Bey","Email":"kingconnallybey@gmail.com","Interest":"Genealogy Research","Message":"the bloodline of my ancestors\u2026","Submitted_At":"2026-01-26","Status":"Contacted","Days_Since_Inquiry":64,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Landon Jaimes Lee Hinerman","Email":"landonroberson95@gmail.com","Interest":"Genealogy Research","Message":"I was in multiple families and just wondering about my first family.","Submitted_At":"2026-01-04","Status":"Contacted","Days_Since_Inquiry":86,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Leah Christine Dodson","Email":"leah.c.hutchins@gmail.com","Interest":"Family History Book","Message":"Dodson family history","Submitted_At":"2026-01-22","Status":"Contacted","Days_Since_Inquiry":68,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Brisa juliana lechuga Luj\u00e1n","Email":"lechugabrisa22@gmail.com","Interest":"Family History Book","Message":"Quieri un \u00e1rbol geneal\u00f3gico","Submitted_At":"2026-01-29","Status":"Contacted","Days_Since_Inquiry":62,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Librada Contreras Rivera","Email":"letty542000@hotmail.com","Interest":"Family Tree Chart","Message":"Quiero hacer mi arbol genealogico =  I want to make my family tree.","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Librada Contreras Rivera","Email":"letty542000@hotmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-01-06","Status":"Contacted","Days_Since_Inquiry":84,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Liane Menendez","Email":"lianemenendez@gmail.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-04-01","Status":"Unsubscribed","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01T21:14:28.431Z","Last_Email_Type":"Unsubscribed"},{"Name":"Liane Menendez","Email":"liasnemesnendez@gmail.com","Interest":"Legacy or Memorial Book","Message":"","Submitted_At":"2026-04-01","Status":"Bounced","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Lillie Swenson","Email":"lilliebswenson08@gmail.com","Interest":"Genealogy Research","Message":"Just curious","Submitted_At":"2026-01-12","Status":"Contacted","Days_Since_Inquiry":78,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"ROGELIO DE JESUS ROBINSON BOURS ESCAMILLA","Email":"lynnecelaya@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"entender a mi familia","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Macie","Email":"maciogle2@gmail.com","Interest":"Genealogy Research","Message":"Ogles from North Carolina","Submitted_At":"2026-03-15","Status":"Bounced","Days_Since_Inquiry":16,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Maci Ann Spurrier","Email":"macispurrier08@gmail.com","Interest":"Genealogy Research","Message":"I want to know what Native American tribe I\u2019m in and my ancestors","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Libby Johnson","Email":"maguirelibby73@gmail.com","Interest":"Genealogy Research","Message":"","Submitted_At":"2026-03-26","Status":"Contacted","Days_Since_Inquiry":5,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"I\u00f1igo Matteo I. Malay","Email":"Malaydonah@gmail.com","Interest":"Family History Book","Message":"I really needed to find my great grandparents.","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Marianne Barbieri","Email":"Marebar56@gmail.com","Interest":"Family History Book","Message":"Know my family","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Hamza Nestor Bouabr\u00e9 Madi","Email":"Mariamaichasheriff@gmail.com","Interest":"Genealogy Research","Message":"Je veux voir qui est dans ma famille","Submitted_At":"2026-01-25","Status":"Contacted","Days_Since_Inquiry":65,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Mariana Guimar\u00e3es Ribeiro","Email":"Marianaribeiro0224@gmail.com","Interest":"Family History Book","Message":"Quero saber de tudo dos meus antepassados e minhas decend\u00eancias","Submitted_At":"2026-02-02","Status":"Contacted","Days_Since_Inquiry":57,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Marjorie E Hamm","Email":"marjoriehamm62@gmail.com","Interest":"Family History Book","Message":"I want to trace my family and  create something to share.","Submitted_At":"2026-02-03","Status":"Contacted","Days_Since_Inquiry":56,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"markis brown","Email":"markisbrown54@gmail.com","Interest":"Genealogy Research","Message":"I want to know more.","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Diego Alejandro perez gonalez","Email":"mayrasofiaalfarovaldez2@gmail.com","Interest":"Family History Book","Message":"I want know of where I come","Submitted_At":"2026-01-24","Status":"Contacted","Days_Since_Inquiry":66,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Omar Mej\u00eda caldera","Email":"mejiacalderaomar@gmail.com","Interest":"Genealogy Research","Message":"I want ancestrors in M\u00e9xico","Submitted_At":"2026-01-09","Status":"Contacted","Days_Since_Inquiry":81,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Denise Michelle Nutter","Email":"michellep1153@yahoo.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I have an ancestry tree and want a keepsake book made","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"skuija michael","Email":"mikeskuija@gmail.com","Interest":"Genealogy Research","Message":"Please send an email to my email address","Submitted_At":"2026-01-15","Status":"Contacted","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Zain Patrick Mattingley Evans","Email":"monsterarmy21st@gmail.com","Interest":"Family History Book","Message":"I got a solid lead leading back to 1500s england","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Tomeka Smith","Email":"mrs.tanishahunter@gmail.com","Interest":"Genealogy Research","Message":"I want a book about my grandma","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"NICKIE BRAGG","Email":"msdeielreese@sbcglobal.net","Interest":"Genealogy Research","Message":"I want a family tree","Submitted_At":"2026-01-15","Status":"Bounced","Days_Since_Inquiry":75,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Henrico de macedo Mendon\u00e7a cust\u00f3dio","Email":"mundomundolindo118@gmail.com","Interest":"Family History Book","Message":"plss","Submitted_At":"2026-01-23","Status":"Contacted","Days_Since_Inquiry":67,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Andrew Taylor","Email":"mvashunda@gmail.com","Interest":"Genealogy Research","Message":"Please get back to me at your earliest convenience","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Myles","Email":"Myleswood68@Gmail.Com","Interest":"Family History Book","Message":"A family history book","Submitted_At":"2026-02-01","Status":"Contacted","Days_Since_Inquiry":58,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"George Alexander Louis Mounthbaten-Windsor","Email":"nicoleberdeja3@gmail.com","Interest":"Family History Book","Message":"I want to know the story of my ancestors.","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Valeria padron velazquez","Email":"Padronvaleria08@gmail.com","Interest":"Genealogy Research","Message":"Ancestros","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Omar Galv\u00e1n S\u00e1nchez","Email":"perlagalvan0502@gmail.com","Interest":"Family History Book","Message":"Quiero conocer a mis ancestros","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Nicole E. Sanchez","Email":"phoenixfire2576@gmail.com","Interest":"Family History Book","Message":"I am researching on Family Search and writing down each lineage to myself and my infant grandchildren. Our family lineages are qualifies for the General Mayflower Society in my home state and the main society. I\u2019m currently working on the application, and then will be working on the other societies and orders that my family will qualify for as well. This will turn into a book that can be printed and preserved for the coming generations.","Submitted_At":"2026-01-31","Status":"Contacted","Days_Since_Inquiry":59,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Autumn Pierson","Email":"piersonautumn5@gmail.com","Interest":"Family History Book","Message":"Who is my whole family","Submitted_At":"2026-03-12","Status":"Contacted","Days_Since_Inquiry":19,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"George Ray grindstaff","Email":"preacherray@gmail.com","Interest":"Family History Book","Message":"I would like to know about where my family came from why they came here and what they did.","Submitted_At":"2026-01-20","Status":"Contacted","Days_Since_Inquiry":70,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Tyler Russell","Email":"russelltyler798@gmail.com","Interest":"Genealogy Research","Message":"My dad","Submitted_At":"2026-03-15","Status":"Contacted","Days_Since_Inquiry":16,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Janori Lamar Carson","Email":"sayakacarson@gmail.com","Interest":"Family History Book","Message":"For fun.","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Shye","Email":"shyet10@gmail.com","Interest":"Family Tree Chart","Message":"I don't know much!","Submitted_At":"2026-03-17","Status":"Contacted","Days_Since_Inquiry":14,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Skye Armone\u2019e Sinai Whitfield","Email":"skyeperiod9@icloud.com","Interest":"Family History Book","Message":"I want to know my ancestors","Submitted_At":"2026-02-06","Status":"Contacted","Days_Since_Inquiry":53,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"AARON SULLIVAN","Email":"sullivanaaron100@gmail.com","Interest":"Gift","Message":"Family tree for both my side and my wives side with blank pages to fill in children and grand children and future generations","Submitted_At":"2026-04-01","Status":"Contacted","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Sunehra Jasiah","Email":"sunehrajasiah1@gmail.com","Interest":"Family History Book","Message":"To preserve my family history and to learn more about my lineage","Submitted_At":"2026-02-04","Status":"Contacted","Days_Since_Inquiry":55,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"george haralambakis","Email":"timbo3210@yahoo.com","Interest":"Family History Book","Message":"I saw your ad and would like to discuss further. Please contact me.","Submitted_At":"2026-01-19","Status":"Bounced","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Patrick Tison Gilpin Jr.","Email":"tisongilpin2@gmail.com","Interest":"Family Tree Chart","Message":"i want a book of my ancestry tree","Submitted_At":"2026-01-11","Status":"Contacted","Days_Since_Inquiry":79,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"karen torres","Email":"torrestkaren77@yahoo.com","Interest":"Family History Book","Message":"Please contact me by email.","Submitted_At":"2026-01-18","Status":"Bounced","Days_Since_Inquiry":72,"Notes":"Old Site","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Sharon","Email":"txcowgirl647@yahoo.com","Interest":"Family History Book","Message":"My family is hulsey king sanders harrell","Submitted_At":"2026-03-19","Status":"Contacted","Days_Since_Inquiry":12,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Brandon Kovach","Email":"vach254@gmail.com","Interest":"Photo Restoration","Message":"Please get in touch with me as soon as possible. Thanks a lot!","Submitted_At":"2026-01-16","Status":"Contacted","Days_Since_Inquiry":74,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Dario Velazquez Rivera","Email":"velazquezbiggers@gmail.com","Interest":"Photo Restoration","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Dario Velazquez Rivera","Email":"Velazquezdario1@hotmail.com","Interest":"Family History Book","Message":"","Submitted_At":"2026-03-20","Status":"Contacted","Days_Since_Inquiry":11,"Notes":"","Last_Email_Date":"2026-04-01","Last_Email_Type":"Initial Response"},{"Name":"Amy M Vick","Email":"vickamy972@gmail.com","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"Learn more about my ancestry","Submitted_At":"2026-01-30","Status":"Contacted","Days_Since_Inquiry":60,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Vincent Iain Arrington","Email":"vince.arrington@sbcglobal.net","Interest":"I\u2019m not sure yet \u2014 I\u2019d like guidance","Message":"I want to understand my family and eventually create something to share.","Submitted_At":"2026-01-19","Status":"Contacted","Days_Since_Inquiry":71,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Jade cristal Guadalupe Vazquez de la Cruz","Email":"vs1096258@gmail.com","Interest":"Family History Book","Message":"To learn about my family history","Submitted_At":"2026-01-21","Status":"Contacted","Days_Since_Inquiry":69,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Montell Williams","Email":"williamsmontell05@gmail.com","Interest":"Legacy or Memorial Book","Message":"Who's my family","Submitted_At":"2026-03-18","Status":"Bounced","Days_Since_Inquiry":13,"Notes":"","Last_Email_Date":"","Last_Email_Type":""},{"Name":"Zachary Meyer","Email":"zeegeemeyer@gmail.com","Interest":"Family History Book","Message":"Messager","Submitted_At":"2025-12-31","Status":"Contacted","Days_Since_Inquiry":90,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Zach Glore","Email":"zglore06@gmail.com","Interest":"Family Tree Chart","Message":"","Submitted_At":"2026-01-08","Status":"Contacted","Days_Since_Inquiry":82,"Notes":"Old Site","Last_Email_Date":"2026-04-01","Last_Email_Type":"Re-Engage"},{"Name":"Jami stevenson","Email":"jamistevenson432.com@gmail.com","Interest":"Family Tree Chart","Message":"I want to know about me being irish","Submitted_At":"2026-04-02","Status":"New","Days_Since_Inquiry":0,"Notes":"","Last_Email_Date":"","Last_Email_Type":""}];
+
+let S={leads:[],view:'dashboard',sel:null,editing:null,search:'',filter:'all',filterType:'all',promoOffer:'none',showAdd:false,
+  tpl:'reengage',cLead:null,genEmail:'',genSubj:'',isGen:false,
+  bulk:new Set(),csv:null,csvMap:{},bulkQueue:[],bulkIdx:0,bulkResults:[],bulkEmails:[],
+  sortCol:'',sortDir:1,
   apiKey:localStorage.getItem('tls_api_key')||'',
   webhooks:JSON.parse(localStorage.getItem('tls_webhooks')||'{}'),
-  notif:null,nTimer:null
-};
+  notif:null,nT:null};
 
 function init(){
-  try{
-    const d=localStorage.getItem('tls_leads_v2');
-    if(d){S.leads=JSON.parse(d)}
-    else{S.leads=SEED_DATA.map((r,i)=>({...r,id:'s'+i}));saveL()}
-  }catch(e){S.leads=SEED_DATA.map((r,i)=>({...r,id:'s'+i}));saveL()}
+  try{const d=localStorage.getItem('tls_leads_v2');
+    if(d){S.leads=JSON.parse(d)}else{S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL()}
+  }catch(e){S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL()}
   render();
 }
 function saveL(){localStorage.setItem('tls_leads_v2',JSON.stringify(S.leads))}
 function saveK(){localStorage.setItem('tls_api_key',S.apiKey)}
 function saveW(){localStorage.setItem('tls_webhooks',JSON.stringify(S.webhooks))}
-function notify(m){S.notif=m;clearTimeout(S.nTimer);render();S.nTimer=setTimeout(()=>{S.notif=null;render()},3e3)}
+function notify(m){S.notif=m;clearTimeout(S.nT);render();S.nT=setTimeout(()=>{S.notif=null;render()},3e3)}
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-function sbadge(st){const c=STATUS_CFG[st]||STATUS_CFG.New;return`<span class="sb-badge" style="background:${c.bg};color:${c.color}">● ${c.label}</span>`}
-function daysSince(d){if(!d)return'';const ms=Date.now()-new Date(d).getTime();return Math.max(0,Math.floor(ms/864e5))}
+function badge(st){const c=ST[st]||ST.New;return`<span class="badge" style="background:${c.bg};color:${c.c}">● ${st}</span>`}
+function daysSinceDate(d){if(!d)return 999;const ms=Date.now()-new Date(d.split('T')[0]).getTime();return Math.max(0,Math.floor(ms/864e5))}
+function go(v){S.view=v;S.showAdd=false;render()}
+
+// ── NEXT STEP LOGIC ──
+function nextStep(l){
+  const st=l.Status, lt=l.Last_Email_Type, ld=l.Last_Email_Date;
+  const ds=ld?daysSinceDate(ld):999;
+  if(st==='Bounced')return{text:'No action — bounced',cls:'ns-none',act:null};
+  if(st==='Unsubscribed')return{text:'No action — unsubscribed',cls:'ns-none',act:null};
+  if(!lt||!ld){
+    if(st==='New')return{text:'Send Initial Response',cls:'ns-urgent',act:'initial'};
+    return{text:'Send Re-Engage',cls:'ns-urgent',act:'reengage'};
+  }
+  if(lt==='Initial Response'){
+    if(ds<5)return{text:'Wait — check back in '+(5-ds)+'d',cls:'ns-wait',act:null};
+    if(ds<=14)return{text:'Send Follow-Up',cls:'ns-ready',act:'followup'};
+    return{text:'Send Follow-Up (overdue)',cls:'ns-urgent',act:'followup'};
+  }
+  if(lt==='Follow-Up'){
+    if(ds<7)return{text:'Wait — check back in '+(7-ds)+'d',cls:'ns-wait',act:null};
+    return{text:'Re-Engage or Archive',cls:'ns-ready',act:'reengage'};
+  }
+  if(lt==='Re-Engage'){
+    if(ds<14)return{text:'Wait — check back in '+(14-ds)+'d',cls:'ns-wait',act:null};
+    return{text:'Newsletter or Archive',cls:'ns-ready',act:'promo'};
+  }
+  if(lt==='Unsubscribed')return{text:'No action',cls:'ns-none',act:null};
+  return{text:'Review manually',cls:'ns-wait',act:null};
+}
+
+function getFiltered(){
+  let list=S.leads.filter(l=>{
+    const q=S.search.toLowerCase();
+    const ms=!q||[l.Name,l.Email,l.Interest,l.Message,l.Notes,l.Last_Email_Type].some(f=>f&&f.toLowerCase().includes(q));
+    const mf=S.filter==='all'||l.Status===S.filter;
+    const mt=S.filterType==='all'||
+      (S.filterType==='none'&&!l.Last_Email_Type)||
+      l.Last_Email_Type===S.filterType;
+    return ms&&mf&&mt;
+  });
+  if(S.sortCol){
+    list=[...list].sort((a,b)=>{
+      let va=a[S.sortCol]??'', vb=b[S.sortCol]??'';
+      if(S.sortCol==='Days_Since_Inquiry'){va=Number(va)||0;vb=Number(vb)||0;return(va-vb)*S.sortDir}
+      if(S.sortCol==='_nextStep'){va=nextStep(a).text;vb=nextStep(b).text}
+      return String(va).localeCompare(String(vb))*S.sortDir;
+    });
+  }
+  return list;
+}
 
 function getStats(){
   const l=S.leads;
-  return{
-    total:l.length,
-    new_ct:l.filter(x=>x.Status==='New').length,
-    contacted:l.filter(x=>x.Status==='Contacted').length,
-    warm:l.filter(x=>x.Status==='Warm').length,
-    replied:l.filter(x=>x.Status==='Replied').length,
-    bounced:l.filter(x=>x.Status==='Bounced').length,
-    unsub:l.filter(x=>x.Status==='Unsubscribed').length,
-    byInterest:{}
-  };
-}
-function getFiltered(){
-  return S.leads.filter(l=>{
-    const q=S.search.toLowerCase();
-    const ms=!q||[l.Name,l.Email,l.Interest,l.Message,l.Notes].some(f=>f&&f.toLowerCase().includes(q));
-    const mf=S.filter==='all'||l.Status===S.filter;
-    return ms&&mf;
-  });
+  const r={total:l.length};
+  Object.keys(ST).forEach(k=>r[k]=l.filter(x=>x.Status===k).length);
+  r.needAction=l.filter(x=>{const n=nextStep(x);return n.act!==null}).length;
+  return r;
 }
 
-/* ── RENDER ── */
+// ── RENDER ──
 function render(){
-  const app=document.getElementById('app');
-  app.innerHTML=`
+  document.getElementById('app').innerHTML=`
     ${S.notif?`<div class="toast">${esc(S.notif)}</div>`:''}
     <header>
-      <div class="h-left">
-        <div class="logo">TLS</div>
-        <div><h1 class="h-title">Lead Manager <span style="font-family:'DM Sans';font-size:11px;font-weight:400;color:var(--bark-l)">v2</span></h1><div class="h-sub">The Lineage Studio</div></div>
-      </div>
+      <div class="hl"><div class="logo">TLS</div><div><h1 class="ht">Lead Manager <span style="font-family:'DM Sans';font-size:10px;font-weight:400;color:var(--bl)">v2</span></h1><div class="hs">The Lineage Studio</div></div></div>
       <nav>
-        ${['dashboard','leads','compose','settings'].map(v=>`<button class="nb ${S.view===v?'on':''}" onclick="go('${v}')">${{dashboard:'◉ Dashboard',leads:'☰ Leads',compose:'✎ Compose',settings:'⚙ Settings'}[v]}</button>`).join('')}
+        ${['dashboard','allleads','compose','settings'].map(v=>`<button class="nb ${S.view===v?'on':''}" onclick="go('${v}')">${{dashboard:'◉ Dashboard',allleads:'☰ All Leads',compose:'✎ Compose',settings:'⚙ Settings'}[v]}</button>`).join('')}
       </nav>
     </header>
-    <main>${views[S.view]?views[S.view]():views.dashboard()}</main>
+    <main>${(V[S.view]||V.dashboard)()}</main>
     ${S.sel&&!S.editing?detailPanel():''}
     ${S.editing?editPanel():''}
   `;
 }
-function go(v){S.view=v;S.showAdd=false;render()}
 
-/* ── DASHBOARD ── */
-const views={};
-views.dashboard=()=>{
+// ── VIEWS ──
+const V={};
+
+// DASHBOARD
+V.dashboard=()=>{
   const s=getStats();
-  const groups={};
-  Object.keys(STATUS_CFG).forEach(k=>groups[k]=S.leads.filter(l=>l.Status===k));
+  const groups={};Object.keys(ST).forEach(k=>groups[k]=S.leads.filter(l=>l.Status===k));
   let pipe='';
-  for(const[k,cfg]of Object.entries(STATUS_CFG)){
-    const items=groups[k]||[];
-    if(!items.length)continue;
-    pipe+=`<div class="pcol"><div class="pcol-h"><span class="sd" style="background:${cfg.color}"></span><span class="pcol-t">${cfg.label}</span><span class="pcol-c">${items.length}</span></div>${items.slice(0,5).map(l=>`<div class="pi" onclick="openLead('${l.id}')"><div class="pi-n">${esc(l.Name)}</div><div class="pi-s">${esc(l.Interest||'')}</div></div>`).join('')}${items.length>5?`<div style="font-size:10px;color:var(--bark-l);padding:3px 9px">+${items.length-5} more</div>`:''}</div>`;
+  for(const[k,cfg]of Object.entries(ST)){
+    const items=groups[k]||[];if(!items.length)continue;
+    pipe+=`<div class="pcol"><div class="pch"><span class="sd" style="background:${cfg.c}"></span><span class="pct">${k}</span><span class="pcc">${items.length}</span></div>${items.slice(0,5).map(l=>`<div class="pi" onclick="openL('${l.id}')"><div class="pin">${esc(l.Name)}</div><div class="pis">${esc(l.Interest||'')}</div></div>`).join('')}${items.length>5?`<div style="font-size:9px;color:var(--bl);padding:2px 8px">+${items.length-5} more</div>`:''}</div>`;
   }
-  // Interest breakdown
-  const intCounts={};
-  S.leads.forEach(l=>{const k=l.Interest||'Unknown';intCounts[k]=(intCounts[k]||0)+1});
-  const intSorted=Object.entries(intCounts).sort((a,b)=>b[1]-a[1]);
-  let intHTML=intSorted.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #F3EDE3"><span style="color:var(--bark)">${esc(k)}</span><span style="font-weight:600;color:var(--bark-m)">${v}</span></div>`).join('');
-
+  const intC={};S.leads.forEach(l=>{const k=l.Interest||'Unknown';intC[k]=(intC[k]||0)+1});
+  const intS=Object.entries(intC).sort((a,b)=>b[1]-a[1]);
   return`
     <div class="dg">
-      <div class="sc" style="border-left-color:var(--forest)"><div class="lb">Total Leads</div><div class="vl">${s.total}</div></div>
-      <div class="sc" style="border-left-color:#5B8C5A"><div class="lb">New</div><div class="vl">${s.new_ct}</div></div>
-      <div class="sc" style="border-left-color:var(--gold)"><div class="lb">Contacted</div><div class="vl">${s.contacted}</div></div>
-      <div class="sc" style="border-left-color:var(--ember)"><div class="lb">Warm / Replied</div><div class="vl">${s.warm+s.replied}</div></div>
-      <div class="sc" style="border-left-color:var(--crimson)"><div class="lb">Bounced</div><div class="vl">${s.bounced}</div></div>
-      <div class="sc" style="border-left-color:var(--slate)"><div class="lb">Unsubscribed</div><div class="vl">${s.unsub}</div></div>
+      <div class="sc" style="border-left-color:var(--f)"><div class="lb">Total Leads</div><div class="vl">${s.total}</div></div>
+      <div class="sc" style="border-left-color:#5B8C5A"><div class="lb">New</div><div class="vl">${s.New||0}</div></div>
+      <div class="sc" style="border-left-color:var(--gold)"><div class="lb">Contacted</div><div class="vl">${s.Contacted||0}</div></div>
+      <div class="sc" style="border-left-color:var(--red)"><div class="lb">Bounced</div><div class="vl">${s.Bounced||0}</div></div>
+      <div class="sc" style="border-left-color:var(--emb)"><div class="lb">Need Action</div><div class="vl">${s.needAction}</div><div class="su">leads ready for outreach</div></div>
+      <div class="sc" style="border-left-color:var(--sl)"><div class="lb">Unsubscribed</div><div class="vl">${s.Unsubscribed||0}</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
-      <div>
-        <h2 style="font-size:20px;color:var(--bark);margin-bottom:12px">Pipeline</h2>
-        <div class="pc">${pipe}</div>
-      </div>
-      <div>
-        <div class="fc" style="margin-bottom:0">
-          <h3 style="font-size:16px;margin-bottom:10px">By Interest</h3>
-          ${intHTML}
-        </div>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:14px">
+      <div><h2 style="font-size:18px;color:var(--bk);margin-bottom:10px">Pipeline</h2><div class="pc">${pipe}</div></div>
+      <div class="fc" style="margin:0"><h3 style="font-size:14px;margin-bottom:8px">By Interest</h3>${intS.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px;border-bottom:1px solid #F3EDE3"><span style="color:var(--bk)">${esc(k)}</span><span style="font-weight:600;color:var(--bm)">${v}</span></div>`).join('')}</div>
     </div>
   `;
 };
 
-/* ── LEADS ── */
-views.leads=()=>{
+// ALL LEADS TABLE
+V.allleads=()=>{
   const fl=getFiltered();
   const bs=S.bulk.size;
   let bulkBar='';
   if(bs>0){
     bulkBar=`<div class="bb"><span>${bs} selected</span>
-      <select onchange="bulkSt(this.value)" style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:4px 7px;border-radius:4px;font-size:11px">
-        <option value="">Change status…</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}">${k}</option>`).join('')}
-      </select>
+      <select onchange="bulkSt(this.value)" style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:3px 6px;border-radius:4px;font-size:10px"><option value="">Status…</option>${Object.keys(ST).map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
       <button onclick="bulkComp()">✎ Compose</button>
       <button onclick="bulkReply()">📧 Bulk Reply</button>
       <button class="bbd" onclick="bulkDel()">✕ Delete</button>
-      <button onclick="clearBk()" style="margin-left:auto">Cancel</button>
+      <button onclick="S.bulk.clear();render()" style="margin-left:auto">Cancel</button>
     </div>`;
   }
   let addHTML='';
   if(S.showAdd){
     addHTML=`<div class="fc"><h2>Add New Lead</h2><div class="fg">
-      <div class="fi-g"><label>Name *</label><input class="fi" id="af-n" placeholder="Full name"></div>
-      <div class="fi-g"><label>Email</label><input class="fi" id="af-e" type="email" placeholder="email@example.com"></div>
-      <div class="fi-g"><label>Interest</label><select class="fi" id="af-i"><option value="">Select…</option>${INTERESTS.map(s=>`<option>${s}</option>`).join('')}</select></div>
-      <div class="fi-g"><label>Status</label><select class="fi" id="af-s">${Object.keys(STATUS_CFG).map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div>
-      <div class="fi-g full"><label>Message</label><textarea class="fi" id="af-m" placeholder="What they said…"></textarea></div>
-      <div class="fi-g full"><label>Notes</label><textarea class="fi" id="af-no" placeholder="Internal notes…"></textarea></div>
-      <div class="fa"><button class="btn bp" onclick="submitAdd()">Add Lead</button><button class="btn bs" onclick="togAdd()">Cancel</button></div>
+      <div class="fig"><label>Name *</label><input class="fi" id="af-n" placeholder="Full name"></div>
+      <div class="fig"><label>Email</label><input class="fi" id="af-e" type="email" placeholder="email@example.com"></div>
+      <div class="fig"><label>Interest</label><select class="fi" id="af-i"><option value="">Select…</option>${INTERESTS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div class="fig"><label>Status</label><select class="fi" id="af-s">${Object.keys(ST).map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div>
+      <div class="fig full"><label>Message</label><textarea class="fi" id="af-m" placeholder="What they said…"></textarea></div>
+      <div class="fig full"><label>Notes</label><textarea class="fi" id="af-no" placeholder="Internal notes…"></textarea></div>
+      <div class="fa"><button class="btn bp" onclick="submitAdd()">Add Lead</button><button class="btn bs" onclick="S.showAdd=false;render()">Cancel</button></div>
     </div></div>`;
   }
-  const rows=fl.map((l,i)=>`<tr style="animation:fi ${.03*Math.min(i,20)}s ease both">
-    <td><input type="checkbox" class="lck" ${S.bulk.has(l.id)?'checked':''} onchange="togBk('${l.id}')"></td>
-    <td><span class="ln" onclick="openLead('${l.id}')">${esc(l.Name||'(no name)')}</span><div class="le">${esc(l.Email||'')}</div></td>
-    <td>${sbadge(l.Status)}</td>
-    <td title="${esc(l.Interest)}">${esc(l.Interest||'—')}</td>
-    <td>${l.Days_Since_Inquiry||daysSince(l.Submitted_At)||'—'}</td>
-    <td>${esc(l.Last_Email_Type||'—')}</td>
-    <td><button class="btn bg bsm" onclick="compFor('${l.id}')" title="Compose">✎</button></td>
-  </tr>`).join('');
+  function thSort(col){return`onclick="sortBy('${col}')"`}
+  function thCls(col){return S.sortCol===col?'sorted':''}
+  function thArr(col){return S.sortCol===col?(S.sortDir===1?' ↑':' ↓'):''}
+
+  const rows=fl.map((l,i)=>{
+    const ns=nextStep(l);
+    const nsHTML=ns.act?`<span class="${ns.cls} ns-action" onclick="event.stopPropagation();jumpCompose('${l.id}','${ns.act}')">${ns.text}</span>`:`<span class="${ns.cls}">${ns.text}</span>`;
+    return`<tr onclick="openL('${l.id}')" style="animation:fi ${.02*Math.min(i,20)}s ease both">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="lck" ${S.bulk.has(l.id)?'checked':''} onchange="togBk('${l.id}')"></td>
+      <td><span class="ln">${esc(l.Name||'(no name)')}</span><div class="le">${esc(l.Email||'')}</div></td>
+      <td>${badge(l.Status)}</td>
+      <td title="${esc(l.Interest)}">${esc(l.Interest||'—')}</td>
+      <td>${esc(l.Last_Email_Type||'—')}</td>
+      <td>${l.Last_Email_Date?l.Last_Email_Date.split('T')[0]:'—'}</td>
+      <td>${l.Days_Since_Inquiry||daysSinceDate(l.Submitted_At)||'—'}d</td>
+      <td>${nsHTML}</td>
+    </tr>`;
+  }).join('');
 
   return`
     <div class="tb">
-      <div class="sw"><span class="si">⌕</span><input class="sb" placeholder="Search leads…" value="${esc(S.search)}" oninput="doSearch(this.value)"></div>
-      <select class="fs" onchange="doFilter(this.value)"><option value="all" ${S.filter==='all'?'selected':''}>All Status</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}" ${S.filter===k?'selected':''}>${k}</option>`).join('')}</select>
-      <button class="btn bp" onclick="togAdd()">+ Add Lead</button>
-      <button class="btn bs" onclick="trigImp()">↑ Import</button>
+      <div class="sw"><span class="sic">⌕</span><input class="sb" placeholder="Search leads…" value="${esc(S.search)}" oninput="S.search=this.value;render()"></div>
+      <select class="fs" onchange="S.filter=this.value;render()"><option value="all" ${S.filter==='all'?'selected':''}>All Status</option>${Object.keys(ST).map(k=>`<option value="${k}" ${S.filter===k?'selected':''}>${k}</option>`).join('')}</select>
+      <select class="fs" onchange="S.filterType=this.value;render()"><option value="all" ${S.filterType==='all'?'selected':''}>All Email Types</option><option value="none" ${S.filterType==='none'?'selected':''}>Never Emailed</option><option value="Initial Response" ${S.filterType==='Initial Response'?'selected':''}>Initial Response</option><option value="Re-Engage" ${S.filterType==='Re-Engage'?'selected':''}>Re-Engage</option><option value="Follow-Up" ${S.filterType==='Follow-Up'?'selected':''}>Follow-Up</option></select>
+      <button class="btn bp" onclick="S.showAdd=!S.showAdd;render()">+ Add Lead</button>
+      <button class="btn bs" onclick="document.getElementById('csv-in').click()">↑ Import</button>
       <button class="btn bs" onclick="expCSV()">↓ Export</button>
       <input type="file" id="csv-in" accept=".csv,.xlsx,.tsv,.txt" style="display:none" onchange="handleCSV(event)">
     </div>
     ${bulkBar}${addHTML}
-    ${fl.length===0?`<div class="empty"><h3>${S.leads.length===0?'No Leads Yet':'No Results'}</h3><p>${S.leads.length===0?'Add leads or import a file.':'Adjust your search or filters.'}</p></div>`:`
+    ${fl.length===0?`<div class="empty"><h3>${S.leads.length?'No Results':'No Leads'}</h3><p>${S.leads.length?'Adjust filters.':'Add leads or import a file.'}</p></div>`:`
     <div class="tw"><table>
-      <thead><tr><th style="width:32px"><input type="checkbox" class="lck" onchange="togAllBk(this.checked)" ${bs===fl.length&&fl.length?'checked':''}></th><th>Name</th><th>Status</th><th>Interest</th><th>Days</th><th>Last Email</th><th style="width:40px"></th></tr></thead>
+      <thead><tr>
+        <th style="width:28px" onclick="event.stopPropagation()"><input type="checkbox" class="lck" onchange="togAllBk(this.checked)" ${bs===fl.length&&fl.length?'checked':''}></th>
+        <th class="${thCls('Name')}" ${thSort('Name')}>Name${thArr('Name')}</th>
+        <th class="${thCls('Status')}" ${thSort('Status')}>Status${thArr('Status')}</th>
+        <th class="${thCls('Interest')}" ${thSort('Interest')}>Interest${thArr('Interest')}</th>
+        <th class="${thCls('Last_Email_Type')}" ${thSort('Last_Email_Type')}>Last Email${thArr('Last_Email_Type')}</th>
+        <th class="${thCls('Last_Email_Date')}" ${thSort('Last_Email_Date')}>Sent On${thArr('Last_Email_Date')}</th>
+        <th class="${thCls('Days_Since_Inquiry')}" ${thSort('Days_Since_Inquiry')}>Days${thArr('Days_Since_Inquiry')}</th>
+        <th class="${thCls('_nextStep')}" ${thSort('_nextStep')}>Next Step${thArr('_nextStep')}</th>
+      </tr></thead>
       <tbody>${rows}</tbody>
     </table></div>`}
-    <div style="margin-top:10px;font-size:11px;color:var(--bark-l)">${fl.length} of ${S.leads.length} leads</div>
+    <div style="margin-top:8px;font-size:10px;color:var(--bl)">${fl.length} of ${S.leads.length} leads</div>
   `;
 };
 
-/* ── DETAIL PANEL ── */
+// DETAIL PANEL
 function detailPanel(){
-  const l=S.sel;
-  return`<div class="ov" onclick="closeDet(event)"><div class="dp" onclick="event.stopPropagation()">
-    <div class="dp-h"><h2 class="dp-n">${esc(l.Name)}</h2><button class="dp-x" onclick="S.sel=null;render()">✕</button></div>
-    ${sbadge(l.Status)}
-    <div class="dp-g" style="margin-top:16px">
+  const l=S.sel;const ns=nextStep(l);
+  return`<div class="ov" onclick="if(event.target===this){S.sel=null;render()}"><div class="dp" onclick="event.stopPropagation()">
+    <div class="dph"><h2 class="dpn">${esc(l.Name)}</h2><button class="dpx" onclick="S.sel=null;render()">✕</button></div>
+    ${badge(l.Status)}
+    ${ns.act?`<div style="margin-top:10px;padding:8px 10px;background:var(--ebg);border-radius:var(--rs);border-left:3px solid var(--emb);font-size:11px"><strong>Next step:</strong> <span class="${ns.cls} ns-action" onclick="jumpCompose('${l.id}','${ns.act}')">${ns.text}</span></div>`:''}
+    <div class="dpg" style="margin-top:14px">
       <div class="df"><label>Email</label><div class="v">${l.Email?`<a href="mailto:${esc(l.Email)}">${esc(l.Email)}</a>`:'—'}</div></div>
       <div class="df"><label>Interest</label><div class="v">${esc(l.Interest||'—')}</div></div>
       <div class="df"><label>Submitted</label><div class="v">${esc(l.Submitted_At||'—')}</div></div>
-      <div class="df"><label>Days Since</label><div class="v">${l.Days_Since_Inquiry||daysSince(l.Submitted_At)||'—'}</div></div>
+      <div class="df"><label>Days Since</label><div class="v">${l.Days_Since_Inquiry||daysSinceDate(l.Submitted_At)||'—'}</div></div>
       <div class="df"><label>Last Email</label><div class="v">${esc(l.Last_Email_Date?l.Last_Email_Date.split('T')[0]:'—')}</div></div>
       <div class="df"><label>Last Type</label><div class="v">${esc(l.Last_Email_Type||'—')}</div></div>
     </div>
-    <div class="dp-msg"><label style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);font-weight:600;margin-bottom:4px">Message</label><div class="v">${esc(l.Message||'No message.')}</div></div>
-    <div class="dp-msg"><label style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--bark-l);font-weight:600;margin-bottom:4px">Notes</label><div class="v">${esc(l.Notes||'No notes.')}</div></div>
-    <div class="dp-a">
+    <div class="dpm"><label style="display:block;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--bl);font-weight:600;margin-bottom:3px">Message</label><div class="v">${esc(l.Message||'—')}</div></div>
+    <div class="dpm"><label style="display:block;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--bl);font-weight:600;margin-bottom:3px">Notes</label><div class="v">${esc(l.Notes||'—')}</div></div>
+    <div class="dpa">
       <button class="btn bp bsm" onclick="editL('${l.id}')">Edit</button>
-      <button class="btn bs bsm" onclick="compFor('${l.id}')">✎ Compose</button>
-      ${l.Email?`<button class="btn bs bsm" onclick="quickMail('${l.id}')">📧 Email</button>`:''}
-      <select class="fi" style="padding:5px 8px;font-size:11px;min-width:120px;width:auto" onchange="qSt('${l.id}',this.value)">
-        <option value="">Change status…</option>${Object.keys(STATUS_CFG).map(k=>`<option value="${k}" ${l.Status===k?'selected':''}>${k}</option>`).join('')}
-      </select>
+      <button class="btn bs bsm" onclick="jumpCompose('${l.id}','${ns.act||'reengage'}')">✎ Compose</button>
+      ${l.Email?`<button class="btn bo bsm" onclick="quickMail('${l.id}')">📧 Outlook</button>`:''}
+      <button class="btn bmark bsm" onclick="markSent('${l.id}')">✓ Mark as Sent</button>
+      <select class="fi" style="padding:4px 7px;font-size:10px;min-width:110px;width:auto" onchange="qSt('${l.id}',this.value)"><option value="">Status…</option>${Object.keys(ST).map(k=>`<option value="${k}" ${l.Status===k?'selected':''}>${k}</option>`).join('')}</select>
       <button class="btn bd bsm" onclick="delL('${l.id}')" style="margin-left:auto">Delete</button>
     </div>
   </div></div>`;
 }
 
-/* ── EDIT PANEL ── */
+// EDIT PANEL
 function editPanel(){
   const l=S.editing;
-  return`<div class="ov" onclick="closeEd(event)"><div class="dp" onclick="event.stopPropagation()">
-    <div class="dp-h"><h2 class="dp-n">Edit Lead</h2><button class="dp-x" onclick="S.editing=null;render()">✕</button></div>
+  return`<div class="ov" onclick="if(event.target===this){S.editing=null;render()}"><div class="dp" onclick="event.stopPropagation()">
+    <div class="dph"><h2 class="dpn">Edit Lead</h2><button class="dpx" onclick="S.editing=null;render()">✕</button></div>
     <div class="fg">
-      <div class="fi-g"><label>Name</label><input class="fi" id="ef-n" value="${esc(l.Name)}"></div>
-      <div class="fi-g"><label>Email</label><input class="fi" id="ef-e" value="${esc(l.Email||'')}"></div>
-      <div class="fi-g"><label>Interest</label><select class="fi" id="ef-i"><option value="">Select…</option>${INTERESTS.map(s=>`<option value="${s}" ${l.Interest===s?'selected':''}>${s}</option>`).join('')}</select></div>
-      <div class="fi-g"><label>Status</label><select class="fi" id="ef-s">${Object.keys(STATUS_CFG).map(k=>`<option value="${k}" ${l.Status===k?'selected':''}>${k}</option>`).join('')}</select></div>
-      <div class="fi-g"><label>Last Email Date</label><input class="fi" id="ef-led" type="date" value="${(l.Last_Email_Date||'').split('T')[0]}"></div>
-      <div class="fi-g"><label>Last Email Type</label><select class="fi" id="ef-let"><option value="">—</option>${Object.values(EMAIL_TYPES).map(t=>`<option value="${t.label}" ${l.Last_Email_Type===t.label?'selected':''}>${t.label}</option>`).join('')}<option value="Unsubscribed" ${l.Last_Email_Type==='Unsubscribed'?'selected':''}>Unsubscribed</option></select></div>
-      <div class="fi-g full"><label>Message</label><textarea class="fi" id="ef-m">${esc(l.Message||'')}</textarea></div>
-      <div class="fi-g full"><label>Notes</label><textarea class="fi" id="ef-no">${esc(l.Notes||'')}</textarea></div>
+      <div class="fig"><label>Name</label><input class="fi" id="ef-n" value="${esc(l.Name)}"></div>
+      <div class="fig"><label>Email</label><input class="fi" id="ef-e" value="${esc(l.Email||'')}"></div>
+      <div class="fig"><label>Interest</label><select class="fi" id="ef-i"><option value="">Select…</option>${INTERESTS.map(s=>`<option value="${s}" ${l.Interest===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="fig"><label>Status</label><select class="fi" id="ef-s">${Object.keys(ST).map(k=>`<option value="${k}" ${l.Status===k?'selected':''}>${k}</option>`).join('')}</select></div>
+      <div class="fig"><label>Last Email Date</label><input class="fi" id="ef-led" type="date" value="${(l.Last_Email_Date||'').split('T')[0]}"></div>
+      <div class="fig"><label>Last Email Type</label><select class="fi" id="ef-let"><option value="">—</option>${Object.values(ETYPES).map(t=>`<option value="${t.label}" ${l.Last_Email_Type===t.label?'selected':''}>${t.label}</option>`).join('')}<option value="Unsubscribed" ${l.Last_Email_Type==='Unsubscribed'?'selected':''}>Unsubscribed</option></select></div>
+      <div class="fig full"><label>Message</label><textarea class="fi" id="ef-m">${esc(l.Message||'')}</textarea></div>
+      <div class="fig full"><label>Notes</label><textarea class="fi" id="ef-no">${esc(l.Notes||'')}</textarea></div>
       <div class="fa"><button class="btn bp" onclick="submitEd('${l.id}')">Save</button><button class="btn bs" onclick="S.editing=null;render()">Cancel</button></div>
     </div>
   </div></div>`;
 }
 
-/* ── COMPOSE ── */
-views.compose=()=>{
-  const tpls=Object.entries(EMAIL_TYPES).map(([k,v])=>`<div class="tc ${S.tpl===k?'on':''}" onclick="pickTpl('${k}')"><div class="tc-i">${v.icon}</div><div class="tc-l">${v.label}</div><div class="tc-d">${v.desc}</div></div>`).join('');
-  const ll=S.leads.filter(l=>l.Email&&l.Status!=='Bounced'&&l.Status!=='Unsubscribed').map(l=>`<div class="lpi ${S.cLead?.id===l.id?'on':''}" onclick="pickCL('${l.id}')"><span class="sd" style="background:${(STATUS_CFG[l.Status]||STATUS_CFG.New).color};width:7px;height:7px;display:inline-block;border-radius:50%;flex-shrink:0"></span><div><div style="font-weight:500;color:var(--bark)">${esc(l.Name)}</div><div style="font-size:10px;color:var(--bark-l)">${esc(l.Email)}</div></div></div>`).join('');
+// COMPOSE
+V.compose=()=>{
+  const tpls=Object.entries(ETYPES).map(([k,v])=>`<div class="tc ${S.tpl===k?'on':''}" onclick="pickTpl('${k}')"><div class="tcl">${v.icon} ${v.label}</div><div class="tcd">${v.desc}</div></div>`).join('');
+  const ll=S.leads.filter(l=>l.Email&&l.Status!=='Bounced'&&l.Status!=='Unsubscribed').map(l=>`<div class="lpi ${S.cLead?.id===l.id?'on':''}" onclick="pickCL('${l.id}')"><span class="sd" style="background:${(ST[l.Status]||ST.New).c}"></span><div><div style="font-weight:500;color:var(--bk);font-size:11px">${esc(l.Name)}</div><div style="font-size:9px;color:var(--bl)">${esc(l.Email)}</div></div></div>`).join('');
+  // Promo offer selector
+  const promoOpts=S.tpl==='promo'?`
+    <div class="cc" style="padding:12px;margin-bottom:0">
+      <label style="font-size:9px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:4px">Special Offer</label>
+      <select class="fi" style="font-size:11px" onchange="S.promoOffer=this.value;render()">
+        <option value="none" ${S.promoOffer==='none'?'selected':''}>No offer — general promo</option>
+        <option value="10off" ${S.promoOffer==='10off'?'selected':''}>10% off any service</option>
+        <option value="freepage" ${S.promoOffer==='freepage'?'selected':''}>Free sample page</option>
+        <option value="consultation" ${S.promoOffer==='consultation'?'selected':''}>Free discovery call</option>
+        <option value="custom" ${S.promoOffer==='custom'?'selected':''}>Custom offer (edit after generating)</option>
+      </select>
+      <p style="font-size:9px;color:var(--bl);margin-top:4px">Uses your HTML newsletter template style with personalization.</p>
+    </div>`:'';
   return`
     <div class="cl">
-      <div class="c-sb">
-        <div style="font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Template</div>
+      <div class="csb">
+        <div style="font-size:9px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px">Template</div>
         ${tpls}
-        <div style="margin-top:8px;font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Select Lead</div>
-        <div class="cc" style="padding:10px">
-          <input class="fi" placeholder="Search…" oninput="filterCL(this.value)" style="margin-bottom:6px;font-size:11px">
-          <div class="lpl" id="lp">${ll}</div>
-        </div>
+        ${promoOpts}
+        <div style="margin-top:6px;font-size:9px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px">Select Lead</div>
+        <div class="cc" style="padding:8px"><input class="fi" placeholder="Search…" oninput="filterCL(this.value)" style="margin-bottom:4px;font-size:10px"><div class="lpl" id="lp">${ll}</div></div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        ${!S.apiKey?`<div style="font-size:12px;color:var(--crimson);padding:12px;background:var(--crimson-bg);border-radius:var(--rad-s)">⚠ Add your API key in <a href="#" onclick="go('settings');return false" style="color:var(--crimson);font-weight:600">Settings</a> to generate emails.</div>`:''}
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${!S.apiKey?`<div style="font-size:11px;color:var(--red);padding:10px;background:var(--rbg);border-radius:var(--rs)">⚠ Add your API key in <a href="#" onclick="go('settings');return false" style="color:var(--red);font-weight:600">Settings</a> to generate emails.</div>`:''}
         <div class="cc">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <h3 style="margin:0">Generated Email</h3>
-            <div style="display:flex;gap:6px">
-              <button class="btn bp bsm" onclick="genEmail()" ${S.isGen?'disabled':''}>
-                ${S.isGen?'⟳ Generating…':'⚡ Generate'}
-              </button>
-              ${S.genEmail&&!S.isGen?`<button class="btn bs bsm" onclick="openMailto()">📧 Open in Mail</button><button class="btn bs bsm" onclick="copyEm()">📋 Copy</button><button class="btn bs bsm" onclick="sendViaWebhook()">📤 n8n</button>`:''}
-            </div>
+            <button class="btn bp bsm" onclick="genEmail()" ${S.isGen?'disabled':''}>${S.isGen?'⟳ Generating…':'⚡ Generate'}</button>
           </div>
-          ${S.cLead?`<div style="font-size:11px;color:var(--bark-l);margin-bottom:10px">To: <strong>${esc(S.cLead.Name)}</strong> ${S.cLead.Email?'‹'+esc(S.cLead.Email)+'›':''} · ${EMAIL_TYPES[S.tpl]?.label||''}</div>`:'<div style="font-size:12px;color:var(--bark-l);margin-bottom:10px">Select a lead from the sidebar</div>'}
-          ${S.genSubj?`<div class="es-line"><strong>Subject:</strong> ${esc(S.genSubj)}</div>`:''}
-          <div class="eo">${S.isGen?'<span class="gen">Crafting your email…</span>':esc(S.genEmail||'Select a lead and template, then click Generate.')}</div>
+          ${S.cLead?`<div style="font-size:10px;color:var(--bl);margin-bottom:8px">To: <strong>${esc(S.cLead.Name)}</strong> ${S.cLead.Email?'‹'+esc(S.cLead.Email)+'›':''} · ${ETYPES[S.tpl]?.label||''}</div>`:'<div style="font-size:11px;color:var(--bl);margin-bottom:8px">Select a lead from the sidebar</div>'}
+          ${S.cLead?.Message?`<div style="font-size:10px;color:var(--bm);margin-bottom:8px;padding:7px;background:var(--bg);border-radius:var(--rs);border-left:3px solid var(--gold)"><strong>Their message:</strong> ${esc(S.cLead.Message)}</div>`:''}
+          ${S.genSubj?`<div class="esl"><strong>Subject:</strong> ${esc(S.genSubj)}</div>`:''}
+          <div class="eo">${S.isGen?'<span class="gen">Crafting email…</span>':esc(S.genEmail||'Select a lead and template, then click Generate.')}</div>
+          ${S.genEmail&&!S.isGen?`
+            <div class="sent-bar">
+              <button class="btn bo bsm" onclick="openMailto()">📧 Open in Outlook</button>
+              <div class="sep"></div>
+              <button class="btn bmark bsm" onclick="markSentCurrent()">✓ Mark as Sent</button>
+              <div class="sep"></div>
+              <button class="btn bs bsm" onclick="copyEm()">📋 Copy</button>
+              ${S.webhooks.emailGen?`<button class="btn bs bsm" onclick="sendViaWebhook()" title="Send lead data to your n8n webhook for processing">📤 n8n</button>`:''}
+            </div>
+          `:''}
         </div>
       </div>
     </div>
   `;
 };
 
-/* ── IMPORT ── */
-views.import=()=>{
-  if(!S.csv){S.view='leads';return views.leads()}
+// IMPORT
+V.import=()=>{
+  if(!S.csv){S.view='allleads';return V.allleads()}
   const{headers,rows}=S.csv;
   const flds=[{k:'Name',l:'Name'},{k:'Email',l:'Email'},{k:'Interest',l:'Interest'},{k:'Message',l:'Message'},{k:'Status',l:'Status'},{k:'Submitted_At',l:'Submitted Date'},{k:'Notes',l:'Notes'},{k:'Days_Since_Inquiry',l:'Days Since'}];
-  const mr=flds.map(f=>`<div class="fi-g"><label>${f.l}</label><select class="fi" onchange="setMap('${f.k}',this.value)"><option value="">— skip —</option>${headers.map((h,i)=>`<option value="${i}" ${S.csvMap[f.k]==i?'selected':''}>${esc(h)}</option>`).join('')}</select></div>`).join('');
+  const mr=flds.map(f=>`<div class="fig"><label>${f.l}</label><select class="fi" onchange="setMap('${f.k}',this.value)"><option value="">— skip —</option>${headers.map((h,i)=>`<option value="${i}" ${S.csvMap[f.k]==i?'selected':''}>${esc(h)}</option>`).join('')}</select></div>`).join('');
   const pr=rows.slice(0,4).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('');
-  return`<div class="fc"><h2>Import Leads</h2><p style="font-size:12px;color:var(--bark-l);margin-bottom:16px">${rows.length} rows · ${headers.length} columns</p>
-    <h3 style="font-size:15px;margin-bottom:10px">Map Columns</h3>
-    <div class="mg">${mr}</div>
-    <div style="display:flex;gap:6px"><button class="btn bp" onclick="doImport()">Import ${rows.length} Leads</button><button class="btn bs" onclick="S.csv=null;go('leads')">Cancel</button></div>
-    <div class="cpre"><h3 style="font-size:13px;margin:12px 0 6px;color:var(--bark-m)">Preview</h3><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${pr}</tbody></table></div>
-  </div>`;
+  return`<div class="fc"><h2>Import Leads</h2><p style="font-size:11px;color:var(--bl);margin-bottom:14px">${rows.length} rows · ${headers.length} columns</p><div class="mg">${mr}</div><div style="display:flex;gap:5px"><button class="btn bp" onclick="doImport()">Import ${rows.length} Leads</button><button class="btn bs" onclick="S.csv=null;go('allleads')">Cancel</button></div><div class="cpre"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${pr}</tbody></table></div></div>`;
 };
 
-/* ── SETTINGS ── */
-views.settings=()=>`
-  <div class="fc" style="max-width:640px">
+// BULK REPLY
+V.bulkreply=()=>{
+  if(!S.bulkQueue?.length)return V.allleads();
+  const q=S.bulkQueue;
+  const allDone=S.bulkEmails&&S.bulkEmails.length===q.length&&S.bulkEmails.every(e=>e.body);
+  const genCount=S.bulkEmails?S.bulkEmails.filter(e=>e.body).length:0;
+
+  // Sidebar: template picker + lead list
+  const sidebar=`
+    <div class="csb">
+      <div style="font-size:9px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px">Template</div>
+      ${Object.entries(ETYPES).map(([k,v])=>`<div class="tc ${S.tpl===k?'on':''}" onclick="pickTpl('${k}')"><div class="tcl">${v.icon} ${v.label}</div></div>`).join('')}
+      <div style="margin-top:8px;font-size:9px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px">${q.length} Leads Queued</div>
+      <div class="cc" style="padding:6px"><div class="lpl" style="max-height:260px">
+        ${q.map((l,i)=>{
+          const has=S.bulkEmails?.[i]?.body;
+          const sent=S.bulkEmails?.[i]?.sent;
+          return`<div class="lpi" style="${sent?'opacity:.45':''}">
+            <span style="font-size:11px;width:16px;text-align:center;flex-shrink:0;color:${sent?'var(--teal)':has?'var(--f)':'var(--bl)'}">${sent?'✓':has?'✦':i+1}</span>
+            <div><div style="font-weight:500;color:var(--bk);font-size:11px">${esc(l.Name)}</div><div style="font-size:9px;color:var(--bl)">${esc(l.Email)}</div></div>
+          </div>`;
+        }).join('')}
+      </div></div>
+    </div>`;
+
+  // Main content area
+  let mainContent='';
+  if(!S.bulkEmails||genCount===0){
+    // Not yet generated
+    mainContent=`
+      <div class="cc" style="text-align:center;padding:40px 20px">
+        <h3 style="margin-bottom:8px">${q.length} leads ready</h3>
+        <p style="font-size:12px;color:var(--bl);margin-bottom:16px">Choose a template, then generate all emails at once.<br>You'll review each one before sending.</p>
+        <button class="btn bp" onclick="brGenAll()" ${S.isGen?'disabled':''}>${S.isGen?`⟳ Generating… (${genCount}/${q.length})`:`⚡ Generate All ${q.length} Emails`}</button>
+        ${!S.apiKey&&!S.webhooks.emailGen?`<p style="font-size:10px;color:var(--red);margin-top:10px">⚠ Set API key or webhook in Settings first.</p>`:''}
+      </div>`;
+  } else if(S.isGen){
+    // Currently generating
+    mainContent=`
+      <div class="cc" style="text-align:center;padding:40px 20px">
+        <div class="gen" style="font-size:16px;margin-bottom:8px">Generating emails…</div>
+        <p style="font-size:13px;color:var(--bm)">${genCount} of ${q.length} complete</p>
+        <div style="background:var(--cr);border-radius:4px;height:8px;margin-top:12px;overflow:hidden"><div style="background:var(--f);height:100%;width:${(genCount/q.length*100).toFixed(0)}%;transition:width .3s;border-radius:4px"></div></div>
+      </div>`;
+  } else {
+    // All generated — show the compiled list
+    mainContent=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h3 style="font-size:15px;color:var(--bk);margin:0">${genCount} Emails Ready</h3>
+        <div style="display:flex;gap:5px">
+          <button class="btn bo bsm" onclick="brOpenAll()">📧 Open All in Outlook</button>
+          <button class="btn bmark bsm" onclick="brMarkAllSent()">✓ Mark All Sent</button>
+          <button class="btn bs bsm" onclick="brCopyAll()">📋 Copy All</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 220px);overflow-y:auto">
+        ${q.map((l,i)=>{
+          const em=S.bulkEmails?.[i]||{};
+          const sent=em.sent;
+          return`<div class="cc" style="padding:14px;${sent?'opacity:.55;border-left:3px solid var(--teal)':'border-left:3px solid var(--f)'}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div>
+                <strong style="font-size:12px;color:var(--bk)">${esc(l.Name)}</strong>
+                <span style="font-size:10px;color:var(--bl);margin-left:6px">‹${esc(l.Email)}›</span>
+                ${sent?'<span style="font-size:9px;color:var(--teal);margin-left:6px;font-weight:600">✓ SENT</span>':''}
+              </div>
+              <div style="display:flex;gap:4px">
+                ${!sent?`<button class="btn bo bsm" onclick="brOpenOne(${i})">📧 Outlook</button><button class="btn bmark bsm" onclick="brMarkOne(${i})">✓ Sent</button>`:''}
+              </div>
+            </div>
+            ${em.subject?`<div style="font-size:10px;color:var(--bm);margin-bottom:4px"><strong>Subject:</strong> ${esc(em.subject)}</div>`:''}
+            <div style="font-size:11px;color:var(--bk);line-height:1.5;max-height:80px;overflow:hidden;background:var(--bg);padding:8px;border-radius:var(--rs)">${esc(em.body||'Failed to generate.')}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  return`
+    <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+      <div><h2 style="font-size:18px;color:var(--bk)">Bulk Reply</h2><span style="font-size:11px;color:var(--bl)">${q.length} leads · ${ETYPES[S.tpl]?.label||''} · ${genCount} generated</span></div>
+      <button class="btn bs bsm" onclick="go('allleads')">✕ Exit</button>
+    </div>
+    <div class="cl">${sidebar}<div style="display:flex;flex-direction:column;gap:10px">${mainContent}</div></div>
+  `;
+};
+
+// SETTINGS
+V.settings=()=>`
+  <div class="fc" style="max-width:600px">
     <h2>Settings</h2>
-    <div class="s-row">
-      <label>Anthropic API Key</label>
-      <p>For AI email generation. Stored only in your browser — sent only to Anthropic's API.</p>
-      <input class="fi" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" oninput="S.apiKey=this.value;saveK()" style="font-family:monospace">
-    </div>
-    <hr style="border:none;border-top:1px solid #EDE8E0;margin:18px 0">
-    <h3 style="font-size:16px;margin-bottom:12px">n8n Webhooks</h3>
-    <div class="s-row">
-      <label>Email Generation Webhook (POST)</label>
-      <p>Receives lead data + email type, returns generated email</p>
-      <input class="fi" value="${esc(S.webhooks.emailGen||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.emailGen=this.value;saveW()">
-    </div>
-    <div class="s-row">
-      <label>Lead Sync Webhook (GET)</label>
-      <p>Returns all leads from your Google Sheet as JSON</p>
-      <input class="fi" value="${esc(S.webhooks.sync||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.sync=this.value;saveW()">
-    </div>
-    <div class="s-row">
-      <label>Add Lead Webhook (POST)</label>
-      <p>Saves a manually added lead to your Google Sheet</p>
-      <input class="fi" value="${esc(S.webhooks.addLead||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.addLead=this.value;saveW()">
-    </div>
-    <div class="s-row">
-      <label>Status Update Webhook (POST)</label>
-      <p>Updates lead status and email timestamp in your sheet</p>
-      <input class="fi" value="${esc(S.webhooks.updateStatus||'')}" placeholder="https://your-n8n.app.n8n.cloud/webhook/..." oninput="S.webhooks.updateStatus=this.value;saveW()">
-    </div>
-    <hr style="border:none;border-top:1px solid #EDE8E0;margin:18px 0">
-    <h3 style="font-size:16px;margin-bottom:12px">Data</h3>
-    <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <div class="sr"><label>Anthropic API Key</label><p>Stored in your browser only — sent only to Anthropic.</p>
+      <input class="fi" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" oninput="S.apiKey=this.value;saveK()" style="font-family:monospace"></div>
+    <hr style="border:none;border-top:1px solid #EDE8E0;margin:16px 0">
+    <h3 style="font-size:15px;margin-bottom:10px">n8n Webhooks</h3>
+    <div class="sr"><label>Email Generation (POST)</label><input class="fi" value="${esc(S.webhooks.emailGen||'')}" placeholder="https://…" oninput="S.webhooks.emailGen=this.value;saveW()"></div>
+    <div class="sr"><label>Lead Sync (GET)</label><input class="fi" value="${esc(S.webhooks.sync||'')}" placeholder="https://…" oninput="S.webhooks.sync=this.value;saveW()"></div>
+    <div class="sr"><label>Add Lead (POST)</label><input class="fi" value="${esc(S.webhooks.addLead||'')}" placeholder="https://…" oninput="S.webhooks.addLead=this.value;saveW()"></div>
+    <div class="sr"><label>Status Update (POST)</label><input class="fi" value="${esc(S.webhooks.updateStatus||'')}" placeholder="https://…" oninput="S.webhooks.updateStatus=this.value;saveW()"></div>
+    <hr style="border:none;border-top:1px solid #EDE8E0;margin:16px 0">
+    <h3 style="font-size:15px;margin-bottom:10px">Data</h3>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
       <button class="btn bs" onclick="expCSV()">↓ Export CSV</button>
-      <button class="btn bs" onclick="syncLeads()">🔄 Sync from Google Sheet</button>
-      <button class="btn bs" onclick="reloadSeed()">↻ Reload Original Data</button>
+      <button class="btn bs" onclick="syncLeads()">🔄 Sync Google Sheet</button>
+      <button class="btn bs" onclick="reloadSeed()">↻ Reload Original 115</button>
       <button class="btn bd" onclick="resetAll()">Clear All</button>
     </div>
-    <p style="font-size:11px;color:var(--bark-l);margin-top:10px">${S.leads.length} leads in browser storage</p>
+    <p style="font-size:10px;color:var(--bl);margin-top:8px">${S.leads.length} leads in browser</p>
   </div>
 `;
 
-/* ── ACTIONS ── */
-function openLead(id){S.sel=S.leads.find(l=>l.id===id)||null;render()}
-function closeDet(e){if(e.target.classList.contains('ov')){S.sel=null;render()}}
-function closeEd(e){if(e.target.classList.contains('ov')){S.editing=null;render()}}
+// ── ACTIONS ──
+function openL(id){S.sel=S.leads.find(l=>l.id===id)||null;render()}
 function editL(id){const l=S.leads.find(x=>x.id===id);if(l){S.editing={...l};S.sel=null;render()}}
 function submitEd(id){
-  const u={...S.leads.find(l=>l.id===id),
-    Name:document.getElementById('ef-n').value.trim(),
-    Email:document.getElementById('ef-e').value.trim(),
-    Interest:document.getElementById('ef-i').value,
-    Status:document.getElementById('ef-s').value,
-    Last_Email_Date:document.getElementById('ef-led').value,
-    Last_Email_Type:document.getElementById('ef-let').value,
-    Message:document.getElementById('ef-m').value,
-    Notes:document.getElementById('ef-no').value
-  };
-  S.leads=S.leads.map(l=>l.id===id?u:l);saveL();
-  S.editing=null;S.sel=u;notify('Lead updated');render();
+  const u={...S.leads.find(l=>l.id===id),Name:document.getElementById('ef-n').value.trim(),Email:document.getElementById('ef-e').value.trim(),Interest:document.getElementById('ef-i').value,Status:document.getElementById('ef-s').value,Last_Email_Date:document.getElementById('ef-led').value,Last_Email_Type:document.getElementById('ef-let').value,Message:document.getElementById('ef-m').value,Notes:document.getElementById('ef-no').value};
+  S.leads=S.leads.map(l=>l.id===id?u:l);saveL();S.editing=null;S.sel=u;notify('Updated');render();
 }
-function qSt(id,val){
-  if(!val)return;
-  S.leads=S.leads.map(l=>l.id===id?{...l,Status:val}:l);saveL();
-  S.sel=S.leads.find(l=>l.id===id);notify('Status → '+val);render();
-  // Fire webhook
-  if(S.webhooks.updateStatus){
-    const l=S.leads.find(x=>x.id===id);
-    fetch(S.webhooks.updateStatus,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:l.Email,status:val,timestamp:new Date().toISOString()})}).catch(()=>{});
-  }
-}
-function delL(id){if(!confirm('Remove this lead?'))return;S.leads=S.leads.filter(l=>l.id!==id);saveL();S.sel=null;notify('Removed');render()}
-function togAdd(){S.showAdd=!S.showAdd;render()}
+function qSt(id,v){if(!v)return;S.leads=S.leads.map(l=>l.id===id?{...l,Status:v}:l);saveL();S.sel=S.leads.find(l=>l.id===id);notify('→ '+v);render();fireStatusHook(id,v)}
+function delL(id){if(!confirm('Remove?'))return;S.leads=S.leads.filter(l=>l.id!==id);saveL();S.sel=null;notify('Removed');render()}
 function submitAdd(){
-  const n=document.getElementById('af-n').value.trim();
-  if(!n){notify('Name required');return}
+  const n=document.getElementById('af-n').value.trim();if(!n){notify('Name required');return}
   const lead={id:uid(),Name:n,Email:document.getElementById('af-e').value.trim(),Interest:document.getElementById('af-i').value,Status:document.getElementById('af-s').value,Message:document.getElementById('af-m').value,Notes:document.getElementById('af-no').value,Submitted_At:new Date().toISOString().slice(0,10),Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:''};
-  S.leads=[lead,...S.leads];saveL();S.showAdd=false;notify('Lead added');render();
-  // Fire webhook
-  if(S.webhooks.addLead){
-    fetch(S.webhooks.addLead,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)}).catch(()=>{});
-  }
+  S.leads=[lead,...S.leads];saveL();S.showAdd=false;notify('Added');render();
+  if(S.webhooks.addLead)fetch(S.webhooks.addLead,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)}).catch(()=>{});
 }
-function doSearch(q){S.search=q;render()}
-function doFilter(v){S.filter=v;render()}
+function sortBy(col){if(S.sortCol===col)S.sortDir*=-1;else{S.sortCol=col;S.sortDir=1}render()}
+
+// Mark as Sent
+function markSent(id){
+  const now=new Date().toISOString().slice(0,10);
+  S.leads=S.leads.map(l=>l.id===id?{...l,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:ETYPES[S.tpl]?.label||'Re-Engage'}:l);
+  saveL();if(S.sel&&S.sel.id===id)S.sel=S.leads.find(l=>l.id===id);
+  notify('Marked as sent');render();fireStatusHook(id,'Contacted');
+}
+function markSentCurrent(){
+  if(!S.cLead)return;
+  const now=new Date().toISOString().slice(0,10);
+  S.leads=S.leads.map(l=>l.id===S.cLead.id?{...l,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:ETYPES[S.tpl]?.label||'Re-Engage'}:l);
+  saveL();notify('✓ Marked as sent');render();fireStatusHook(S.cLead.id,'Contacted');
+}
+function fireStatusHook(id,status){
+  if(!S.webhooks.updateStatus)return;
+  const l=S.leads.find(x=>x.id===id);if(!l)return;
+  fetch(S.webhooks.updateStatus,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:l.Email,status,timestamp:new Date().toISOString(),emailType:l.Last_Email_Type})}).catch(()=>{});
+}
+
+// Mailto
+function openMailto(){
+  if(!S.cLead||!S.genEmail)return;
+  window.open(`mailto:${S.cLead.Email||''}?subject=${encodeURIComponent(S.genSubj||'')}&body=${encodeURIComponent(S.genEmail)}`,'_blank');
+  notify('Opened in mail client');
+}
+function quickMail(id){const l=S.leads.find(x=>x.id===id);if(l?.Email)window.open(`mailto:${l.Email}`,'_blank')}
+
+// Jump to compose from Next Step
+function jumpCompose(id,tpl){
+  const l=S.leads.find(x=>x.id===id);if(!l)return;
+  S.cLead=l;S.tpl=tpl||'reengage';S.sel=null;S.genEmail='';S.genSubj='';go('compose');
+}
 
 // Bulk
 function togBk(id){if(S.bulk.has(id))S.bulk.delete(id);else S.bulk.add(id);render()}
 function togAllBk(c){if(c)getFiltered().forEach(l=>S.bulk.add(l.id));else S.bulk.clear();render()}
-function clearBk(){S.bulk.clear();render()}
-function bulkSt(v){if(!v)return;S.leads=S.leads.map(l=>S.bulk.has(l.id)?{...l,Status:v}:l);saveL();const n=S.bulk.size;S.bulk.clear();notify(n+' leads → '+v);render()}
-function bulkDel(){if(!confirm('Delete '+S.bulk.size+' leads?'))return;S.leads=S.leads.filter(l=>!S.bulk.has(l.id));saveL();S.bulk.clear();notify('Deleted');render()}
-function bulkComp(){const f=S.leads.find(l=>S.bulk.has(l.id));if(f){S.cLead=f;go('compose')}}
-
-// Compose
-function compFor(id){const l=S.leads.find(x=>x.id===id);if(l){S.cLead=l;S.sel=null;S.genEmail='';S.genSubj='';go('compose')}}
-function pickTpl(k){S.tpl=k;S.genEmail='';S.genSubj='';render()}
-function pickCL(id){S.cLead=S.leads.find(l=>l.id===id)||null;S.genEmail='';S.genSubj='';render()}
-function filterCL(q){
-  const lp=document.getElementById('lp');if(!lp)return;
-  lp.querySelectorAll('.lpi').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'});
+function bulkSt(v){if(!v)return;S.leads=S.leads.map(l=>S.bulk.has(l.id)?{...l,Status:v}:l);saveL();const n=S.bulk.size;S.bulk.clear();notify(n+' → '+v);render()}
+function bulkDel(){if(!confirm('Delete '+S.bulk.size+'?'))return;S.leads=S.leads.filter(l=>!S.bulk.has(l.id));saveL();S.bulk.clear();notify('Deleted');render()}
+function bulkComp(){const f=S.leads.find(l=>S.bulk.has(l.id));if(f){S.cLead=f;S.bulk.clear();go('compose')}}
+function bulkReply(){
+  const sel=S.leads.filter(l=>S.bulk.has(l.id)&&l.Email&&l.Status!=='Bounced'&&l.Status!=='Unsubscribed');
+  if(!sel.length){notify('No valid leads selected');return}
+  S.bulkQueue=sel;S.bulkIdx=0;S.bulkEmails=[];S.bulk.clear();S.cLead=sel[0];S.genEmail='';S.genSubj='';S.view='bulkreply';render();
+}
+async function brGenAll(){
+  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set API key or webhook');return}
+  S.isGen=true;S.bulkEmails=S.bulkQueue.map(()=>({body:'',subject:'',sent:false}));render();
+  for(let i=0;i<S.bulkQueue.length;i++){
+    const lead=S.bulkQueue[i];
+    try{
+      if(S.webhooks.emailGen){
+        const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:ETYPES[S.tpl].label})});
+        const d=await r.json();S.bulkEmails[i]={body:d.email||d.body||d.text||'',subject:d.subject||'',sent:false};render();continue;
+      }
+      const offerTxt={none:'',"10off":'Include a special offer: 10% off any service.',freepage:'Include a special offer: a free sample page.',consultation:'Include a special offer: a free discovery call.',custom:'Include a special offer placeholder: [INSERT YOUR CUSTOM OFFER HERE].'}[S.promoOffer]||'';
+      const P={
+        initial:`Write a warm first response from Liane at The Lineage Studio to ${lead.Name}. They inquired about "${lead.Interest||'genealogy services'}" and said: "${lead.Message||''}". Thank them, acknowledge their interest, explain what TLS can do, invite a free consultation. 3-4 short paragraphs.`,
+        reengage:`Write a warm re-engagement email from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'} (${lead.Days_Since_Inquiry||'many'} days ago). Reference preserving family history. 3-4 paragraphs.`,
+        followup:`Write a friendly follow-up from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'}. Check timeline, move toward consultation. 2-3 paragraphs.`,
+        promo:`Write a promotional newsletter-style email from Liane at The Lineage Studio to ${lead.Name}. Interest: "${lead.Interest||'Family History Book'}". Warm greeting, genealogy tip, highlight their service interest, mention custom-designed books. ${offerTxt} Soft CTA to reply or book a call. Website: lineagestudio.org. 4-5 paragraphs.`,
+      };
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:P[S.tpl]+'\n\nReturn ONLY the email body. No subject, no markdown. Start with greeting.'}]})});
+      const d=await r.json();const body=d.content?.map(c=>c.text||'').join('')||'Error.';
+      const sr=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,messages:[{role:'user',content:'Write one email subject line. ONLY the subject:\n\n'+body}]})});
+      const sd=await sr.json();S.bulkEmails[i]={body,subject:sd.content?.[0]?.text||'',sent:false};
+    }catch(e){S.bulkEmails[i]={body:'Failed to generate.',subject:'',sent:false}}
+    render();
+  }
+  S.isGen=false;notify('All '+S.bulkQueue.length+' emails generated!');render();
+}
+function brOpenOne(idx){
+  const l=S.bulkQueue[idx],em=S.bulkEmails[idx];if(!l||!em?.body)return;
+  window.open(`mailto:${l.Email||''}?subject=${encodeURIComponent(em.subject||'')}&body=${encodeURIComponent(em.body)}`,'_blank');
+}
+function brOpenAll(){
+  let opened=0;
+  for(let i=0;i<S.bulkQueue.length;i++){
+    const l=S.bulkQueue[i],em=S.bulkEmails?.[i];
+    if(!em?.body||em.sent)continue;
+    setTimeout(()=>{window.open(`mailto:${l.Email||''}?subject=${encodeURIComponent(em.subject||'')}&body=${encodeURIComponent(em.body)}`,'_blank')},opened*600);
+    opened++;
+  }
+  notify(opened+' emails opened in Outlook');
+}
+function brMarkOne(idx){
+  if(!S.bulkEmails?.[idx])return;
+  S.bulkEmails[idx].sent=true;
+  const l=S.bulkQueue[idx];const now=new Date().toISOString().slice(0,10);
+  S.leads=S.leads.map(x=>x.id===l.id?{...x,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:ETYPES[S.tpl]?.label||'Re-Engage'}:x);
+  saveL();fireStatusHook(l.id,'Contacted');render();
+}
+function brMarkAllSent(){
+  const now=new Date().toISOString().slice(0,10);let ct=0;
+  S.bulkQueue.forEach((l,i)=>{
+    if(!S.bulkEmails?.[i]?.body||S.bulkEmails[i].sent)return;
+    S.bulkEmails[i].sent=true;ct++;
+    S.leads=S.leads.map(x=>x.id===l.id?{...x,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:ETYPES[S.tpl]?.label||'Re-Engage'}:x);
+    fireStatusHook(l.id,'Contacted');
+  });
+  saveL();notify(ct+' leads marked as sent');render();
+}
+function brCopyAll(){
+  const text=S.bulkQueue.map((l,i)=>{const em=S.bulkEmails?.[i];if(!em?.body)return'';return`--- ${l.Name} <${l.Email}> ---\nSubject: ${em.subject||''}\n\n${em.body}`}).filter(Boolean).join('\n\n');
+  navigator.clipboard.writeText(text).then(()=>notify('All emails copied'));
 }
 
-// AI Email
+// Compose helpers
+function pickTpl(k){S.tpl=k;S.genEmail='';S.genSubj='';if(S.view==='bulkreply')S.bulkEmails=[];render()}
+function pickCL(id){S.cLead=S.leads.find(l=>l.id===id)||null;S.genEmail='';S.genSubj='';render()}
+function filterCL(q){const lp=document.getElementById('lp');if(!lp)return;lp.querySelectorAll('.lpi').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'})}
+function copyEm(){navigator.clipboard.writeText((S.genSubj?'Subject: '+S.genSubj+'\n\n':'')+S.genEmail).then(()=>notify('Copied'))}
+async function sendViaWebhook(){if(!S.webhooks.emailGen){notify('Configure webhook');return}markSentCurrent()}
+
+// AI Email Gen
 async function genEmail(){
-  const lead=S.cLead;
-  if(!lead){notify('Select a lead first');return}
-  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set up API key or n8n webhook in Settings');return}
+  const lead=S.cLead;if(!lead){notify('Select a lead');return}
+  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set API key or webhook');return}
   S.isGen=true;S.genEmail='';S.genSubj='';render();
-
-  // Try n8n webhook first if configured
-  if(S.webhooks.emailGen){
-    try{
-      const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:EMAIL_TYPES[S.tpl].label})});
-      const d=await r.json();
-      S.genEmail=d.email||d.body||d.text||JSON.stringify(d);
-      S.genSubj=d.subject||'';
-      S.isGen=false;render();return;
-    }catch(e){/* Fall through to API */}
-  }
-
-  const prompts={
-    initial:`Write a warm, welcoming first response email from Liane at The Lineage Studio to ${lead.Name}. They inquired about "${lead.Interest||'genealogy services'}" and said: "${lead.Message||''}". Thank them for reaching out, acknowledge their specific interest, explain briefly what The Lineage Studio can do for them, and invite them to schedule a free consultation. 3-4 short paragraphs. Warm and personal, not corporate.`,
-    reengage:`Write a warm re-engagement email from Liane at The Lineage Studio to ${lead.Name}. They previously showed interest in ${lead.Interest||'genealogy services'} (${lead.Days_Since_Inquiry||'many'} days ago) but haven't been in touch. Reference the value of preserving family history before it's too late. Warm, not salesy. 3-4 short paragraphs.`,
-    followup:`Write a friendly follow-up email from Liane at The Lineage Studio to ${lead.Name}. They're interested in ${lead.Interest||'genealogy services'}. Check in on their timeline and any questions. Gently move toward scheduling a consultation. 2-3 paragraphs.`,
-    promo:`Write a compelling but tasteful email from Liane at The Lineage Studio to ${lead.Name} about the "${lead.Interest||'Family History Book'}" service. Highlight the emotional and legacy value. Include what's involved and a soft call to action. 3-4 paragraphs.`,
+  if(S.webhooks.emailGen){try{const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:ETYPES[S.tpl].label})});const d=await r.json();S.genEmail=d.email||d.body||d.text||JSON.stringify(d);S.genSubj=d.subject||'';S.isGen=false;render();return}catch(e){}}
+  const offerText={none:'',"10off":'Include a special offer: 10% off any service for a limited time.',freepage:'Include a special offer: a free sample page so they can see the quality before committing.',consultation:'Include a special offer: a free 20-minute discovery call to plan their project.',custom:'Include a special offer placeholder: [INSERT YOUR CUSTOM OFFER HERE].'}[S.promoOffer]||'';
+  const P={
+    initial:`Write a warm first response from Liane at The Lineage Studio to ${lead.Name}. They inquired about "${lead.Interest||'genealogy services'}" and said: "${lead.Message||''}". Thank them, acknowledge their interest, explain what TLS can do, invite a free consultation. 3-4 short paragraphs. Warm and personal.`,
+    reengage:`Write a warm re-engagement email from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'} (${lead.Days_Since_Inquiry||'many'} days ago). Reference preserving family history. Warm, not salesy. 3-4 paragraphs.`,
+    followup:`Write a friendly follow-up from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'}. Check timeline, answer questions, move toward consultation. 2-3 paragraphs.`,
+    promo:`Write a promotional newsletter-style email from Liane at The Lineage Studio to ${lead.Name}. Their interest: "${lead.Interest||'Family History Book'}". Structure it like a newsletter: open with a warm personal greeting using their name, include a genealogy tip or insight, highlight the "${lead.Interest||'Family History Book'}" service and its emotional/legacy value, mention that every book is custom-designed. ${offerText} Close with a soft call to action to reply or book a call. Mention the website lineagestudio.org. Sign off warmly as Liane. 4-5 paragraphs.`,
   };
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompts[S.tpl]+'\n\nReturn ONLY the email body. No subject line, no markdown, no labels. Start with the greeting.'}]})});
-    const d=await r.json();
-    S.genEmail=d.content?.map(c=>c.text||'').join('')||'Error generating email.';
-    const sr=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,messages:[{role:'user',content:'Write one email subject line for this email. Return ONLY the subject, nothing else:\n\n'+S.genEmail}]})});
-    const sd=await sr.json();
-    S.genSubj=sd.content?.[0]?.text||'';
-  }catch(e){S.genEmail='Generation failed. Check your API key.'}
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:P[S.tpl]+'\n\nReturn ONLY the email body. No subject, no markdown. Start with greeting.'}]})});
+    const d=await r.json();S.genEmail=d.content?.map(c=>c.text||'').join('')||'Error.';
+    const sr=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,messages:[{role:'user',content:'Write one email subject line. ONLY the subject:\n\n'+S.genEmail}]})});
+    const sd=await sr.json();S.genSubj=sd.content?.[0]?.text||'';
+  }catch(e){S.genEmail='Failed. Check API key.'}
   S.isGen=false;render();
 }
-function copyEm(){
-  const full=(S.genSubj?'Subject: '+S.genSubj+'\n\n':'')+S.genEmail;
-  navigator.clipboard.writeText(full).then(()=>notify('Copied to clipboard'));
-}
-async function sendViaWebhook(){
-  if(!S.webhooks.emailGen){notify('Configure email webhook in Settings');return}
-  // Update lead status
-  if(S.cLead){
-    const now=new Date().toISOString().slice(0,10);
-    S.leads=S.leads.map(l=>l.id===S.cLead.id?{...l,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:EMAIL_TYPES[S.tpl].label}:l);
-    saveL();notify('Lead updated & email ready');render();
-  }
-}
 
-// Open in Mail (mailto)
-function openMailto(){
-  if(!S.cLead||!S.genEmail)return;
-  const email=S.cLead.Email||'';
-  const subj=encodeURIComponent(S.genSubj||'');
-  const body=encodeURIComponent(S.genEmail);
-  window.open(`mailto:${email}?subject=${subj}&body=${body}`,'_blank');
-  // Update lead status
-  const now=new Date().toISOString().slice(0,10);
-  S.leads=S.leads.map(l=>l.id===S.cLead.id?{...l,Status:'Contacted',Last_Email_Date:now,Last_Email_Type:EMAIL_TYPES[S.tpl].label}:l);
-  saveL();notify('Opened in mail client — lead updated');render();
-  if(S.webhooks.updateStatus){
-    fetch(S.webhooks.updateStatus,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:S.cLead.Email,status:'Contacted',timestamp:now,emailType:EMAIL_TYPES[S.tpl].label})}).catch(()=>{});
-  }
-}
-function quickMail(id){
-  const l=S.leads.find(x=>x.id===id);
-  if(!l||!l.Email)return;
-  window.open(`mailto:${l.Email}`,'_blank');
-}
-
-// Bulk Reply
-function bulkReply(){
-  const selected=S.leads.filter(l=>S.bulk.has(l.id)&&l.Email&&l.Status!=='Bounced'&&l.Status!=='Unsubscribed');
-  if(!selected.length){notify('No valid email leads selected');return}
-  S.bulkQueue=selected;
-  S.bulkIdx=0;
-  S.bulkResults=[];
-  S.bulk.clear();
-  S.view='bulkreply';
-  S.cLead=selected[0];
-  S.genEmail='';S.genSubj='';
-  render();
-}
-function brNext(){
-  if(S.bulkIdx<S.bulkQueue.length-1){
-    S.bulkIdx++;S.cLead=S.bulkQueue[S.bulkIdx];S.genEmail='';S.genSubj='';render();
-  }else{notify('All leads in queue done!');go('leads')}
-}
-function brPrev(){
-  if(S.bulkIdx>0){S.bulkIdx--;S.cLead=S.bulkQueue[S.bulkIdx];S.genEmail='';S.genSubj='';render();}
-}
-function brMailAll(){
-  // Open mailto for current generated email then advance
-  if(S.cLead&&S.genEmail){openMailto()}
-  // Store result
-  if(!S.bulkResults)S.bulkResults=[];
-  S.bulkResults[S.bulkIdx]={sent:true,name:S.cLead?.Name};
-  brNext();
-}
-views.bulkreply=()=>{
-  if(!S.bulkQueue||!S.bulkQueue.length){return views.leads()}
-  const q=S.bulkQueue;
-  const idx=S.bulkIdx||0;
-  const lead=q[idx];
-  const progress=`${idx+1} of ${q.length}`;
-  const queueList=q.map((l,i)=>{
-    const done=S.bulkResults&&S.bulkResults[i]?.sent;
-    const active=i===idx;
-    return`<div class="lpi ${active?'on':''}" onclick="S.bulkIdx=${i};S.cLead=S.bulkQueue[${i}];S.genEmail='';S.genSubj='';render()" style="${done?'opacity:.5':''}">
-      <span style="font-size:12px;width:18px;text-align:center;flex-shrink:0">${done?'✓':i+1}</span>
-      <div><div style="font-weight:500;color:var(--bark);font-size:12px">${esc(l.Name)}</div><div style="font-size:10px;color:var(--bark-l)">${esc(l.Email)}</div></div>
-    </div>`;
-  }).join('');
-
-  return`
-    <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <h2 style="font-size:20px;color:var(--bark);margin-bottom:2px">Bulk Reply</h2>
-        <span style="font-size:12px;color:var(--bark-l)">${progress} · ${EMAIL_TYPES[S.tpl]?.label||'Re-Engage'}</span>
-      </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn bs bsm" onclick="go('leads')">✕ Exit Queue</button>
-      </div>
-    </div>
-    <div class="cl">
-      <div class="c-sb">
-        <div style="font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Template</div>
-        ${Object.entries(EMAIL_TYPES).map(([k,v])=>`<div class="tc ${S.tpl===k?'on':''}" onclick="pickTpl('${k}')"><div class="tc-i">${v.icon}</div><div class="tc-l">${v.label}</div></div>`).join('')}
-        <div style="margin-top:8px;font-size:10px;font-weight:700;color:var(--bark-l);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Queue (${q.length})</div>
-        <div class="cc" style="padding:8px"><div class="lpl" style="max-height:260px">${queueList}</div></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div class="cc">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <h3 style="margin:0">${esc(lead.Name)}</h3>
-            <div style="display:flex;gap:6px">
-              <button class="btn bp bsm" onclick="genEmail()" ${S.isGen?'disabled':''}>${S.isGen?'⟳ Generating…':'⚡ Generate'}</button>
-              ${S.genEmail&&!S.isGen?`<button class="btn bp bsm" onclick="brMailAll()">📧 Send & Next</button><button class="btn bs bsm" onclick="openMailto()">📧 Open in Mail</button><button class="btn bs bsm" onclick="copyEm()">📋 Copy</button>`:``}
-            </div>
-          </div>
-          <div style="font-size:11px;color:var(--bark-l);margin-bottom:10px">To: <strong>${esc(lead.Name)}</strong> ‹${esc(lead.Email||'')}› · ${esc(lead.Interest||'')}</div>
-          ${lead.Message?`<div style="font-size:11px;color:var(--bark-m);margin-bottom:10px;padding:8px;background:var(--parchment);border-radius:var(--rad-s);border-left:3px solid var(--gold)"><strong>Their message:</strong> ${esc(lead.Message)}</div>`:''}
-          ${S.genSubj?`<div class="es-line"><strong>Subject:</strong> ${esc(S.genSubj)}</div>`:''}
-          <div class="eo">${S.isGen?'<span class="gen">Crafting email…</span>':esc(S.genEmail||'Click Generate to create a personalized email for this lead.')}</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <button class="btn bs bsm" onclick="brPrev()" ${idx===0?'disabled':''}>← Previous</button>
-          <span style="font-size:12px;color:var(--bark-l)">${progress}</span>
-          <button class="btn bs bsm" onclick="brNext()" ${idx===q.length-1?'disabled':''}>Skip →</button>
-        </div>
-      </div>
-    </div>
-  `;
-};
-
-// CSV/Import
-function trigImp(){document.getElementById('csv-in').click()}
-function parseCSV(txt){
-  const lines=txt.split('\n').filter(l=>l.trim());
-  if(lines.length<2)return null;
-  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
-  const rows=lines.slice(1).map(line=>{
-    const vals=[];let cur='',inQ=false;
-    for(const ch of line){if(ch==='"')inQ=!inQ;else if(ch===','&&!inQ){vals.push(cur.trim());cur=''}else cur+=ch}
-    vals.push(cur.trim());return vals;
-  });
-  return{headers,rows};
-}
-function handleCSV(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=(ev)=>{
-    const data=parseCSV(ev.target.result);
-    if(!data){notify('Could not parse file');return}
-    S.csv=data;S.csvMap={};
-    data.headers.forEach((h,i)=>{
-      const hl=h.toLowerCase();
-      if(hl.includes('name')&&!hl.includes('last'))S.csvMap.Name=i;
-      else if(hl.includes('email'))S.csvMap.Email=i;
-      else if(hl.includes('interest')||hl.includes('service'))S.csvMap.Interest=i;
-      else if(hl.includes('message'))S.csvMap.Message=i;
-      else if(hl.includes('status'))S.csvMap.Status=i;
-      else if(hl.includes('submit')||hl.includes('date'))S.csvMap.Submitted_At=i;
-      else if(hl.includes('note'))S.csvMap.Notes=i;
-      else if(hl.includes('days'))S.csvMap.Days_Since_Inquiry=i;
-    });
-    S.view='import';render();
-  };
-  reader.readAsText(file);
-  e.target.value='';
-}
+// CSV
+function handleCSV(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(ev)=>{const lines=ev.target.result.split('\n').filter(l=>l.trim());if(lines.length<2){notify('Empty');return}const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));const rows=lines.slice(1).map(line=>{const v=[];let c='',q=false;for(const ch of line){if(ch==='"')q=!q;else if(ch===','&&!q){v.push(c.trim());c=''}else c+=ch}v.push(c.trim());return v});S.csv={headers,rows};S.csvMap={};headers.forEach((h,i)=>{const hl=h.toLowerCase();if(hl.includes('name')&&!hl.includes('last'))S.csvMap.Name=i;else if(hl.includes('email'))S.csvMap.Email=i;else if(hl.includes('interest')||hl.includes('service'))S.csvMap.Interest=i;else if(hl.includes('message'))S.csvMap.Message=i;else if(hl.includes('status'))S.csvMap.Status=i;else if(hl.includes('submit')||hl.includes('date'))S.csvMap.Submitted_At=i;else if(hl.includes('note'))S.csvMap.Notes=i;else if(hl.includes('days'))S.csvMap.Days_Since_Inquiry=i});S.view='import';render()};reader.readAsText(file);e.target.value=''}
 function setMap(f,v){S.csvMap[f]=v}
-function doImport(){
-  if(!S.csv)return;
-  const{rows}=S.csv;
-  const imported=rows.map(row=>{
-    const lead={id:uid(),Status:'New',Interest:'',Message:'',Notes:'',Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:'',Submitted_At:new Date().toISOString().slice(0,10),Name:'',Email:''};
-    Object.entries(S.csvMap).forEach(([f,ci])=>{if(ci!==''&&ci!==undefined)lead[f]=row[Number(ci)]||''});
-    if(lead.Days_Since_Inquiry)lead.Days_Since_Inquiry=Number(lead.Days_Since_Inquiry)||0;
-    return lead;
-  }).filter(l=>l.Name||l.Email);
-  S.leads=[...imported,...S.leads];saveL();S.csv=null;S.csvMap={};
-  go('leads');notify(imported.length+' leads imported');
-}
-function expCSV(){
-  const h=['Name','Email','Interest','Message','Submitted_At','Status','Days_Since_Inquiry','Notes','Last_Email_Date','Last_Email_Type'];
-  const rows=S.leads.map(l=>h.map(k=>{const v=(l[k]??'').toString();return v.includes(',')||v.includes('"')?'"'+v.replace(/"/g,'""')+'"':v}));
-  const csv=[h.join(','),...rows.map(r=>r.join(','))].join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lineage-studio-leads.csv';a.click();
-  notify('Exported');
-}
-async function syncLeads(){
-  if(!S.webhooks.sync){notify('Configure sync webhook in Settings');return}
-  try{
-    notify('Syncing…');
-    const r=await fetch(S.webhooks.sync);
-    const data=await r.json();
-    if(Array.isArray(data)&&data.length){
-      S.leads=data.map((r,i)=>({...r,id:'sync'+i}));saveL();
-      notify(data.length+' leads synced');render();
-    }else{notify('No data returned')}
-  }catch(e){notify('Sync failed')}
-}
-function reloadSeed(){
-  if(!confirm('Reload the original 115 leads? Current data will be replaced.'))return;
-  S.leads=SEED_DATA.map((r,i)=>({...r,id:'s'+i}));saveL();notify('Original data restored');render();
-}
-function resetAll(){
-  if(!confirm('Clear ALL leads?'))return;
-  S.leads=[];saveL();notify('Cleared');render();
-}
+function doImport(){if(!S.csv)return;const imported=S.csv.rows.map(row=>{const l={id:uid(),Status:'New',Interest:'',Message:'',Notes:'',Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:'',Submitted_At:new Date().toISOString().slice(0,10),Name:'',Email:''};Object.entries(S.csvMap).forEach(([f,ci])=>{if(ci!==''&&ci!==undefined)l[f]=row[Number(ci)]||''});if(l.Days_Since_Inquiry)l.Days_Since_Inquiry=Number(l.Days_Since_Inquiry)||0;return l}).filter(l=>l.Name||l.Email);S.leads=[...imported,...S.leads];saveL();S.csv=null;go('allleads');notify(imported.length+' imported')}
+function expCSV(){const h=['Name','Email','Interest','Message','Submitted_At','Status','Days_Since_Inquiry','Notes','Last_Email_Date','Last_Email_Type'];const rows=S.leads.map(l=>h.map(k=>{const v=(l[k]??'').toString();return v.includes(',')||v.includes('"')?'"'+v.replace(/"/g,'""')+'"':v}));const csv=[h.join(','),...rows.map(r=>r.join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lineage-studio-leads.csv';a.click();notify('Exported')}
+async function syncLeads(){if(!S.webhooks.sync){notify('Configure sync webhook');return}try{notify('Syncing…');const r=await fetch(S.webhooks.sync);const d=await r.json();if(Array.isArray(d)&&d.length){S.leads=d.map((r,i)=>({...r,id:'sync'+i}));saveL();notify(d.length+' synced');render()}else notify('No data')}catch(e){notify('Sync failed')}}
+function reloadSeed(){if(!confirm('Reload original 115 leads?'))return;S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL();notify('Restored');render()}
+function resetAll(){if(!confirm('Clear ALL?'))return;S.leads=[];saveL();notify('Cleared');render()}
 
 init();
 </script>
