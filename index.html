@@ -284,10 +284,20 @@ let S={leads:[],view:'dashboard',sel:null,editing:null,search:'',filter:'all',fi
   webhooks:loadWebhooks(),
   notif:null,nT:null};
 
+function sanitizeLeads(leads){
+  return leads.map(l=>{
+    // Trim all string fields to prevent Excel whitespace issues
+    const clean={...l};
+    ['Name','Email','Status','Interest','Last_Email_Type','Notes'].forEach(k=>{
+      if(typeof clean[k]==='string')clean[k]=clean[k].trim();
+    });
+    return clean;
+  });
+}
 function init(){
   try{const d=localStorage.getItem('tls_leads_v2');
-    if(d){S.leads=JSON.parse(d)}else{S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL()}
-  }catch(e){S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL()}
+    if(d){S.leads=sanitizeLeads(JSON.parse(d))}else{S.leads=sanitizeLeads(SEED.map((r,i)=>({...r,id:'s'+i})));saveL()}
+  }catch(e){S.leads=sanitizeLeads(SEED.map((r,i)=>({...r,id:'s'+i})));saveL()}
   render();
 }
 function saveL(){localStorage.setItem('tls_leads_v2',JSON.stringify(S.leads))}
@@ -984,9 +994,9 @@ function downloadHTML(){
 // CSV
 function handleCSV(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(ev)=>{const lines=ev.target.result.split('\n').filter(l=>l.trim());if(lines.length<2){notify('Empty');return}const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));const rows=lines.slice(1).map(line=>{const v=[];let c='',q=false;for(const ch of line){if(ch==='"')q=!q;else if(ch===','&&!q){v.push(c.trim());c=''}else c+=ch}v.push(c.trim());return v});S.csv={headers,rows};S.csvMap={};headers.forEach((h,i)=>{const hl=h.toLowerCase();if(hl.includes('name')&&!hl.includes('last'))S.csvMap.Name=i;else if(hl.includes('email'))S.csvMap.Email=i;else if(hl.includes('interest')||hl.includes('service'))S.csvMap.Interest=i;else if(hl.includes('message'))S.csvMap.Message=i;else if(hl.includes('status'))S.csvMap.Status=i;else if(hl.includes('submit')||hl.includes('date'))S.csvMap.Submitted_At=i;else if(hl.includes('note'))S.csvMap.Notes=i;else if(hl.includes('days'))S.csvMap.Days_Since_Inquiry=i});S.view='import';render()};reader.readAsText(file);e.target.value=''}
 function setMap(f,v){S.csvMap[f]=v}
-function doImport(){if(!S.csv)return;const imported=S.csv.rows.map(row=>{const l={id:uid(),Status:'New',Interest:'',Message:'',Notes:'',Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:'',Submitted_At:new Date().toISOString().slice(0,10),Name:'',Email:''};Object.entries(S.csvMap).forEach(([f,ci])=>{if(ci!==''&&ci!==undefined)l[f]=row[Number(ci)]||''});if(l.Days_Since_Inquiry)l.Days_Since_Inquiry=Number(l.Days_Since_Inquiry)||0;return l}).filter(l=>l.Name||l.Email);S.leads=[...imported,...S.leads];saveL();S.csv=null;go('allleads');notify(imported.length+' imported')}
+function doImport(){if(!S.csv)return;const imported=sanitizeLeads(S.csv.rows.map(row=>{const l={id:uid(),Status:'New',Interest:'',Message:'',Notes:'',Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:'',Submitted_At:new Date().toISOString().slice(0,10),Name:'',Email:''};Object.entries(S.csvMap).forEach(([f,ci])=>{if(ci!==''&&ci!==undefined)l[f]=row[Number(ci)]||''});if(l.Days_Since_Inquiry)l.Days_Since_Inquiry=Number(l.Days_Since_Inquiry)||0;return l}).filter(l=>l.Name||l.Email));S.leads=[...imported,...S.leads];saveL();S.csv=null;go('allleads');notify(imported.length+' imported')}
 function expCSV(){const h=['Name','Email','Interest','Message','Submitted_At','Status','Days_Since_Inquiry','Notes','Last_Email_Date','Last_Email_Type'];const rows=S.leads.map(l=>h.map(k=>{const v=(l[k]??'').toString();return v.includes(',')||v.includes('"')?'"'+v.replace(/"/g,'""')+'"':v}));const csv=[h.join(','),...rows.map(r=>r.join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lineage-studio-leads.csv';a.click();notify('Exported')}
-async function syncLeads(){if(!S.webhooks.sync){notify('Configure sync webhook');return}try{notify('Syncing…');const r=await fetch(S.webhooks.sync);const d=await r.json();if(Array.isArray(d)&&d.length){S.leads=d.map((r,i)=>({...r,id:'sync'+i}));saveL();notify(d.length+' synced');render()}else notify('No data')}catch(e){notify('Sync failed')}}
+async function syncLeads(){if(!S.webhooks.sync){notify('Configure sync webhook');return}try{notify('Syncing…');const r=await fetch(S.webhooks.sync);const d=await r.json();if(Array.isArray(d)&&d.length){S.leads=sanitizeLeads(d.map((r,i)=>({...r,id:'sync'+i})));saveL();notify(d.length+' synced');render()}else notify('No data')}catch(e){notify('Sync failed')}}
 function reloadSeed(){if(!confirm('Reload original 115 leads?'))return;S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL();notify('Restored');render()}
 function resetAll(){if(!confirm('Clear ALL?'))return;S.leads=[];saveL();notify('Cleared');render()}
 
