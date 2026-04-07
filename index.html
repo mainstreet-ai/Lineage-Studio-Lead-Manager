@@ -40,7 +40,8 @@ main{flex:1;padding:20px 24px;max-width:1400px;width:100%;margin:0 auto}
 
 /* Cards */
 .dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
-.sc{background:var(--w);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:4px solid var(--f);animation:fi .3s ease both}
+.sc{background:var(--w);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:4px solid var(--f);animation:fi .3s ease both;transition:box-shadow .15s,transform .15s}
+.sc:hover{box-shadow:var(--shm);transform:translateY(-1px)}
 .sc .lb{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--bl);font-weight:600;margin-bottom:3px}
 .sc .vl{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--bk)}
 .sc .su{font-size:10px;color:var(--bm);margin-top:2px}
@@ -321,7 +322,7 @@ function fmtDate(d){
   if(isNaN(dt.getTime()))return'—';
   return dt.toISOString().slice(0,10);
 }
-function go(v){S.view=v;S.showAdd=false;render()}
+function go(v){S.view=v;S.showAdd=false;if(v==='allleads'&&S.filter==='needAction'){S.sortCol='_nextStep';S.sortDir=1}render()}
 
 // ── NEXT STEP LOGIC ──
 function nextStep(l){
@@ -354,7 +355,7 @@ function getFiltered(){
   let list=S.leads.filter(l=>{
     const q=S.search.toLowerCase();
     const ms=!q||[l.Name,l.Email,l.Interest,l.Message,l.Notes,l.Last_Email_Type].some(f=>f&&f.toLowerCase().includes(q));
-    const mf=S.filter==='all'||l.Status===S.filter;
+    const mf=S.filter==='all'||(S.filter==='needAction'?nextStep(l).act!==null:l.Status===S.filter);
     const mt=S.filterType==='all'||
       (S.filterType==='none'&&!l.Last_Email_Type)||
       l.Last_Email_Type===S.filterType;
@@ -405,18 +406,18 @@ V.dashboard=()=>{
   let pipe='';
   for(const[k,cfg]of Object.entries(ST)){
     const items=groups[k]||[];if(!items.length)continue;
-    pipe+=`<div class="pcol"><div class="pch"><span class="sd" style="background:${cfg.c}"></span><span class="pct">${k}</span><span class="pcc">${items.length}</span></div>${items.slice(0,5).map(l=>`<div class="pi" onclick="openL('${l.id}')"><div class="pin">${esc(l.Name)}</div><div class="pis">${esc(l.Interest||'')}</div></div>`).join('')}${items.length>5?`<div style="font-size:9px;color:var(--bl);padding:2px 8px">+${items.length-5} more</div>`:''}</div>`;
+    pipe+=`<div class="pcol"><div class="pch" style="cursor:pointer" onclick="S.filter='${k}';go('allleads')"><span class="sd" style="background:${cfg.c}"></span><span class="pct">${k}</span><span class="pcc">${items.length}</span></div>${items.slice(0,5).map(l=>`<div class="pi" onclick="openL('${l.id}')"><div class="pin">${esc(l.Name)}</div><div class="pis">${esc(l.Interest||'')}</div></div>`).join('')}${items.length>5?`<div style="font-size:9px;color:var(--bl);padding:2px 8px">+${items.length-5} more</div>`:''}</div>`;
   }
   const intC={};S.leads.forEach(l=>{const k=l.Interest||'Unknown';intC[k]=(intC[k]||0)+1});
   const intS=Object.entries(intC).sort((a,b)=>b[1]-a[1]);
   return`
     <div class="dg">
-      <div class="sc" style="border-left-color:var(--f)"><div class="lb">Total Leads</div><div class="vl">${s.total}</div></div>
-      <div class="sc" style="border-left-color:#5B8C5A"><div class="lb">New</div><div class="vl">${s.New||0}</div></div>
-      <div class="sc" style="border-left-color:var(--gold)"><div class="lb">Contacted</div><div class="vl">${s.Contacted||0}</div></div>
-      <div class="sc" style="border-left-color:var(--red)"><div class="lb">Bounced</div><div class="vl">${s.Bounced||0}</div></div>
-      <div class="sc" style="border-left-color:var(--emb)"><div class="lb">Need Action</div><div class="vl">${s.needAction}</div><div class="su">leads ready for outreach</div></div>
-      <div class="sc" style="border-left-color:var(--sl)"><div class="lb">Unsubscribed</div><div class="vl">${s.Unsubscribed||0}</div></div>
+      <div class="sc" style="border-left-color:var(--f);cursor:pointer" onclick="S.filter='all';go('allleads')"><div class="lb">Total Leads</div><div class="vl">${s.total}</div></div>
+      <div class="sc" style="border-left-color:#5B8C5A;cursor:pointer" onclick="S.filter='New';go('allleads')"><div class="lb">New</div><div class="vl">${s.New||0}</div></div>
+      <div class="sc" style="border-left-color:var(--gold);cursor:pointer" onclick="S.filter='Contacted';go('allleads')"><div class="lb">Contacted</div><div class="vl">${s.Contacted||0}</div></div>
+      <div class="sc" style="border-left-color:var(--red);cursor:pointer" onclick="S.filter='Bounced';go('allleads')"><div class="lb">Bounced</div><div class="vl">${s.Bounced||0}</div></div>
+      <div class="sc" style="border-left-color:var(--emb);cursor:pointer" onclick="S.filter='needAction';go('allleads')"><div class="lb">Need Action</div><div class="vl">${s.needAction}</div><div class="su">leads ready for outreach</div></div>
+      <div class="sc" style="border-left-color:var(--sl);cursor:pointer" onclick="S.filter='Unsubscribed';go('allleads')"><div class="lb">Unsubscribed</div><div class="vl">${s.Unsubscribed||0}</div></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 280px;gap:14px">
       <div><h2 style="font-size:18px;color:var(--bk);margin-bottom:10px">Pipeline</h2><div class="pc">${pipe}</div></div>
@@ -473,7 +474,7 @@ V.allleads=()=>{
   return`
     <div class="tb">
       <div class="sw"><span class="sic">⌕</span><input class="sb" placeholder="Search leads…" value="${esc(S.search)}" oninput="S.search=this.value;render()"></div>
-      <select class="fs" onchange="S.filter=this.value;render()"><option value="all" ${S.filter==='all'?'selected':''}>All Status</option>${Object.keys(ST).map(k=>`<option value="${k}" ${S.filter===k?'selected':''}>${k}</option>`).join('')}</select>
+      <select class="fs" onchange="S.filter=this.value;render()"><option value="all" ${S.filter==='all'?'selected':''}>All Status</option><option value="needAction" ${S.filter==='needAction'?'selected':''}>⚡ Need Action</option>${Object.keys(ST).map(k=>`<option value="${k}" ${S.filter===k?'selected':''}>${k}</option>`).join('')}</select>
       <select class="fs" onchange="S.filterType=this.value;render()"><option value="all" ${S.filterType==='all'?'selected':''}>All Email Types</option><option value="none" ${S.filterType==='none'?'selected':''}>Never Emailed</option><option value="Initial Response" ${S.filterType==='Initial Response'?'selected':''}>Initial Response</option><option value="Re-Engage" ${S.filterType==='Re-Engage'?'selected':''}>Re-Engage</option><option value="Follow-Up" ${S.filterType==='Follow-Up'?'selected':''}>Follow-Up</option></select>
       <button class="btn bp" onclick="S.showAdd=!S.showAdd;render()">+ Add Lead</button>
       <button class="btn bs" onclick="document.getElementById('csv-in').click()">↑ Import</button>
