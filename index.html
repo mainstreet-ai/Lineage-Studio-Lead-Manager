@@ -284,21 +284,20 @@ let S={leads:[],view:'dashboard',sel:null,editing:null,search:'',filter:'all',fi
   webhooks:loadWebhooks(),
   notif:null,nT:null};
 
-function sanitizeLeads(leads){
-  return leads.map(l=>{
-    // Trim all string fields to prevent Excel whitespace issues
-    const clean={...l};
-    ['Name','Email','Status','Interest','Last_Email_Type','Notes'].forEach(k=>{
-      if(typeof clean[k]==='string')clean[k]=clean[k].trim();
-    });
-    return clean;
-  });
-}
 function init(){
   try{const d=localStorage.getItem('tls_leads_v2');
-    if(d){S.leads=sanitizeLeads(JSON.parse(d))}else{S.leads=sanitizeLeads(SEED.map((r,i)=>({...r,id:'s'+i})));saveL()}
-  }catch(e){S.leads=sanitizeLeads(SEED.map((r,i)=>({...r,id:'s'+i})));saveL()}
+    if(d){S.leads=JSON.parse(d)}else{S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL()}
+  }catch(e){S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL()}
   render();
+  // Auto-sync from Excel on page load
+  if(S.webhooks.sync){
+    fetch(S.webhooks.sync).then(r=>r.json()).then(d=>{
+      if(Array.isArray(d)&&d.length){
+        S.leads=sanitizeLeads(d.map((r,i)=>({...r,id:'sync'+i})));
+        saveL();notify('\u2705 Auto-synced '+d.length+' leads from Excel');render();
+      }
+    }).catch(()=>{});
+  }
 }
 function saveL(){localStorage.setItem('tls_leads_v2',JSON.stringify(S.leads))}
 function saveK(){localStorage.setItem('tls_api_key',S.apiKey);setKeyInHash(S.apiKey)}
@@ -667,7 +666,7 @@ V.bulkreply=()=>{
         <h3 style="margin-bottom:8px">${q.length} leads ready</h3>
         <p style="font-size:12px;color:var(--bl);margin-bottom:16px">Choose a template, then generate all emails at once.<br>You'll review each one before sending.</p>
         <button class="btn bp" onclick="brGenAll()" ${S.isGen?'disabled':''}>${S.isGen?`⟳ Generating… (${genCount}/${q.length})`:`⚡ Generate All ${q.length} Emails`}</button>
-        ${!S.apiKey?`<p style="font-size:10px;color:var(--red);margin-top:10px">⚠ Set your API key in Settings to generate emails.</p>`:''}
+        ${!S.apiKey&&!S.webhooks.emailGen?`<p style="font-size:10px;color:var(--red);margin-top:10px">⚠ Set API key or webhook in Settings first.</p>`:''}
       </div>`;
   } else if(S.isGen){
     // Currently generating
@@ -820,18 +819,21 @@ function bulkReply(){
   S.bulkQueue=sel;S.bulkIdx=0;S.bulkEmails=[];S.bulk.clear();S.cLead=sel[0];S.genEmail='';S.genSubj='';S.view='bulkreply';render();
 }
 async function brGenAll(){
-  if(!S.apiKey){notify('Set API key in Settings');return}
+  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set API key or webhook');return}
   S.isGen=true;S.bulkEmails=S.bulkQueue.map(()=>({body:'',subject:'',sent:false}));render();
   for(let i=0;i<S.bulkQueue.length;i++){
     const lead=S.bulkQueue[i];
     try{
+      if(S.webhooks.emailGen){
+        const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:ETYPES[S.tpl].label})});
+        const d=await r.json();S.bulkEmails[i]={body:d.email||d.body||d.text||'',subject:d.subject||'',sent:false};render();continue;
+      }
       const offerTxt={none:'',"10off":'Include a special offer: 10% off any service.',freepage:'Include a special offer: a free sample page.',consultation:'Include a special offer: a free discovery call.',custom:'Include a special offer placeholder: [INSERT YOUR CUSTOM OFFER HERE].'}[S.promoOffer]||'';
-      const promoCtx={newsletter:'a monthly newsletter',holiday:'a holiday/family reunion season promotional email',newservices:'a new services announcement email'}[S.promoTpl]||'a promotional email';
       const P={
-        initial:`Write a warm FIRST-EVER response from Liane at The Lineage Studio to ${lead.Name}. This is the very first time you are contacting this person — they just submitted an inquiry. They are interested in "${lead.Interest||'genealogy services'}" and their message was: "${lead.Message||''}". Welcome them, thank them for reaching out, acknowledge their specific interest, briefly explain what The Lineage Studio does, and invite them to reply or schedule a free consultation. 3-4 short paragraphs. Do NOT reference any previous emails or conversations — this is first contact.`,
+        initial:`Write a warm first response from Liane at The Lineage Studio to ${lead.Name}. They inquired about "${lead.Interest||'genealogy services'}" and said: "${lead.Message||''}". Thank them, acknowledge their interest, explain what TLS can do, invite a free consultation. 3-4 short paragraphs.`,
         reengage:`Write a warm re-engagement email from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'} (${lead.Days_Since_Inquiry||'many'} days ago). Reference preserving family history. 3-4 paragraphs.`,
         followup:`Write a friendly follow-up from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'}. Check timeline, move toward consultation. 2-3 paragraphs.`,
-        promo:`Write the body text for ${promoCtx} from Liane at The Lineage Studio to ${lead.Name}. Interest: "${lead.Interest||'Family History Book'}". Warm greeting, genealogy tip, highlight their service interest. ${offerTxt} Close warmly. 4-5 paragraphs. Just the letter content, no formatting.`,
+        promo:`Write a promotional newsletter-style email from Liane at The Lineage Studio to ${lead.Name}. Interest: "${lead.Interest||'Family History Book'}". Warm greeting, genealogy tip, highlight their service interest, mention custom-designed books. ${offerTxt} Soft CTA to reply or book a call. Website: lineagestudio.org. 4-5 paragraphs.`,
       };
       const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:P[S.tpl]+'\n\nReturn ONLY the email body. No subject, no markdown. Start with greeting.'}]})});
       const d=await r.json();const body=d.content?.map(c=>c.text||'').join('')||'Error.';
@@ -869,7 +871,7 @@ async function brSendOneN8n(idx){
   if(!l||!em?.body){notify('No email to send');return}
   const htmlBody=(S.tpl==='promo')?buildHTMLEmail(S.promoTpl,{name:l.Name,body:em.body,offer:S.promoOffer,subject:em.subject}):'';
   try{
-    await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:l.Email,name:l.Name,subject:em.subject||'',body:em.body,htmlBody,emailType:ETYPES[S.tpl]?.label||'',interest:l.Interest||''})});
+    await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:l.Email,name:l.Name,subject:em.subject||'',body:em.body,htmlBody,emailType:ETYPES[S.tpl]?.label||'',email_type:ETYPES[S.tpl]?.label||'',new_status:'Contacted',interest:l.Interest||''})});
     brMarkOne(idx);
     notify('Sent to '+l.Name);
   }catch(e){notify('Send failed')}
@@ -904,6 +906,8 @@ async function sendViaWebhook(){
     body:S.genEmail||'',
     htmlBody:S.genHTML||'',
     emailType:ETYPES[S.tpl]?.label||'',
+    email_type:ETYPES[S.tpl]?.label||'',
+    new_status:'Contacted',
     interest:S.cLead.Interest||'',
     leadId:S.cLead.id
   };
@@ -927,7 +931,7 @@ async function brSendAllN8n(){
     const htmlBody=(S.tpl==='promo')?buildHTMLEmail(S.promoTpl,{name:l.Name,body:em.body,offer:S.promoOffer,subject:em.subject}):'';
     const payload={
       to:l.Email,name:l.Name,subject:em.subject||'',body:em.body,
-      htmlBody,emailType:ETYPES[S.tpl]?.label||'',interest:l.Interest||'',leadId:l.id
+      htmlBody,emailType:ETYPES[S.tpl]?.label||'',email_type:ETYPES[S.tpl]?.label||'',new_status:'Contacted',interest:l.Interest||'',leadId:l.id
     };
     try{
       await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -946,14 +950,15 @@ async function brSendAllN8n(){
 // AI Email Gen
 async function genEmail(){
   const lead=S.cLead;if(!lead){notify('Select a lead');return}
-  if(!S.apiKey){notify('Set API key in Settings');return}
+  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set API key or webhook');return}
   S.isGen=true;S.genEmail='';S.genSubj='';S.genHTML='';render();
+  if(S.webhooks.emailGen){try{const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:ETYPES[S.tpl].label})});const d=await r.json();S.genEmail=d.email||d.body||d.text||JSON.stringify(d);S.genSubj=d.subject||'';if(S.tpl==='promo')S.genHTML=buildHTMLEmail(S.promoTpl,{name:lead.Name,body:S.genEmail,offer:S.promoOffer,subject:S.genSubj});S.isGen=false;render();return}catch(e){}}
   const offerText={none:'',"10off":'Include a special offer: 10% off any service for a limited time.',freepage:'Include a special offer: a free sample page so they can see the quality before committing.',consultation:'Include a special offer: a free 20-minute discovery call to plan their project.',custom:'Include a special offer placeholder: [INSERT YOUR CUSTOM OFFER HERE].'}[S.promoOffer]||'';
   const promoContext={newsletter:'a monthly newsletter',holiday:'a holiday/family reunion season promotional email — reference the season, family gatherings, and the gift of preserving memories',newservices:'a new services announcement email — introduce new offerings with excitement'}[S.promoTpl]||'a promotional email';
   const P={
-    initial:`Write a warm FIRST-EVER response from Liane at The Lineage Studio to ${lead.Name}. This is the very first time you are contacting this person — they just submitted an inquiry. They are interested in "${lead.Interest||'genealogy services'}" and their message was: "${lead.Message||''}". Welcome them warmly, thank them for reaching out, acknowledge their specific interest and what they said, briefly explain what The Lineage Studio does (transforms family trees, records, and photos into beautiful family history books and keepsakes), and invite them to reply or schedule a free consultation. 3-4 short paragraphs. Warm, personal, excited to help. Do NOT reference any previous emails, calls, or conversations — this is first contact.`,
-    reengage:`Write a warm re-engagement email from Liane at The Lineage Studio to ${lead.Name}. They previously showed interest in ${lead.Interest||'genealogy services'} (${lead.Days_Since_Inquiry||'many'} days ago) but haven't responded. Reference the value of preserving family history before memories are lost. Warm, not salesy. 3-4 paragraphs.`,
-    followup:`Write a friendly follow-up from Liane at The Lineage Studio to ${lead.Name}. They're interested in ${lead.Interest||'genealogy services'}. Check in on their timeline, answer any questions they might have, gently move toward scheduling a consultation. 2-3 paragraphs.`,
+    initial:`Write a warm first response from Liane at The Lineage Studio to ${lead.Name}. They inquired about "${lead.Interest||'genealogy services'}" and said: "${lead.Message||''}". Thank them, acknowledge their interest, explain what TLS can do, invite a free consultation. 3-4 short paragraphs. Warm and personal.`,
+    reengage:`Write a warm re-engagement email from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'} (${lead.Days_Since_Inquiry||'many'} days ago). Reference preserving family history. Warm, not salesy. 3-4 paragraphs.`,
+    followup:`Write a friendly follow-up from Liane at The Lineage Studio to ${lead.Name}. Interest: ${lead.Interest||'genealogy services'}. Check timeline, answer questions, move toward consultation. 2-3 paragraphs.`,
     promo:`Write the body text for ${promoContext} from Liane at The Lineage Studio to ${lead.Name}. Their interest: "${lead.Interest||'Family History Book'}". Open with a warm personal greeting using their first name. Include a genealogy tip or seasonal insight. Highlight their service interest and its emotional/legacy value. ${offerText} Close warmly as Liane. Keep it personal and conversational, not corporate. 4-5 paragraphs. Do NOT include services lists, headers, or formatting — the HTML template handles that. Just the personal letter content.`,
   };
   try{
@@ -990,9 +995,9 @@ function downloadHTML(){
 // CSV
 function handleCSV(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(ev)=>{const lines=ev.target.result.split('\n').filter(l=>l.trim());if(lines.length<2){notify('Empty');return}const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));const rows=lines.slice(1).map(line=>{const v=[];let c='',q=false;for(const ch of line){if(ch==='"')q=!q;else if(ch===','&&!q){v.push(c.trim());c=''}else c+=ch}v.push(c.trim());return v});S.csv={headers,rows};S.csvMap={};headers.forEach((h,i)=>{const hl=h.toLowerCase();if(hl.includes('name')&&!hl.includes('last'))S.csvMap.Name=i;else if(hl.includes('email'))S.csvMap.Email=i;else if(hl.includes('interest')||hl.includes('service'))S.csvMap.Interest=i;else if(hl.includes('message'))S.csvMap.Message=i;else if(hl.includes('status'))S.csvMap.Status=i;else if(hl.includes('submit')||hl.includes('date'))S.csvMap.Submitted_At=i;else if(hl.includes('note'))S.csvMap.Notes=i;else if(hl.includes('days'))S.csvMap.Days_Since_Inquiry=i});S.view='import';render()};reader.readAsText(file);e.target.value=''}
 function setMap(f,v){S.csvMap[f]=v}
-function doImport(){if(!S.csv)return;const imported=sanitizeLeads(S.csv.rows.map(row=>{const l={id:uid(),Status:'New',Interest:'',Message:'',Notes:'',Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:'',Submitted_At:new Date().toISOString().slice(0,10),Name:'',Email:''};Object.entries(S.csvMap).forEach(([f,ci])=>{if(ci!==''&&ci!==undefined)l[f]=row[Number(ci)]||''});if(l.Days_Since_Inquiry)l.Days_Since_Inquiry=Number(l.Days_Since_Inquiry)||0;return l}).filter(l=>l.Name||l.Email));S.leads=[...imported,...S.leads];saveL();S.csv=null;go('allleads');notify(imported.length+' imported')}
+function doImport(){if(!S.csv)return;const imported=S.csv.rows.map(row=>{const l={id:uid(),Status:'New',Interest:'',Message:'',Notes:'',Days_Since_Inquiry:0,Last_Email_Date:'',Last_Email_Type:'',Submitted_At:new Date().toISOString().slice(0,10),Name:'',Email:''};Object.entries(S.csvMap).forEach(([f,ci])=>{if(ci!==''&&ci!==undefined)l[f]=row[Number(ci)]||''});if(l.Days_Since_Inquiry)l.Days_Since_Inquiry=Number(l.Days_Since_Inquiry)||0;return l}).filter(l=>l.Name||l.Email);S.leads=[...imported,...S.leads];saveL();S.csv=null;go('allleads');notify(imported.length+' imported')}
 function expCSV(){const h=['Name','Email','Interest','Message','Submitted_At','Status','Days_Since_Inquiry','Notes','Last_Email_Date','Last_Email_Type'];const rows=S.leads.map(l=>h.map(k=>{const v=(l[k]??'').toString();return v.includes(',')||v.includes('"')?'"'+v.replace(/"/g,'""')+'"':v}));const csv=[h.join(','),...rows.map(r=>r.join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lineage-studio-leads.csv';a.click();notify('Exported')}
-async function syncLeads(){if(!S.webhooks.sync){notify('Configure sync webhook');return}try{notify('Syncing…');const r=await fetch(S.webhooks.sync);const d=await r.json();if(Array.isArray(d)&&d.length){S.leads=sanitizeLeads(d.map((r,i)=>({...r,id:'sync'+i})));saveL();notify(d.length+' synced');render()}else notify('No data')}catch(e){notify('Sync failed')}}
+async function syncLeads(){if(!S.webhooks.sync){notify('Configure sync webhook');return}try{notify('Syncing…');const r=await fetch(S.webhooks.sync);const d=await r.json();if(Array.isArray(d)&&d.length){S.leads=d.map((r,i)=>({...r,id:'sync'+i}));saveL();notify(d.length+' synced');render()}else notify('No data')}catch(e){notify('Sync failed')}}
 function reloadSeed(){if(!confirm('Reload original 115 leads?'))return;S.leads=SEED.map((r,i)=>({...r,id:'s'+i}));saveL();notify('Restored');render()}
 function resetAll(){if(!confirm('Clear ALL?'))return;S.leads=[];saveL();notify('Cleared');render()}
 
