@@ -820,15 +820,13 @@ function bulkReply(){
   S.bulkQueue=sel;S.bulkIdx=0;S.bulkEmails=[];S.bulk.clear();S.cLead=sel[0];S.genEmail='';S.genSubj='';S.view='bulkreply';render();
 }
 async function brGenAll(){
-  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set API key or webhook');return}
+  if(!S.apiKey){notify('Set API key in Settings');return}
   S.isGen=true;S.bulkEmails=S.bulkQueue.map(()=>({body:'',subject:'',sent:false}));render();
   for(let i=0;i<S.bulkQueue.length;i++){
     const lead=S.bulkQueue[i];
     try{
-      if(S.webhooks.emailGen){
-        const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:ETYPES[S.tpl].label})});
-        const d=await r.json();S.bulkEmails[i]={body:d.email||d.body||d.text||'',subject:d.subject||'',sent:false};render();continue;
-      }
+      // Webhook generation removed — always use direct Anthropic API
+    
       const offerTxt={none:'',"10off":'Include a special offer: 10% off any service.',freepage:'Include a special offer: a free sample page.',consultation:'Include a special offer: a free discovery call.',custom:'Include a special offer placeholder: [INSERT YOUR CUSTOM OFFER HERE].'}[S.promoOffer]||'';
       const P={
         initial:`Write a warm first response from Liane at The Lineage Studio to ${lead.Name}. They inquired about "${lead.Interest||'genealogy services'}" and said: "${lead.Message||''}". Thank them, acknowledge their interest, explain what TLS can do, invite a free consultation. 3-4 short paragraphs.`,
@@ -951,9 +949,9 @@ async function brSendAllN8n(){
 // AI Email Gen
 async function genEmail(){
   const lead=S.cLead;if(!lead){notify('Select a lead');return}
-  if(!S.apiKey&&!S.webhooks.emailGen){notify('Set API key or webhook');return}
+  if(!S.apiKey){notify('Set API key in Settings');return}
   S.isGen=true;S.genEmail='';S.genSubj='';S.genHTML='';render();
-  if(S.webhooks.emailGen){try{const r=await fetch(S.webhooks.emailGen,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead,emailType:ETYPES[S.tpl].label})});const d=await r.json();S.genEmail=d.email||d.body||d.text||JSON.stringify(d);S.genSubj=d.subject||'';if(S.tpl==='promo')S.genHTML=buildHTMLEmail(S.promoTpl,{name:lead.Name,body:S.genEmail,offer:S.promoOffer,subject:S.genSubj});S.isGen=false;render();return}catch(e){}}
+  // Webhook generation removed — always use direct Anthropic API
   const offerText={none:'',"10off":'Include a special offer: 10% off any service for a limited time.',freepage:'Include a special offer: a free sample page so they can see the quality before committing.',consultation:'Include a special offer: a free 20-minute discovery call to plan their project.',custom:'Include a special offer placeholder: [INSERT YOUR CUSTOM OFFER HERE].'}[S.promoOffer]||'';
   const promoContext={newsletter:'a monthly newsletter',holiday:'a holiday/family reunion season promotional email — reference the season, family gatherings, and the gift of preserving memories',newservices:'a new services announcement email — introduce new offerings with excitement'}[S.promoTpl]||'a promotional email';
   const P={
